@@ -45,11 +45,20 @@ So far the calculation we've come up is:
 Punishable factor is dominance factor:
      Red dominance - Blue dominance
 
-Domainance factor calculation:
+Dominance factor calculation:
      for each adjacent opposing clusters:
          RED:(Balance of cluster size & cluster total power) - BLUE:(same)
   
 Balance of cluster size & cluster total power:
      Probably just do the same as the cluster size and number of clusters balance thing.
      But it is even less desirable to have great values in small clusters in this case.
+
+
+To run the program within Pycharm IDE:
+  1. Edit Configuration
+  2. Choose Target to run -> Module name -> "referee"
+  3. Parameters: agent agent -s -t (-v if verbose)
+  4. Working directory: .../AI-part-B/
+     NOTE: not .../AI-part-B/referee
+  5. Tick "Emulate terminal in output console"
 

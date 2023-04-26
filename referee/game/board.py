@@ -74,8 +74,7 @@ class Board:
     def __init__(self, initial_state=None):
         if initial_state is None:
             initial_state = {}
-        self._state: dict[HexPos, CellState] = \
-            defaultdict(lambda: CellState(None, 0))
+        self._state: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PlayerColor.RED
         self._history: list[BoardMutation] = []
@@ -151,7 +150,7 @@ class Board:
                     color = "r" if color == PlayerColor.RED else "b"
                     text = f"{color}{power}".center(4)
                     if use_color:
-                        output += apply_ansi(text, ansi_color=color, bold=False)
+                        output += apply_ansi(text, ansi_color=color, bold=True)
                     else:
                         output += text
                 else:
