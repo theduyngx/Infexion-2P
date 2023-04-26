@@ -75,7 +75,8 @@ class Board:
         """
         Return the state of a cell on the board.
         """
-        # assert cell in self._state
+        # if cell in self._state:
+        #     pass
         return self._state[cell]
 
     def apply_action(self, action: Action, concrete=True):

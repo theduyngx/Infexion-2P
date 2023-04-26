@@ -48,7 +48,7 @@ class Agent:
             case PlayerColor.RED:
                 return SpreadAction(HexPos(3, 3), HexDir.UpRight)
             case PlayerColor.BLUE:
-                return SpreadAction(HexPos(5, 3), HexDir.Up)
+                return SpreadAction(HexPos(5, 3), HexDir.DownLeft)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

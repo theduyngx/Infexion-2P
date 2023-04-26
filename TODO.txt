@@ -62,3 +62,10 @@ To run the program within Pycharm IDE:
      NOTE: not .../AI-part-B/referee
   5. Tick "Emulate terminal in output console"
 
+Space remaining UNIX issue:
+  - Go to agent/board.py
+  - Go to __getitem__ method in Board class
+  - Every time space remaining stops appearing, comment in/out the piece of code:
+        if cell in self._state:
+            pass
+    For whatever reason, this piece of code could make the space remaining re-appears.
