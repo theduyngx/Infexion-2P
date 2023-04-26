@@ -9,8 +9,8 @@ from typing import Any
 
 from ..log import NullLogger, LogStream
 from .resources import ResourceLimitException
-from .io import AsyncProcessStatus, m_pickle, m_unpickle, \
-    _SUBPROC_MODULE, _ACK, _REPLY_OK, _REPLY_EXC
+from .io import AsyncProcessStatus, m_pickle, m_unpickle, _SUBPROC_MODULE, _ACK, \
+    _REPLY_EXC, _REPLY_OK
 
 
 class WrappedProcessException(Exception):
@@ -22,26 +22,27 @@ class WrappedProcessException(Exception):
 # the subprocess. Exceptions are also forwarded back to the parent process. 
 
 class RemoteProcessClassClient:
-
     def __init__(self,
-                 pkg: str, cls: str,
-                 time_limit: float | None, space_limit: float | None,
-                 recv_timeout: float,  # Hard timeout (s) for receiving a reply
+                 pkg          : str,
+                 cls          : str,
+                 time_limit   : float | None,
+                 space_limit  : float | None,
+                 recv_timeout : float,  # Hard timeout (s) for receiving a reply
                  *cons_args,
-                 log: LogStream = NullLogger(),
+                 log          : LogStream = NullLogger(),
                  **cons_kwargs
                  ):
-        self._pkg = pkg
-        self._cls = cls
-        self._time_limit = time_limit
-        self._space_limit = space_limit
+        self._pkg          = pkg
+        self._cls          = cls
+        self._time_limit   = time_limit
+        self._space_limit  = space_limit
         self._recv_timeout = recv_timeout
-        self._log = log
-        self._cons_args = cons_args
-        self._cons_kwargs = cons_kwargs
-        self._proc: Process | None = None
-        self._status: AsyncProcessStatus | None = None
-        self._killed: bool = False
+        self._log          = log
+        self._cons_args    = cons_args
+        self._cons_kwargs  = cons_kwargs
+        self._proc         : Process | None = None
+        self._status       : AsyncProcessStatus | None = None
+        self._killed       : bool = False
 
     @property
     def pid(self) -> int:
@@ -65,8 +66,7 @@ class RemoteProcessClassClient:
             )
         except AIOTimeoutError as e:
             # Process hasn't replied for a long time, kill it
-            self._log.debug(
-                f"reply not received within {self._recv_timeout}s!")
+            self._log.debug(f"reply not received within {self._recv_timeout}s!")
             await self._kill()
             raise ResourceLimitException(
                 f"subprocess message recv time limit "
@@ -82,7 +82,7 @@ class RemoteProcessClassClient:
         assert self._proc is not None
 
         status, *args = reply
-        self._status = status
+        self._status  = status
         match args:
             case (_REPLY_EXC, ResourceLimitException() as e, _):
                 raise e
@@ -91,7 +91,7 @@ class RemoteProcessClassClient:
                     f"exception in process: {self._proc.pid}\n",
                     {
                         "exception_type": e.__class__.__name__,
-                        "exception_msg": str(e),
+                        "exception_msg" : str(e),
                         "stacktrace_str": stacktrace_str,
                     }
                 )
@@ -120,10 +120,13 @@ class RemoteProcessClassClient:
     async def __aenter__(self):
         # Start subprocess
         self._proc = await create_subprocess_exec(
-            sys.executable, "-m", _SUBPROC_MODULE,
+            sys.executable, "-m",
+            _SUBPROC_MODULE,
             m_pickle((
-                self._pkg, self._cls,
-                self._time_limit, self._space_limit,
+                self._pkg,
+                self._cls,
+                self._time_limit,
+                self._space_limit,
                 self._cons_args,
                 self._cons_kwargs
             )),
@@ -155,7 +158,7 @@ class RemoteProcessClassClient:
         assert self._proc.stdin is not None
 
         if exc_type is not None:
-            self._log.debug(f"an exception occured!")
+            self._log.debug(f"an exception occurred!")
 
         if not self._killed:
             # Gracefully end process by writing EOF to stdin

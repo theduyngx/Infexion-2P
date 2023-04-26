@@ -30,13 +30,14 @@ def main(options: Namespace | None = None):
     assert options is not None
 
     # Log config
-    LogStream.set_global_setting("level",
-                                 [
-                                     LogLevel.CRITICAL,
-                                     LogLevel.INFO,
-                                     LogLevel.INFO,
-                                     LogLevel.DEBUG,
-                                 ][options.verbosity])
+    LogStream.set_global_setting(
+        "level",
+        [
+            LogLevel.CRITICAL,
+            LogLevel.INFO,
+            LogLevel.INFO,
+            LogLevel.DEBUG,
+        ][options.verbosity])
     LogStream.set_global_setting("ansi", options.use_colour)
     LogStream.set_global_setting("unicode", options.use_unicode)
 
@@ -114,7 +115,7 @@ def main(options: Namespace | None = None):
             ]
 
             return await run_game(
-                players=[p for p in agents.keys()],
+                players=[player for player in agents.keys()],
                 event_handlers=event_handlers,
             )
 
@@ -125,13 +126,11 @@ def main(options: Namespace | None = None):
             rl.critical("result: draw")
         else:
             rl.critical(f"result: {agents[result]['name']}")
-
         exit(0)
 
     except KeyboardInterrupt:
         rl.info()  # (end the line)
         rl.info("KeyboardInterrupt: bye!")
-
         rl.critical("result: <interrupt>")
         os.kill(os.getpid(), 9)
 
@@ -144,6 +143,5 @@ def main(options: Namespace | None = None):
         rl.critical(
             f">> Please report this error to the course staff, including\n"
             f">> the trigger and the above stack trace.")
-
         rl.critical(f"result: <error>")
         exit(1)
