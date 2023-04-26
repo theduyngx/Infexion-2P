@@ -9,13 +9,13 @@ from typing import Any, Callable
 # Define simple logging utility/helpers for the referee.
 
 class LogColor(Enum):
-    RED = "\033[31m"
-    GREEN = "\033[32m"
-    YELLOW = "\033[33m"
-    BLUE = "\033[34m"
-    MAGENTA = "\033[35m"
-    CYAN = "\033[36m"
-    WHITE = "\033[37m"
+    RED       = "\033[31m"
+    GREEN     = "\033[32m"
+    YELLOW    = "\033[33m"
+    BLUE      = "\033[34m"
+    MAGENTA   = "\033[35m"
+    CYAN      = "\033[36m"
+    WHITE     = "\033[37m"
     RESET_ALL = "\033[0m"
 
     def __str__(self):
@@ -26,10 +26,10 @@ class LogColor(Enum):
 
 
 class LogLevel(Enum):
-    DEBUG = 0
-    INFO = 1
-    WARNING = 2
-    ERROR = 3
+    DEBUG    = 0
+    INFO     = 1
+    WARNING  = 2
+    ERROR    = 3
     CRITICAL = 4
 
     def __int__(self):
@@ -52,26 +52,27 @@ class LogStream:
     _start_time = None
     _max_namespace_length = 0
     _global_settings = {
-        "level": LogLevel.DEBUG,
-        "handlers": [print],
-        "ansi": True,
-        "unicode": True,
-        "color": LogColor.RESET_ALL,
-        "output_time": False,
-        "output_namespace": True,
-        "output_level": True,
+        "level"            : LogLevel.DEBUG,
+        "handlers"         : [print],
+        "ansi"             : True,
+        "unicode"          : True,
+        "color"            : LogColor.RESET_ALL,
+        "output_time"      : False,
+        "output_namespace" : True,
+        "output_level"     : True,
     }
 
-    def __init__(self, 
-        namespace: str, 
-        color: LogColor|None = None, 
-        level: LogLevel|None = None,
-        handlers: list[Callable]|None = None,
-        unicode: bool|None = None,
-        ansi: bool|None = None,
-        output_time: bool|None = None,
-        output_namespace: bool|None = None,
-        output_level: bool|None = None,
+    def __init__(
+            self,
+            namespace        : str,
+            color            : LogColor | None = None,
+            level            : LogLevel | None = None,
+            handlers         : list[Callable] | None = None,
+            unicode          : bool | None = None,
+            ansi             : bool | None = None,
+            output_time      : bool | None = None,
+            output_namespace : bool | None = None,
+            output_level     : bool | None = None,
     ):
 
         self._namespace = namespace
@@ -93,7 +94,7 @@ class LogStream:
             self._output_level = output_level
 
         # Consistent start time for all log streams
-        LogStream._start_time = LogStream._start_time or time() 
+        LogStream._start_time = LogStream._start_time or time()
 
         # Consistent namespace length for all log streams
         LogStream._max_namespace_length = max(
@@ -108,7 +109,7 @@ class LogStream:
     def setting(self, key: str) -> Any:
         # Return local settings if they exist, otherwise return global settings
         return getattr(self, f"_{key}", LogStream._global_settings[key])
-    
+
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
         message_lines = message.splitlines()
         for line in message_lines:
@@ -123,7 +124,6 @@ class LogStream:
         # Optionally strip unicode symbols
         if not self.setting("unicode"):
             message = message.encode("ascii", "ignore").decode()
-
         for handler in self.setting("handlers"):
             handler(message)
 
@@ -138,7 +138,7 @@ class LogStream:
     def warning(self, message=""):
         if self.setting("level") <= LogLevel.WARNING:
             self.log(message, LogLevel.WARNING)
-    
+
     def error(self, message=""):
         if self.setting("level") <= LogLevel.ERROR:
             self.log(message, LogLevel.ERROR)
@@ -150,20 +150,17 @@ class LogStream:
     def _s_time(self) -> str:
         if not self.setting("output_time"):
             return ""
-
         update_time = time() - (LogStream._start_time or 0)
         return f"T{update_time:06.2f} "
 
     def _s_namespace(self) -> str:
         if not self.setting("output_namespace"):
             return ""
-
         return f"* {self._namespace:<{LogStream._max_namespace_length}} "
 
-    def _s_level(self, level = LogLevel.INFO) -> str:
+    def _s_level(self, level=LogLevel.INFO) -> str:
         if not self.setting("output_level"):
             return ""
-
         return {
             LogLevel.DEBUG: "~",
             LogLevel.INFO: ":",
@@ -175,14 +172,13 @@ class LogStream:
     def _s_color_start(self) -> str:
         if not self.setting("ansi"):
             return ""
-
         return f"{self.setting('color')}"
 
     def _s_color_end(self) -> str:
         if not self.setting("ansi"):
             return ""
-
         return f"{LogColor.RESET_ALL}"
+
 
 class NullLogger(LogStream):
     def __init__(self):

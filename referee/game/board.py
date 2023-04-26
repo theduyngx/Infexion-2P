@@ -11,12 +11,11 @@ from .exceptions import IllegalActionException
 from .constants import *
 
 
-# The CellState class is used to represent the state of a single cell on the
-# game board.
+# The CellState class is used to represent the state of a single cell on the game board.
 
 @dataclass(frozen=True, slots=True)
 class CellState:
-    player: PlayerColor|None = None
+    player: PlayerColor | None = None
     power: int = 0
 
     def __post_init__(self):
@@ -26,7 +25,7 @@ class CellState:
 
     def __str__(self):
         return f"CellState({self.player}, {self.power})"
-    
+
     def __iter__(self):
         yield self.player
         yield self.power
@@ -66,13 +65,13 @@ class BoardMutation:
 
 class Board:
     __slots__ = [
-        "_mutable", 
-        "_state", 
-        "_turn_color", 
+        "_mutable",
+        "_state",
+        "_turn_color",
         "_history"
     ]
 
-    def __init__(self, initial_state: dict[HexPos, CellState]={}):
+    def __init__(self, initial_state: dict[HexPos, CellState] = {}):
         self._state: dict[HexPos, CellState] = \
             defaultdict(lambda: CellState(None, 0))
         self._state.update(initial_state)
@@ -120,12 +119,13 @@ class Board:
             self._state[mutation.cell] = mutation.prev
         self._turn_color = self._turn_color.opponent
 
-    def render(self, use_color: bool=False, use_unicode: bool=False) -> str:
+    def render(self, use_color: bool = False, use_unicode: bool = False) -> str:
         """
         Return a visualisation of the game board via a multiline string. The
         layout corresponds to the axial coordinate system as described in the
         game specification document.
         """
+
         def apply_ansi(str, bold=True, color=None):
             # Helper function to apply ANSI color codes
             bold_code = "\033[1m" if bold else ""
@@ -157,7 +157,7 @@ class Board:
                 output += "    "
             output += "\n"
         return output
-    
+
     @property
     def turn_count(self) -> int:
         """
@@ -171,21 +171,21 @@ class Board:
         The player (color) whose turn it is.
         """
         return self._turn_color
-    
+
     @property
     def game_over(self) -> bool:
         """
         True iff the game is over.
         """
-        if self.turn_count < 2: 
+        if self.turn_count < 2:
             return False
-        
+
         return any([
             self.turn_count >= MAX_TURNS,
             self._color_power(PlayerColor.RED) == 0,
             self._color_power(PlayerColor.BLUE) == 0
         ])
-    
+
     @property
     def winner_color(self) -> PlayerColor | None:
         """
@@ -193,22 +193,22 @@ class Board:
         """
         if not self.game_over:
             return None
-        
+
         red_power = self._color_power(PlayerColor.RED)
         blue_power = self._color_power(PlayerColor.BLUE)
 
         if abs(red_power - blue_power) < WIN_POWER_DIFF:
             return None
-        
+
         return (PlayerColor.RED, PlayerColor.BLUE)[red_power < blue_power]
-    
+
     @property
     def _total_power(self) -> int:
         """
         The total power of all cells on the board.
         """
         return sum(map(lambda cell: cell.power, self._state.values()))
-    
+
     def _player_cells(self, color: PlayerColor) -> list[CellState]:
         return list(filter(
             lambda cell: cell.player == color,
@@ -217,11 +217,11 @@ class Board:
 
     def _color_power(self, color: PlayerColor) -> int:
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
-    
+
     def _within_bounds(self, coord: HexPos) -> bool:
         r, q = coord
         return 0 <= r < BOARD_N and 0 <= q < BOARD_N
-    
+
     def _cell_occupied(self, coord: HexPos) -> bool:
         return self._state[coord].power > 0
 
@@ -255,9 +255,9 @@ class Board:
 
         cell = action.cell
 
-        if (self._total_power >= MAX_TOTAL_POWER):
+        if self._total_power >= MAX_TOTAL_POWER:
             raise IllegalActionException(
-                f"Total board power max reached ({MAX_TOTAL_POWER})", 
+                f"Total board power max reached ({MAX_TOTAL_POWER})",
                 self._turn_color)
 
         if self._cell_occupied(cell):
@@ -266,8 +266,9 @@ class Board:
 
         return BoardMutation(
             action,
-            cell_mutations={CellMutation(cell, self._state[cell], 
-                                         CellState(self._turn_color, 1)
+            cell_mutations={CellMutation(
+                cell, self._state[cell],
+                CellState(self._turn_color, 1)
             )},
         )
 
@@ -290,12 +291,11 @@ class Board:
         return BoardMutation(
             action,
             cell_mutations={
-                # Remove token stack from source cell.
-                CellMutation(from_cell, self[from_cell], CellState()),
+               # Remove token stack from source cell.
+               CellMutation(from_cell, self[from_cell], CellState()),
             } | {
-                # Add token stack to destination cells.
-                CellMutation(to_cell, self[to_cell], 
-                    CellState(action_player, self[to_cell].power + 1)
-                ) for to_cell in to_cells
+               # Add token stack to destination cells.
+               CellMutation(to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
+                            ) for to_cell in to_cells
             }
         )

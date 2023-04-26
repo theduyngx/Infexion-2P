@@ -1,7 +1,6 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
-
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir, GameUpdate, BoardUpdate
 
 
 # This is the entry point for your game playing agent. Currently, the agent
@@ -9,6 +8,19 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos,
 # spreads a token at the centre of the board if playing as BLUE. This is
 # intended to serve as an example of how to use the referee API -- obviously
 # this is not a valid strategy for actually playing the game!
+
+def turn(color: PlayerColor, action: Action, **referee: dict):
+    """
+    Update the agent with the last player's action.
+    """
+    match action:
+        case SpawnAction(cell):
+            print(f"Testing: {color} SPAWN at {cell}")
+            pass
+        case SpreadAction(cell, direction):
+            print(f"Testing: {color} SPREAD from {cell}, {direction}")
+            pass
+
 
 class Agent:
     def __init__(self, color: PlayerColor, **referee: dict):
@@ -26,21 +38,9 @@ class Agent:
         """
         Return the next action to take.
         """
+        b = BoardUpdate.board
         match self._color:
             case PlayerColor.RED:
                 return SpawnAction(HexPos(3, 3))
             case PlayerColor.BLUE:
-                # This is going to be invalid... BLUE never spawned!
-                return SpreadAction(HexPos(3, 3), HexDir.Up)
-
-    def turn(self, color: PlayerColor, action: Action, **referee: dict):
-        """
-        Update the agent with the last player's action.
-        """
-        match action:
-            case SpawnAction(cell):
-                print(f"Testing: {color} SPAWN at {cell}")
-                pass
-            case SpreadAction(cell, direction):
-                print(f"Testing: {color} SPREAD from {cell}, {direction}")
-                pass
+                return SpreadAction(HexPos(4, 3), HexDir.Up)
