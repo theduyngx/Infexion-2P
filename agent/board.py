@@ -75,7 +75,7 @@ class Board:
         """
         Return the state of a cell on the board.
         """
-        assert cell in self._state
+        # assert cell in self._state
         return self._state[cell]
 
     def apply_action(self, action: Action, concrete=True):
@@ -137,18 +137,30 @@ class Board:
             self._color_power(PlayerColor.BLUE) == 0
         ])
 
-    @property
-    def _total_power(self) -> int:
+    def total_power(self) -> int:
         """
         The total power of all cells on the board.
         """
         return sum(map(lambda cell: cell.power, self._state.values()))
 
     def _player_cells(self, color: PlayerColor) -> list[CellState]:
+        """
+        Get the list of cells of specified player's
+        @param self  the board
+        @param color the player's color
+        """
         return list(filter(
             lambda cell: cell.player == color,
             self._state.values()
         ))
+
+    def num_players(self, color: PlayerColor) -> int:
+        """
+        Get the number of player pieces currently on the board
+        @param self  the board
+        @param color the player's color
+        """
+        return len(self._player_cells(color))
 
     def _color_power(self, color: PlayerColor) -> int:
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
@@ -180,7 +192,7 @@ class Board:
 
         return BoardMutation(
             action,
-            cell_mutations={
+            cell_mutations = {
                 # Remove token stack from source cell.
                 CellMutation(from_cell, self[from_cell], CellState()),
             } | {
