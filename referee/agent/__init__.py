@@ -7,11 +7,11 @@ from typing import Type
 from ..game.player import Player
 from ..log import LogStream, NullLogger
 from ..game import Action, PlayerColor, PlayerException
-from .client import RemoteProcessClassClient, AsyncProcessStatus, \
-    WrappedProcessException
+from .client import RemoteProcessClassClient, AsyncProcessStatus, WrappedProcessException
 from .resources import ResourceLimitException
 
-RECV_TIMEOUT = 60 # Max seconds for reply from agent (wall clock time)
+RECV_TIMEOUT = 60  # Max seconds for reply from agent (wall clock time)
+
 
 # Provide a wrapper for Agent classes to handle tedious details like timing,
 # measuring space usage, reporting which method is currently being executed,
@@ -21,32 +21,32 @@ RECV_TIMEOUT = 60 # Max seconds for reply from agent (wall clock time)
 
 class AgentProxyPlayer(Player):
 
-    def __init__(self, 
-        name: str,
-        color: PlayerColor, 
-        agent_loc: tuple[str, str], 
-        time_limit: float | None, 
-        space_limit: float | None, 
-        log: LogStream=NullLogger(),
-        intercept_exc_type: Type[Exception]=PlayerException
-    ):
+    def __init__(self,
+                 name               : str,
+                 color              : PlayerColor,
+                 agent_loc          : tuple[str, str],
+                 time_limit         : float | None,
+                 space_limit        : float | None,
+                 log                : LogStream = NullLogger(),
+                 intercept_exc_type : Type[Exception] = PlayerException
+                 ):
         super().__init__(color)
-
         assert isinstance(agent_loc, tuple), "agent_loc must be a tuple"
         assert len(agent_loc) == 2, "agent_loc must be a tuple (pkg, cls)"
         self._pkg, self._cls = agent_loc
-        
+
         self._name = name
         self._agent: RemoteProcessClassClient = RemoteProcessClassClient(
-            self._pkg, self._cls, 
-            time_limit=time_limit, space_limit=space_limit, 
-            recv_timeout=RECV_TIMEOUT, 
-            log=log,
-            # Class constructor arguments
-            color=color
+            self._pkg,
+            self._cls,
+            time_limit   = time_limit,
+            space_limit  = space_limit,
+            recv_timeout = RECV_TIMEOUT,
+            log          = log,
+            color        = color  # Class constructor arguments
         )
-        self._log = log
-        self._ret_symbol = f"⤷" if log.setting("unicode") else "->"
+        self._log          = log
+        self._ret_symbol   = f"⤷" if log.setting("unicode") else "->"
         self._InterceptExc = intercept_exc_type
 
     @contextmanager
@@ -54,7 +54,7 @@ class AgentProxyPlayer(Player):
         try:
             yield
 
-        # Reraising exceptions as PlayerExceptions to determine win/loss
+        # Re-raising exceptions as PlayerExceptions to determine win/loss
         # outcomes in calling code (see the 'game' module).
         except ResourceLimitException as e:
             self._log.error(f"resource limit exceeded (pid={self._agent.pid}): {str(e)}")
@@ -113,14 +113,14 @@ class AgentProxyPlayer(Player):
         self._log.debug(self._summarise_status(self._agent.status))
 
     def _summarise_status(self, status: AsyncProcessStatus | None):
+        assert self
         if status is None:
             return "resources usage status: unknown\n"
 
-        time_str = f"  time:  +{status.time_delta:6.3f}s  (just elapsed)   "\
+        time_str = f"  time:  +{status.time_delta:6.3f}s  (just elapsed)   " \
                    f"  {status.time_used:7.3f}s  (game total)\n"
-        space_str = ""
         if status.space_known:
-            space_str = f"  space: {status.space_curr:7.3f}MB (current usage)  "\
+            space_str = f"  space: {status.space_curr:7.3f}MB (current usage)  " \
                         f"  {status.space_peak:7.3f}MB (peak usage)\n"
         else:
             space_str = "  space: unknown (check platform)\n"

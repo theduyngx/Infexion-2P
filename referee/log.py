@@ -113,12 +113,14 @@ class LogStream:
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
         message_lines = message.splitlines()
         for line in message_lines:
-            self._out(f"{self._s_color_start()}"
-                      f"{self._s_namespace()}"
-                      f"{self._s_time()}"
-                      f"{self._s_level(level)}"
-                      f"{self._s_color_end()}"
-                      f"{line}")
+            self._out(
+                f"{self._s_color_start()}"
+                f"{self._s_namespace()}"
+                f"{self._s_time()}"
+                f"{self._s_level(level)}"
+                f"{self._s_color_end()}"
+                f"{line}"
+            )
 
     def _out(self, message: str):
         # Optionally strip unicode symbols
@@ -162,11 +164,11 @@ class LogStream:
         if not self.setting("output_level"):
             return ""
         return {
-            LogLevel.DEBUG: "~",
-            LogLevel.INFO: ":",
-            LogLevel.WARNING: "#",
-            LogLevel.ERROR: "!",
-            LogLevel.CRITICAL: "@"
+            LogLevel.DEBUG    : "~",
+            LogLevel.INFO     : ":",
+            LogLevel.WARNING  : "#",
+            LogLevel.ERROR    : "!",
+            LogLevel.CRITICAL : "@"
         }[level] + " "
 
     def _s_color_start(self) -> str:

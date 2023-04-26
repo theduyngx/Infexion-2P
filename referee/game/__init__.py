@@ -1,7 +1,6 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
 
-from asyncio import gather
 from dataclasses import dataclass
 from typing import AsyncGenerator
 
@@ -20,14 +19,17 @@ from .exceptions import PlayerException, IllegalActionException
 class PlayerInitialising:
     player: Player
 
+
 @dataclass
 class GameBegin:
     board: Board
+
 
 @dataclass
 class TurnBegin:
     turn_id: int
     player: Player
+
 
 @dataclass
 class TurnEnd:
@@ -35,36 +37,42 @@ class TurnEnd:
     player: Player
     action: Action
 
+
 @dataclass
 class BoardUpdate:
     board: Board
+
 
 @dataclass
 class PlayerError:
     message: str
 
+
 @dataclass
 class GameEnd:
-    winner: Player|None
+    winner: Player | None
+
 
 @dataclass
 class UnhandledError:
     message: str
 
+
 # ADT capturing all possible game updates
 GameUpdate = PlayerInitialising \
-           | GameBegin \
-           | TurnBegin \
-           | TurnEnd \
-           | BoardUpdate \
-           | PlayerError \
-           | UnhandledError \
-           | GameEnd
+             | GameBegin \
+             | TurnBegin \
+             | TurnEnd \
+             | BoardUpdate \
+             | PlayerError \
+             | UnhandledError \
+             | GameEnd
+
 
 # Entry-point for running a game...
 async def game(
-    p1: Player,
-    p2: Player,
+        p1: Player,
+        p2: Player,
 ) -> AsyncGenerator[GameUpdate, None]:
     """
     Run an asynchronous game sequence, yielding updates to the consumer as the
@@ -72,7 +80,7 @@ async def game(
     appropriately (e.g. logging them).
     """
     players: dict[PlayerColor, Player] = {
-        player.color: player for player in [p1, p2]
+        p.color: p for p in [p1, p2]
     }
     assert PlayerColor.RED in players
     assert PlayerColor.BLUE in players
@@ -88,18 +96,18 @@ async def game(
 
             yield PlayerInitialising(p2)
             async with p2:
-            
+
                 # Each loop iteration is a turn.
                 while True:
                     # Get the current player.
                     turn_color: PlayerColor = board._turn_color
-                    player: Player = players[board._turn_color]
-                    
+                    p: Player = players[board._turn_color]
+
                     # Get the current player's requested action.
                     turn_id = board.turn_count + 1
-                    yield TurnBegin(turn_id, player)
-                    action: Action = await player.action()
-                    yield TurnEnd(turn_id, player, action)
+                    yield TurnBegin(turn_id, p)
+                    action: Action = await p.action()
+                    yield TurnEnd(turn_id, p, action)
 
                     # Update the board state accordingly.
                     board.apply_action(action)
@@ -114,7 +122,7 @@ async def game(
                     await p1.turn(turn_color, action)
                     await p2.turn(turn_color, action)
 
-    except (PlayerException) as e:
+    except PlayerException as e:
         error_msg: str = e.args[0]
         if isinstance(e, IllegalActionException):
             error_msg = f"ILLEGAL ACTION: {e.args[0]}"
@@ -129,5 +137,5 @@ async def game(
         # while also notifying the consumer.
         yield UnhandledError(str(e))
         raise e
-        
+
     yield GameEnd(players[winner_color] if winner_color is not None else None)

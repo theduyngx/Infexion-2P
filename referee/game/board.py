@@ -71,7 +71,9 @@ class Board:
         "_history"
     ]
 
-    def __init__(self, initial_state: dict[HexPos, CellState] = {}):
+    def __init__(self, initial_state=None):
+        if initial_state is None:
+            initial_state = {}
         self._state: dict[HexPos, CellState] = \
             defaultdict(lambda: CellState(None, 0))
         self._state.update(initial_state)
@@ -126,15 +128,15 @@ class Board:
         game specification document.
         """
 
-        def apply_ansi(str, bold=True, color=None):
+        def apply_ansi(string, bold=True, ansi_color=None):
             # Helper function to apply ANSI color codes
             bold_code = "\033[1m" if bold else ""
             color_code = ""
-            if color == "r":
+            if ansi_color == "r":
                 color_code = "\033[31m"
-            if color == "b":
+            if ansi_color == "b":
                 color_code = "\033[34m"
-            return f"{bold_code}{color_code}{str}\033[0m"
+            return f"{bold_code}{color_code}{string}\033[0m"
 
         dim = BOARD_N
         output = ""
@@ -149,7 +151,7 @@ class Board:
                     color = "r" if color == PlayerColor.RED else "b"
                     text = f"{color}{power}".center(4)
                     if use_color:
-                        output += apply_ansi(text, color=color, bold=False)
+                        output += apply_ansi(text, ansi_color=color, bold=False)
                     else:
                         output += text
                 else:
@@ -219,6 +221,9 @@ class Board:
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
     def _within_bounds(self, coord: HexPos) -> bool:
+        ###
+        assert self
+        ###
         r, q = coord
         return 0 <= r < BOARD_N and 0 <= q < BOARD_N
 
@@ -291,11 +296,11 @@ class Board:
         return BoardMutation(
             action,
             cell_mutations={
-               # Remove token stack from source cell.
-               CellMutation(from_cell, self[from_cell], CellState()),
-            } | {
-               # Add token stack to destination cells.
-               CellMutation(to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
-                            ) for to_cell in to_cells
-            }
+                               # Remove token stack from source cell.
+                               CellMutation(from_cell, self[from_cell], CellState()),
+                           } | {
+                               # Add token stack to destination cells.
+                               CellMutation(to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
+                                            ) for to_cell in to_cells
+                           }
         )
