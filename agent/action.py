@@ -3,7 +3,7 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexDir
 from .board import Board, CellState
 
 INF   : float = 9999
-DEPTH : int   = 3
+DEPTH : int   = 4
 
 
 def evaluate(board: Board, color: PlayerColor) -> float:
@@ -16,7 +16,7 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     alpha = -INF
     beta  = INF
     _, action = alphabeta(board, color, DEPTH, alpha, beta)
-    # should assert here that agent's board == referee's board,
+    # should assert here that agent's board == referee's board
     # viz. our undo actions works as expected
     return action
 
@@ -39,9 +39,6 @@ def alphabeta(board : Board,
 
     # reached depth limit, or terminal node
     if depth == 0 or board.game_over:
-        print("")
-        print("depth =", depth)
-        print("")
         return evaluate(board, color), None
 
     # maximize
@@ -96,8 +93,7 @@ def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
             actions.append(SpawnAction(pos))
         # append spread actions for each direction
         else:
-            dirs = [hex_dir for hex_dir in HexDir]
-            for dir in dirs:
+            for dir in HexDir:
                 actions.append(SpreadAction(pos, dir))
 
     # for action in actions:

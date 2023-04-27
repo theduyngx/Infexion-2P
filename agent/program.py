@@ -2,7 +2,7 @@
 # Project Part B: Game Playing Agent
 from agent.action import minimax
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, WIN_POWER_DIFF
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
 
 board: Board = Board()
 
@@ -39,8 +39,7 @@ class Agent:
         """
         Return the next action to take.
         """
-        if board.total_power() < WIN_POWER_DIFF:
-            # bad hard-coded stuffs
+        if board.total_power() < MAX_TOTAL_POWER:
             action = minimax(board, self._color)
             ###
             print(action.cell.r, action.cell.q)
