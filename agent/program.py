@@ -10,7 +10,6 @@ def print_referee(referee: dict):
     print("-------------------------------")
     print("Time remaining  :", referee["time_remaining"])
     print("Space remaining :", referee["space_remaining"])
-    # print("Space limit     :", referee["space_limit"])
 
 
 class Agent:

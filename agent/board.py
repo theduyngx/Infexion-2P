@@ -64,6 +64,10 @@ class Board:
     ]
 
     def __init__(self, initial_state=None):
+        """
+        Board constructor.
+        @param initial_state: board's state, if just initialized then it will be an empty dictionary
+        """
         if initial_state is None:
             initial_state = {}
         self._state: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
@@ -74,6 +78,8 @@ class Board:
     def __getitem__(self, cell: HexPos) -> CellState:
         """
         Return the state of a cell on the board.
+        @param cell: specified cell;
+        @return    : cell's state
         """
         # if cell in self._state:
         #     pass
@@ -81,8 +87,9 @@ class Board:
 
     def apply_action(self, action: Action, concrete=True):
         """
-        Apply an action to a board, mutating the board state. Throws an
-        IllegalActionException if the action is invalid.
+        Apply an action to a board, mutating the board state.
+        @param action   : specified action to be applied
+        @param concrete : whether the action is only an evaluation (non-concrete) or an actual move (concrete)
         """
         match action:
             case SpawnAction():
@@ -114,6 +121,7 @@ class Board:
     def turn_count(self) -> int:
         """
         The number of actions that have been played so far.
+        @return: number of performed actions thus far
         """
         return len(self._history)
 
@@ -121,13 +129,15 @@ class Board:
     def turn_color(self) -> PlayerColor:
         """
         The player (color) whose turn it is.
+        @return: color of player who is at their turn
         """
         return self._turn_color
 
     @property
     def game_over(self) -> bool:
         """
-        True iff the game is over.
+        Check if the game is over or not, meaning if a player has won the game.
+        @return: true if game is over
         """
         if self.turn_count < 2:
             return False
@@ -141,14 +151,15 @@ class Board:
     def total_power(self) -> int:
         """
         The total power of all cells on the board.
+        @return: total power
         """
         return sum(map(lambda cell: cell.power, self._state.values()))
 
     def _player_cells(self, color: PlayerColor) -> list[CellState]:
         """
         Get the list of cells of specified player's
-        @param self  the board
-        @param color the player's color
+        @param color: the player's color
+        @return     : the list of cells that specified player occupies
         """
         return list(filter(
             lambda cell: cell.player == color,
@@ -158,18 +169,34 @@ class Board:
     def num_players(self, color: PlayerColor) -> int:
         """
         Get the number of player pieces currently on the board
-        @param self  the board
-        @param color the player's color
+        @param color: the player's color
+        @return     : number of player pieces
         """
         return len(self._player_cells(color))
 
     def _color_power(self, color: PlayerColor) -> int:
+        """
+        Protected method getting the current total power of a specified player.
+        @param color: player's color
+        @return     : their power
+        """
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
     def cell_occupied(self, coord: HexPos) -> bool:
+        """
+        Check if a specified cell is occupied in the board or not.
+        @param coord: specified cell's coordinates
+        @return     : boolean denoting whether cell is occupied or not
+        """
         return self._state[coord].power > 0
 
     def spawn(self, action: SpawnAction) -> BoardMutation:
+        """
+        Spawn action applied to the board. It shouldn't check for illegal moves so far to allow for
+        possibility of trial and error when testing with agent's board.
+        @param action: the specified spawn action applied to board
+        @return      : the board mutation
+        """
         cell = action.cell
         return BoardMutation(
             action,
@@ -183,6 +210,12 @@ class Board:
         )
 
     def spread(self, action: SpreadAction) -> BoardMutation:
+        """
+        Spread action applied to the board. It shouldn't check for illegal moves so far to allow for
+        possibility of trial and error when testing with agent's board.
+        @param action: specified spread action
+        @return      : board mutation
+        """
         from_cell, dir = action.cell, action.direction
         action_player: PlayerColor = self._turn_color
 
