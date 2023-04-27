@@ -1,7 +1,8 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
+from agent.action import minimax
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir, WIN_POWER_DIFF
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, WIN_POWER_DIFF
 
 board: Board = Board()
 
@@ -40,14 +41,11 @@ class Agent:
         """
         if board.total_power() < WIN_POWER_DIFF:
             # bad hard-coded stuffs
-            return SpawnAction(HexPos(5, 3)) \
-                if board.cell_occupied(HexPos(3, 3)) else SpawnAction(HexPos(3, 3))
-
-        match self._color:
-            case PlayerColor.RED:
-                return SpreadAction(HexPos(3, 3), HexDir.UpRight)
-            case PlayerColor.BLUE:
-                return SpreadAction(HexPos(5, 3), HexDir.DownLeft)
+            action = minimax(board, self._color)
+            ###
+            print(action.cell.r, action.cell.q)
+            ###
+            return action
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -55,7 +53,7 @@ class Agent:
         """
         assert self
         print_referee(referee)
-        board.apply_action(action, concrete=True)
+        board.apply_action(action)
 
         match action:
             case SpawnAction(cell):

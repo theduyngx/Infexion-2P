@@ -12,16 +12,17 @@ from referee.game.constants import *
 
 @dataclass(frozen=True, slots=True)
 class CellState:
-    player: PlayerColor | None = None
-    power: int = 0
+    pos    : HexPos
+    player : PlayerColor | None = None
+    power  : int = 0
 
     def __post_init__(self):
         if self.player is None or self.power > MAX_CELL_POWER:
-            object.__setattr__(self, "power", 0)
+            object.__setattr__(self, "power" , 0)
             object.__setattr__(self, "player", None)
 
     def __str__(self):
-        return f"CellState({self.player}, {self.power})"
+        return f"CellState({self.pos.r}, {self.pos.q}, {self.player}, {self.power})"
 
     def __iter__(self):
         yield self.player
@@ -30,7 +31,7 @@ class CellState:
 
 @dataclass(frozen=True, slots=True)
 class CellMutation:
-    cell: HexPos
+    pos : HexPos
     prev: CellState
     next: CellState
 
@@ -59,58 +60,59 @@ class Board:
     __slots__ = [
         "_mutable",
         "_state",
-        "_empty",
         "_turn_color",
         "_history"
     ]
 
-    def __init__(self, initial_state: dict[HexPos, CellState] = None):
+    def __init__(self, initial_state: dict[int, CellState] = None):
         """
         Board constructor.
         @param initial_state: board's state, if just initialized then it will be an empty dictionary
         """
-        if initial_state is None:
-            initial_state = {}
-        self._state: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
-        self._empty: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
+        self._state: dict[int, CellState] = defaultdict()
 
         ### INELEGANT EMPTY CELL INIT
-        initial_empty = {}
-        for r in range(BOARD_N):
-            for q in range(BOARD_N):
-                pos = HexPos(r, q)
-                if pos not in initial_state:
-                    initial_empty[pos] = CellState(None, 0)
+        if initial_state is None:
+            initial_state = {}
+            for r in range(BOARD_N):
+                for q in range(BOARD_N):
+                    pos = HexPos(r, q)
+                    hash_pos = pos.__hash__()
+                    initial_state[hash_pos] = CellState(pos)
+        ###
+
+        ### DEBUG
+        # for pos, cell in initial_state:
+        #     print("")
+        #     print(type(pos), pos)
+        #     print("")
         ###
 
         self._state.update(initial_state)
-        self._empty.update(initial_empty)
         self._turn_color: PlayerColor = PlayerColor.RED
         self._history: list[BoardMutation] = []
 
-    def __getitem__(self, cell: HexPos) -> CellState:
+    def __getitem__(self, pos: HexPos) -> CellState:
         """
         Return the state of a cell on the board.
-        @param cell: specified cell;
+        @param pos : specified cell;
         @return    : cell's state
         """
-        # if cell in self._state:
-        #     pass
-        return self._state[cell]
+        hash_pos = pos.__hash__()
+        return self._state[hash_pos]
 
-    def empty_cell(self, cell: HexPos) -> bool:
+    def empty_cell(self, pos: HexPos) -> bool:
         """
         Check if a cell is empty or not.
-        @param cell : specified cell
-        @return     : boolean whether cell is empty or not
+        @param pos : specified cell
+        @return    : boolean whether cell is empty or not
         """
-        return cell in self._empty
+        return self[pos].player is None
 
-    def apply_action(self, action: Action, concrete=True):
+    def apply_action(self, action: Action):
         """
         Apply an action to a board, mutating the board state.
-        @param action   : specified action to be applied
-        @param concrete : whether the action is only an evaluation (non-concrete) or an actual move (concrete)
+        @param action : specified action to be applied
         """
         match action:
             case SpawnAction():
@@ -121,12 +123,9 @@ class Board:
                 return
 
         for mutation in res_action.cell_mutations:
-            self._state[mutation.cell] = mutation.next
-            ### UPDATE EMPTY CELLS - not entirely sure if this is correct just yet
-            del self._empty[mutation.cell]
-            ###
-        if not concrete:
-            self._history.append(res_action)
+            hash_pos = mutation.pos.__hash__()
+            self._state[hash_pos] = mutation.next
+        self._history.append(res_action)
         self._turn_color = self._turn_color.opponent
 
     def undo_action(self):
@@ -138,7 +137,7 @@ class Board:
             return
         action: BoardMutation = self._history.pop()
         for mutation in action.cell_mutations:
-            self._state[mutation.cell] = mutation.prev
+            self._state[mutation.pos.__hash__()] = mutation.prev
         self._turn_color = self._turn_color.opponent
 
     @property
@@ -163,7 +162,7 @@ class Board:
         Check if the game is over or not, meaning if a player has won the game.
         @return: true if game is over
         """
-        if self.turn_count < 2:
+        if self.turn_count < WIN_POWER_DIFF:
             return False
 
         return any([
@@ -206,25 +205,23 @@ class Board:
         """
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
-    def player_movable_cells(self, color: PlayerColor) -> dict[HexPos, CellState]:
+    def player_movable_cells(self, color: PlayerColor) -> list[CellState]:
         """
         Get all movable cells of the specified player.
         @param color : player's color
         @return      : a dictionary of movable cells, where the key is the cell's position
         """
-        empty_cells  = self._empty
-        player_cells = dict((pos, cell) for pos, cell in self._state.items() if cell.player == color)
-        if self.total_power() < MAX_TOTAL_POWER:
-            player_cells.update(empty_cells)
+        player_cells: list[CellState] = [cell for hash_pos, cell in self._state.items()
+                                         if cell.player == color or (self.total_power() and cell.player is None)]
         return player_cells
 
-    def cell_occupied(self, coord: HexPos) -> bool:
+    def cell_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
-        @param coord: specified cell's coordinates
-        @return     : boolean denoting whether cell is occupied or not
+        @param pos : specified cell's coordinates
+        @return    : boolean denoting whether cell is occupied or not
         """
-        return self._state[coord].power > 0
+        return self._state[pos.__hash__()].power > 0
 
     def spawn(self, action: SpawnAction) -> BoardMutation:
         """
@@ -233,14 +230,16 @@ class Board:
         @param action: the specified spawn action applied to board
         @return      : the board mutation
         """
-        cell = action.cell
+        pos = action.cell
+        hash_pos = pos.__hash__()
+        self._state[hash_pos] = CellState(pos)
         return BoardMutation(
             action,
             cell_mutations={
                 CellMutation(
-                    cell,
-                    self._state[cell],
-                    CellState(self._turn_color, 1)
+                    pos,
+                    self._state[hash_pos],
+                    CellState(pos, self._turn_color, 1)
                 )
             },
         )
@@ -260,15 +259,21 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
+        ### DON'T FORGET: when undo action, make sure empty cell restores all cells that should've been empty
+
+        for to_cell in to_cells:
+            if self.empty_cell(to_cell):
+                self._state[to_cell.__hash__()] = CellState(to_cell)
+
         return BoardMutation(
             action,
             cell_mutations = {
                 # Remove token stack from source cell.
-                CellMutation(from_cell, self[from_cell], CellState()),
+                CellMutation(from_cell, self[from_cell], CellState(action.cell)),
             } | {
                 # Add token stack to destination cells.
                 CellMutation(
-                    to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
+                    to_cell, self[to_cell], CellState(action.cell, action_player, self[to_cell].power + 1)
                 ) for to_cell in to_cells
             }
         )

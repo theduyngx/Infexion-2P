@@ -1,8 +1,9 @@
 # evaluation function
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexDir
-from .board import Board
+from .board import Board, CellState
 
-INF: float = 9999
+INF   : float = 9999
+DEPTH : int   = 3
 
 
 def evaluate(board: Board, color: PlayerColor) -> float:
@@ -12,20 +13,19 @@ def evaluate(board: Board, color: PlayerColor) -> float:
 
 
 def minimax(board: Board, color: PlayerColor) -> Action:
-    depth: int = 4
     alpha = -INF
     beta  = INF
-    _, action = alphabeta(board, color, depth, alpha, beta)
+    _, action = alphabeta(board, color, DEPTH, alpha, beta)
     # should assert here that agent's board == referee's board,
     # viz. our undo actions works as expected
     return action
 
 
-def alphabeta(board        : Board,
+def alphabeta(board : Board,
               color : PlayerColor,
-              depth        : int,
-              alpha        : float,
-              beta         : float
+              depth : int,
+              alpha : float,
+              beta  : float
               ) -> (float, Action):
     """
     Alpha-beta pruning for minimax search algorithm.
@@ -39,6 +39,9 @@ def alphabeta(board        : Board,
 
     # reached depth limit, or terminal node
     if depth == 0 or board.game_over:
+        print("")
+        print("depth =", depth)
+        print("")
         return evaluate(board, color), None
 
     # maximize
@@ -48,13 +51,13 @@ def alphabeta(board        : Board,
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
             # apply action
-            board.apply_action(possible_action, color)
+            board.apply_action(possible_action)
             curr_val, curr_action = alphabeta(board, color.opponent, depth-1, alpha, beta)
             # undo after finishing
             board.undo_action()
             if curr_val > value:
                 value  = curr_val
-                action = curr_action
+                action = possible_action
             alpha = max(alpha, value)
             # beta cutoff
             if value >= beta:
@@ -68,13 +71,13 @@ def alphabeta(board        : Board,
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
             # apply action
-            board.apply_action(possible_action, color)
+            board.apply_action(possible_action)
             curr_val, curr_action = alphabeta(board, color.opponent, depth-1, alpha, beta)
             # undo action after finishing
             board.undo_action()
             if curr_val < value:
                 value  = curr_val
-                action = curr_action
+                action = possible_action
             beta = min(beta, value)
             # alpha cutoff
             if value <= alpha:
@@ -82,17 +85,28 @@ def alphabeta(board        : Board,
         return value, action
 
 
-def get_child_nodes(board: Board, color: PlayerColor) -> [Action]:
+def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
     # for every possible move from a given board state, including SPAWN and SPREAD
-    actions: [Action] = []
-    movable_dict = board.player_movable_cells(color)
-    for pos, cell in movable_dict:
+    actions: list[Action] = []
+    movable_dict: list[CellState] = board.player_movable_cells(color)
+    for state in movable_dict:
         # append spawn actions
-        if board.empty_cell(cell):
-            actions.append(SpawnAction(cell))
+        pos = state.pos
+        if board.empty_cell(pos):
+            actions.append(SpawnAction(pos))
         # append spread actions for each direction
         else:
             dirs = [hex_dir for hex_dir in HexDir]
             for dir in dirs:
-                actions.append(SpreadAction(cell, dir))
+                actions.append(SpreadAction(pos, dir))
+
+    # for action in actions:
+        ###
+        # hp = HexPos(3, 4)
+        # print(type(hp))
+        # print(hp.r, hp.q)
+        # print(type(action))
+        # print(type(action.cell))
+        # print(action.cell.r, action.cell.q, action.direction)
+        ###
     return actions
