@@ -8,7 +8,8 @@ from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction
 from referee.game.constants import *
 
 
-EMPTY_POWER: int = 0
+EMPTY_POWER : int = 0
+MIN_MOVE_WIN: int = 2
 
 
 # The CellState class is used to represent the state of a single cell on the game board.
@@ -64,7 +65,8 @@ class Board:
         "_mutable",
         "_state",
         "_turn_color",
-        "_history"
+        "_history",
+        "_turn_count"
     ]
 
     def __init__(self, initial_state: dict[int, CellState] = None):
@@ -77,23 +79,18 @@ class Board:
         ### INELEGANT EMPTY CELL INIT
         if initial_state is None:
             initial_state = {}
-            for r in range(BOARD_N):
-                for q in range(BOARD_N):
-                    pos = HexPos(r, q)
-                    hash_pos = pos.__hash__()
+        for r in range(BOARD_N):
+            for q in range(BOARD_N):
+                pos = HexPos(r, q)
+                hash_pos = pos.__hash__()
+                if hash_pos not in initial_state:
                     initial_state[hash_pos] = CellState(pos)
-        ###
-
-        ### DEBUG
-        # for pos, cell in initial_state:
-        #     print("")
-        #     print(type(pos), pos)
-        #     print("")
         ###
 
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PlayerColor.RED
-        self._history: list[BoardMutation] = []
+        self._turn_count: int = 0
+        self._history   : list[BoardMutation] = []
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
@@ -114,10 +111,11 @@ class Board:
         """
         return self[pos].power == EMPTY_POWER
 
-    def apply_action(self, action: Action):
+    def apply_action(self, action: Action, concrete=True):
         """
         Apply an action to a board, mutating the board state.
-        @param action : specified action to be applied
+        @param action   : specified action to be applied
+        @param concrete : whether action is non-concrete (an applied action within search), or otherwise
         """
         match action:
             case SpawnAction():
@@ -129,8 +127,12 @@ class Board:
 
         for mutation in res_action.cell_mutations:
             self.__setitem__(mutation.pos, mutation.next)
-        self._history.append(res_action)
+
+        # only add to history in the case where it is going down the search tree
+        if not concrete:
+            self._history.append(res_action)
         self._turn_color = self._turn_color.opponent
+        self._turn_count += 1
 
     def undo_action(self):
         """
@@ -143,6 +145,7 @@ class Board:
         for mutation in action.cell_mutations:
             self.__setitem__(mutation.pos, mutation.prev)
         self._turn_color = self._turn_color.opponent
+        self._turn_count -= 1
 
     @property
     def turn_count(self) -> int:
@@ -150,7 +153,7 @@ class Board:
         The number of actions that have been played so far.
         @return: number of performed actions thus far
         """
-        return len(self._history)
+        return self._turn_count
 
     @property
     def turn_color(self) -> PlayerColor:
@@ -166,7 +169,7 @@ class Board:
         Check if the game is over or not, meaning if a player has won the game.
         @return: true if game is over
         """
-        if self.turn_count < WIN_POWER_DIFF:
+        if self.turn_count < MIN_MOVE_WIN:
             return False
 
         return any([
