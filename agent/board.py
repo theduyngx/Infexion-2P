@@ -13,7 +13,7 @@ from referee.game.constants import *
 @dataclass(frozen=True, slots=True)
 class CellState:
     player: PlayerColor | None = None
-    power : int = 0
+    power: int = 0
 
     def __post_init__(self):
         if self.player is None or self.power > MAX_CELL_POWER:
@@ -40,8 +40,8 @@ class CellMutation:
 
 @dataclass(frozen=True, slots=True)
 class BoardMutation:
-    action         : Action
-    cell_mutations : set[CellMutation]
+    action: Action
+    cell_mutations: set[CellMutation]
 
 
 # The Board class encapsulates the state of the game board, and provides
@@ -59,11 +59,12 @@ class Board:
     __slots__ = [
         "_mutable",
         "_state",
+        "_empty",
         "_turn_color",
         "_history"
     ]
 
-    def __init__(self, initial_state=None):
+    def __init__(self, initial_state: dict[HexPos, CellState] = None):
         """
         Board constructor.
         @param initial_state: board's state, if just initialized then it will be an empty dictionary
@@ -71,7 +72,19 @@ class Board:
         if initial_state is None:
             initial_state = {}
         self._state: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
+        self._empty: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
+
+        ### INELEGANT EMPTY CELL INIT
+        initial_empty = {}
+        for r in range(BOARD_N):
+            for q in range(BOARD_N):
+                pos = HexPos(r, q)
+                if pos not in initial_state:
+                    initial_empty[pos] = CellState(None, 0)
+        ###
+
         self._state.update(initial_state)
+        self._empty.update(initial_empty)
         self._turn_color: PlayerColor = PlayerColor.RED
         self._history: list[BoardMutation] = []
 
@@ -84,6 +97,14 @@ class Board:
         # if cell in self._state:
         #     pass
         return self._state[cell]
+
+    def empty_cell(self, cell: HexPos) -> bool:
+        """
+        Check if a cell is empty or not.
+        @param cell : specified cell
+        @return     : boolean whether cell is empty or not
+        """
+        return cell in self._empty
 
     def apply_action(self, action: Action, concrete=True):
         """
@@ -101,6 +122,9 @@ class Board:
 
         for mutation in res_action.cell_mutations:
             self._state[mutation.cell] = mutation.next
+            ### UPDATE EMPTY CELLS - not entirely sure if this is correct just yet
+            del self._empty[mutation.cell]
+            ###
         if not concrete:
             self._history.append(res_action)
         self._turn_color = self._turn_color.opponent
@@ -144,7 +168,7 @@ class Board:
 
         return any([
             self.turn_count >= MAX_TURNS,
-            self._color_power(PlayerColor.RED)  == 0,
+            self._color_power(PlayerColor.RED) == 0,
             self._color_power(PlayerColor.BLUE) == 0
         ])
 
@@ -182,6 +206,18 @@ class Board:
         """
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
+    def player_movable_cells(self, color: PlayerColor) -> dict[HexPos, CellState]:
+        """
+        Get all movable cells of the specified player.
+        @param color : player's color
+        @return      : a dictionary of movable cells, where the key is the cell's position
+        """
+        empty_cells  = self._empty
+        player_cells = dict((pos, cell) for pos, cell in self._state.items() if cell.player == color)
+        if self.total_power() < MAX_TOTAL_POWER:
+            player_cells.update(empty_cells)
+        return player_cells
+
     def cell_occupied(self, coord: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
@@ -200,7 +236,7 @@ class Board:
         cell = action.cell
         return BoardMutation(
             action,
-            cell_mutations = {
+            cell_mutations={
                 CellMutation(
                     cell,
                     self._state[cell],
