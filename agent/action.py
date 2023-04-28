@@ -2,26 +2,22 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexDir
 from .board import Board, CellState
 from .evaluation import evaluate
 
+# Constants
 INF   : float = 9999
 DEPTH : int   = 4
 
 
 def minimax(board: Board, color: PlayerColor) -> Action:
+    """
+    Minimax search algorithm to find the next action to take for the agent. It is called when it
+    is the agent with specified color's turn.
+    @param board : the board
+    @param color : the agent's color
+    @return      : the action to take for agent
+    """
     alpha = -INF
     beta  = INF
-
-    ### DEBUG
-    before = board.get_state_copy()
-    ###
-
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
-
-    ### DEBUG
-    after = board.get_state_copy()
-    assert before == after
-    assert board.non_concrete_history_empty()
-    ###
-
     return action
 
 
@@ -95,6 +91,15 @@ def alphabeta(board  : Board,
 
 
 def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
+    """
+    Get all possible child nodes from a specific state of the board. The child nodes therefore
+    indicates all possible moves that could be applied to the board by the specified player
+    color's turn. It should be noted that it returns the list of actions before applied to board
+    to create the child state.
+    @param board : the board
+    @param color : specified player's color
+    @return      : list of all actions that could be applied to board
+    """
     # for every possible move from a given board state, including SPAWN and SPREAD
     actions: list[Action] = []
     movable_dict: list[CellState] = board.player_movable_cells(color)

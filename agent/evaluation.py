@@ -116,6 +116,9 @@ def evaluate(board: Board) -> float:
         value += sign * (len(cluster.cells) ** CLUSTER_SIZE_POWER)
     value += (num_red_clusters ** NUM_CLUSTER_POWER - num_blue_clusters ** NUM_CLUSTER_POWER)
 
+    # domination evaluation
+    # ...
+
     return value
 
 

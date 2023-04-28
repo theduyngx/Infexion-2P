@@ -1,6 +1,3 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
-
 from collections import defaultdict
 from dataclasses import dataclass
 
@@ -8,14 +5,21 @@ from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction,
 from referee.game.constants import *
 
 
+# Constants
 EMPTY_POWER : int = 0
 MIN_MOVE_WIN: int = 2
 
 
-# The CellState class is used to represent the state of a single cell on the game board.
-
 @dataclass(frozen=True, slots=True)
 class CellState:
+    """
+    The CellState class is used to represent the state of a single cell on the game board.
+    Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
+    Attributes:
+        pos    : the position of the cell
+        player : the player currently occupied in cell, if there's any
+        power  : the stack power of the piece (if any) on cell
+    """
     pos    : HexPos
     player : PlayerColor | None = None
     power  : int = EMPTY_POWER
@@ -35,32 +39,39 @@ class CellState:
 
 @dataclass(frozen=True, slots=True)
 class CellMutation:
+    """
+    Class CellMutation represents the mutated state (before and after) of the cell.
+    Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
+    Attributes:
+        pos  : the position of the cell
+        prev : the previous state of the cell
+        next : the subsequent state after mutation
+    """
     pos : HexPos
     prev: CellState
     next: CellState
 
 
-# The BoardMutation class is used to represent the *minimal* set of changes in
-# the state of the board as a result of an action.
-
 @dataclass(frozen=True, slots=True)
 class BoardMutation:
+    """
+    The BoardMutation class is used to represent the *minimal* set of changes in the state of the
+    board as a result of an action. In other words, it is designed to be well-optimized.
+    Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
+    Attributes:
+        action         : the action applied onto board
+        cell_mutations : the set of cell mutations as a result of action
+    """
     action: Action
     cell_mutations: set[CellMutation]
 
 
-# The Board class encapsulates the state of the game board, and provides
-# methods for applying actions to the board and querying/inspecting the state
-# of the game (i.e. which player has won, if any).
-#
-# NOTE: This board representation is designed to be used internally by the
-# referee for the purposes of validating actions and determining the result of
-# the game. Don't assume this class is an "ideal" board representation for your
-# own agent; you should think carefully about how to design data structures for
-# representing the state of a game with respect to your chosen strategy.
-
-
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
+    """
+    Get all adjacent positions to the specified one.
+    @param pos : the specified position
+    @return    : list of 6 of its adjacent positions
+    """
     adjacent_list = []
     for dir in HexDir:
         r_coord = pos.r + dir.r
@@ -78,6 +89,16 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
 
 
 class Board:
+    """
+    The Board class encapsulates the state of the game board, and provides methods for applying actions
+    to the board and querying/inspecting the state of the game (i.e. which player has won, if any).
+    <p></p>
+    NOTE: This board representation is designed to be used internally by the referee, as stated in the
+    skeleton code. It might not be ideal, so we probably have to think of something better. For now,
+    this is very space efficient. It is however not the most time-efficient board representation.
+    <p></p>
+    Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
+    """
     __slots__ = [
         "_mutable",
         "_state",
@@ -111,10 +132,10 @@ class Board:
     ### FOR UNDO ACTION DEBUG
     def get_state_copy(self):
         return self._state.copy()
-    ###
 
     def __getstate__(self):
         return self._state
+    ###
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
@@ -155,7 +176,7 @@ class Board:
                 return
 
         for mutation in res_action.cell_mutations:
-            self.__setitem__(mutation.pos, mutation.next)
+            self[mutation.pos] = mutation.next
 
         # only add to history in the case where it is going down the search tree
         if not concrete:
@@ -172,11 +193,15 @@ class Board:
             return
         action: BoardMutation = self._non_concrete_history.pop()
         for mutation in action.cell_mutations:
-            self.__setitem__(mutation.pos, mutation.prev)
+            self[mutation.pos] = mutation.prev
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
 
-    def non_concrete_history_empty(self):
+    def non_concrete_history_empty(self) -> bool:
+        """
+        Assertion method - making sure that the non-concrete history is empty.
+        @return: true if non-concrete history is empty
+        """
         return not self._non_concrete_history
 
     @property
@@ -295,11 +320,9 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
-        ### DON'T FORGET: when undo action, make sure empty cell restores all cells that should've been empty
-
         for to_cell in to_cells:
             if self.empty_cell(to_cell):
-                self.__setitem__(to_cell, CellState(to_cell))
+                self[to_cell] = CellState(to_cell)
 
         return BoardMutation(
             action,
