@@ -63,7 +63,17 @@ class BoardMutation:
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
     adjacent_list = []
     for dir in HexDir:
-        adjacent_list.append(HexPos(pos.r + dir.r, pos.q + dir.q))
+        r_coord = pos.r + dir.r
+        q_coord = pos.q + dir.q
+        if r_coord < 0:
+            r_coord += BOARD_N
+        elif r_coord >= BOARD_N:
+            r_coord -= BOARD_N
+        if q_coord < 0:
+            q_coord += BOARD_N
+        elif q_coord >= BOARD_N:
+            q_coord -= BOARD_N
+        adjacent_list.append(HexPos(r_coord, q_coord))
     return adjacent_list
 
 
