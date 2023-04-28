@@ -19,10 +19,7 @@ def evaluate(board: Board) -> float:
     pow_blue = board.color_power(PlayerColor.BLUE)
     num_red  = board.num_players(PlayerColor.RED)
     pow_red  = board.color_power(PlayerColor.RED)
-    if board.game_over:
-        value = INF if num_blue == 0 else -INF
-    else:
-        value = num_red + pow_red - num_blue - pow_blue
+    value = num_red + pow_red - num_blue - pow_blue
     return value
 
 

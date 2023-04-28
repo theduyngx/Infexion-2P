@@ -9,9 +9,10 @@ board: Board = Board()
 
 
 def print_referee(referee: dict):
-    print("-------------------------------")
+    print("---------------------------------------")
     print("Time remaining  :", referee["time_remaining"])
     print("Space remaining :", referee["space_remaining"])
+    print("---------------------------------------")
 
 
 class Agent:
@@ -23,12 +24,8 @@ class Agent:
         """
         Initialise the agent.
         """
+        print_referee(referee)
         self._color = color
-        match color:
-            case PlayerColor.RED:
-                print("Testing: I am playing as red")
-            case PlayerColor.BLUE:
-                print("Testing: I am playing as blue")
 
     def get_color(self):
         """
