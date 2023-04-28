@@ -22,6 +22,8 @@ def evaluate(board: Board) -> float:
 def cluster_evaluation(board: Board) -> float:
     # A possible way to separate clusters:
     """
+    ALGORITHM 1 -> O((nm)^2):
+
     for each occupied_cell on board:
         in_cluster = false
         for cluster in clusters:
@@ -35,5 +37,19 @@ def cluster_evaluation(board: Board) -> float:
                     in_cluster = true
         cluster = [occupied_cell]
         clusters.append(cluster)
+
+    ----------------------------
+    ALGORITHM 2 (improved using dictionaries) -> O(nm):
+
+    for each occupied_cell on board:
+        in_cluster = []
+        for each adjacent_cell of occupied_cell:
+            for each cluster in clusters:
+                if cluster[adjacent_cell] exists:
+                    create cluster[occupied_cell]
+                    // merge bit-wise (meaning O(1), merging by reference);
+                    // need to check again whether to use |= or |
+                    cluster |= in_cluster
+                    in_cluster = cluster
     """
     return 0
