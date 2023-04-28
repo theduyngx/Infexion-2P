@@ -91,6 +91,11 @@ class Board:
         self._turn_count: int = 0
         self._non_concrete_history: list[BoardMutation] = []
 
+    ### FOR UNDO ACTION DEBUG
+    def get_state_copy(self):
+        return self._state.copy()
+    ###
+
     def __getitem__(self, pos: HexPos) -> CellState:
         """
         Return the state of a cell on the board.

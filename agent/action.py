@@ -61,11 +61,21 @@ def alphabeta(board  : Board,
         ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
+            ### DEBUG
+            before = board.get_state_copy()
+            ###
+
             # apply action
             board.apply_action(possible_action, concrete=False)
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
             # undo after finishing
             board.undo_action()
+
+            ### DEBUG
+            after = board.get_state_copy()
+            assert before == after
+            ###
+
             if curr_val > value:
                 value = curr_val
                 ret   = possible_action
@@ -81,11 +91,21 @@ def alphabeta(board  : Board,
         ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
+            ### DEBUG
+            before = board.get_state_copy()
+            ###
+
             # apply action
             board.apply_action(possible_action, concrete=False)
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
             # undo action after finishing
             board.undo_action()
+
+            ### DEBUG
+            after = board.get_state_copy()
+            assert before == after
+            ###
+
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
