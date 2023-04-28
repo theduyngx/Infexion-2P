@@ -105,6 +105,11 @@ class Board:
         return self._state[pos.__hash__()]
 
     def __setitem__(self, pos: HexPos, state: CellState):
+        """
+        Add a new entry to state.
+        @param pos   : the cell position
+        @param state : the state of the cell
+        """
         self._state[pos.__hash__()] = state
 
     def empty_cell(self, pos: HexPos) -> bool:
