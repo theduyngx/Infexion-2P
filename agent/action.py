@@ -26,10 +26,19 @@ def evaluate(board: Board) -> float:
 def minimax(board: Board, color: PlayerColor) -> Action:
     alpha = -INF
     beta  = INF
+
+    ### DEBUG
+    before = board.get_state_copy()
+    ###
+
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
-    # should assert here that agent's board == referee's board
-    # viz. our undo actions works as expected
+
+    ### DEBUG
+    after = board.get_state_copy()
+    assert before == after
     assert board.non_concrete_history_empty()
+    ###
+
     return action
 
 
@@ -61,25 +70,18 @@ def alphabeta(board  : Board,
         ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
-            ### DEBUG
-            before = board.get_state_copy()
-            ###
 
             # apply action
             board.apply_action(possible_action, concrete=False)
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+
             # undo after finishing
             board.undo_action()
-
-            ### DEBUG
-            after = board.get_state_copy()
-            assert before == after
-            ###
-
             if curr_val > value:
                 value = curr_val
                 ret   = possible_action
             alpha = max(alpha, value)
+
             # beta cutoff
             if value >= beta:
                 break
@@ -91,25 +93,18 @@ def alphabeta(board  : Board,
         ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
-            ### DEBUG
-            before = board.get_state_copy()
-            ###
 
             # apply action
             board.apply_action(possible_action, concrete=False)
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+
             # undo action after finishing
             board.undo_action()
-
-            ### DEBUG
-            after = board.get_state_copy()
-            assert before == after
-            ###
-
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
             beta = min(beta, value)
+
             # alpha cutoff
             if value <= alpha:
                 break
