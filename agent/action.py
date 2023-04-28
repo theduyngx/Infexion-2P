@@ -3,7 +3,7 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexDir
 from .board import Board, CellState
 
 INF   : float = 9999
-DEPTH : int   = 5
+DEPTH : int   = 3
 
 
 def evaluate(board: Board) -> float:
@@ -14,15 +14,15 @@ def evaluate(board: Board) -> float:
     @param board : current state of board
     @return      : the evaluated value of the board
     """
-    # for now let's only consider Material
+    # for now let's only consider number of pieces and power values
     num_blue = board.num_players(PlayerColor.BLUE)
+    pow_blue = board.color_power(PlayerColor.BLUE)
     num_red  = board.num_players(PlayerColor.RED)
-    value    = num_red - num_blue
+    pow_red  = board.color_power(PlayerColor.RED)
     if board.game_over:
-        if num_red == 0:
-            value -= INF
-        elif num_blue == 0:
-            value += INF
+        value = INF if num_blue == 0 else -INF
+    else:
+        value = num_red + pow_red - num_blue - pow_blue
     return value
 
 
@@ -32,6 +32,7 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
     # should assert here that agent's board == referee's board
     # viz. our undo actions works as expected
+    assert board.non_concrete_history_empty()
     return action
 
 
@@ -83,9 +84,32 @@ def alphabeta(board  : Board,
         for possible_action in get_child_nodes(board, color):
             # apply action
             board.apply_action(possible_action, concrete=False)
+
+            ### BEFORE APPLY ACTION
+            # print("\nBEFORE UNDO ACTION")
+            # print("action:", possible_action.cell)
+            # for cell in board.__getstate__():
+            #     if cell.power > 0:
+            #         print(cell.player)
+            #         print(cell.pos.r, cell.pos.q)
+            #         print(cell.power)
+            # print("")
+            ###
+
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
             # undo action after finishing
             board.undo_action()
+
+            ### AFTER APPLY ACTION
+            # print("\nAFTER UNDO ACTION")
+            # for cell in board.__getstate__():
+            #     if cell.power > 0:
+            #         print(cell.player)
+            #         print("pos:", cell.pos.r, cell.pos.q)
+            #         print("power =", cell.power)
+            # print("")
+            ###
+
             if curr_val < value:
                 value  = curr_val
                 action = possible_action

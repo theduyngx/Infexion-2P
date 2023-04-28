@@ -65,7 +65,7 @@ class Board:
         "_mutable",
         "_state",
         "_turn_color",
-        "_history",
+        "_non_concrete_history",
         "_turn_count"
     ]
 
@@ -85,12 +85,16 @@ class Board:
                 hash_pos = pos.__hash__()
                 if hash_pos not in initial_state:
                     initial_state[hash_pos] = CellState(pos)
-        ###
 
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PlayerColor.RED
         self._turn_count: int = 0
-        self._history   : list[BoardMutation] = []
+        self._non_concrete_history: list[BoardMutation] = []
+
+    ###
+    # def __getstate__(self):
+    #     return self._state.values()
+    ###
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
@@ -130,7 +134,7 @@ class Board:
 
         # only add to history in the case where it is going down the search tree
         if not concrete:
-            self._history.append(res_action)
+            self._non_concrete_history.append(res_action)
         self._turn_color = self._turn_color.opponent
         self._turn_count += 1
 
@@ -139,13 +143,16 @@ class Board:
         Undo the last action played, mutating the board state. Throws an
         IndexError if no actions have been played.
         """
-        if not self._history:
+        if not self._non_concrete_history:
             return
-        action: BoardMutation = self._history.pop()
+        action: BoardMutation = self._non_concrete_history.pop()
         for mutation in action.cell_mutations:
             self.__setitem__(mutation.pos, mutation.prev)
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
+
+    def non_concrete_history_empty(self):
+        return not self._non_concrete_history
 
     @property
     def turn_count(self) -> int:
@@ -174,8 +181,8 @@ class Board:
 
         return any([
             self.turn_count >= MAX_TURNS,
-            self._color_power(PlayerColor.RED)  == EMPTY_POWER,
-            self._color_power(PlayerColor.BLUE) == EMPTY_POWER
+            self.color_power(PlayerColor.RED)  == EMPTY_POWER,
+            self.color_power(PlayerColor.BLUE) == EMPTY_POWER
         ])
 
     def total_power(self) -> int:
@@ -204,7 +211,7 @@ class Board:
         """
         return len(self._player_cells(color))
 
-    def _color_power(self, color: PlayerColor) -> int:
+    def color_power(self, color: PlayerColor) -> int:
         """
         Protected method getting the current total power of a specified player.
         @param color: player's color
