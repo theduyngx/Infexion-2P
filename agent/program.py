@@ -1,6 +1,7 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
 from agent.action import minimax
+from agent.agent_test import random_move
 from agent.board import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
 
@@ -37,14 +38,14 @@ class Agent:
 
     def action(self, **referee: dict) -> Action:
         """
-        Return the next action to take.
+        Return the next action to take.f
         """
         if board.total_power() < MAX_TOTAL_POWER:
-            action = minimax(board, self._color)
-            ###
-            print(action.cell.r, action.cell.q)
-            ###
-            return action
+            match self._color:
+                case PlayerColor.RED:
+                    return minimax(board, self._color)
+                case PlayerColor.BLUE:
+                    return random_move(board, self._color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

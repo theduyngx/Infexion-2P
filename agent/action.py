@@ -3,7 +3,7 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexDir
 from .board import Board, CellState
 
 INF   : float = 9999
-DEPTH : int   = 3
+DEPTH : int   = 4
 
 
 def evaluate(board: Board) -> float:
@@ -61,6 +61,7 @@ def alphabeta(board  : Board,
     # maximize
     if color == PlayerColor.RED:
         value = -INF
+        ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
             # apply action
@@ -69,55 +70,33 @@ def alphabeta(board  : Board,
             # undo after finishing
             board.undo_action()
             if curr_val > value:
-                value  = curr_val
-                action = possible_action
+                value = curr_val
+                ret   = possible_action
             alpha = max(alpha, value)
             # beta cutoff
             if value >= beta:
                 break
-        return value, action
+        return value, ret
 
     # minimize
     else:
         value = INF
+        ret   = None
         # for each child node of board
         for possible_action in get_child_nodes(board, color):
             # apply action
             board.apply_action(possible_action, concrete=False)
-
-            ### BEFORE APPLY ACTION
-            # print("\nBEFORE UNDO ACTION")
-            # print("action:", possible_action.cell)
-            # for cell in board.__getstate__():
-            #     if cell.power > 0:
-            #         print(cell.player)
-            #         print(cell.pos.r, cell.pos.q)
-            #         print(cell.power)
-            # print("")
-            ###
-
             curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
             # undo action after finishing
             board.undo_action()
-
-            ### AFTER APPLY ACTION
-            # print("\nAFTER UNDO ACTION")
-            # for cell in board.__getstate__():
-            #     if cell.power > 0:
-            #         print(cell.player)
-            #         print("pos:", cell.pos.r, cell.pos.q)
-            #         print("power =", cell.power)
-            # print("")
-            ###
-
             if curr_val < value:
-                value  = curr_val
-                action = possible_action
+                value = curr_val
+                ret   = possible_action
             beta = min(beta, value)
             # alpha cutoff
             if value <= alpha:
                 break
-        return value, action
+        return value, ret
 
 
 def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
