@@ -54,18 +54,5 @@ Balance of cluster size & cluster total power:
      But it is even less desirable to have great values in small clusters in this case.
 
 
-Cluster algorithm:
-
-        ALGORITHM -> O(nm):
-    
-        for each occupied_cell on board:
-            in_cluster: dict = {}
-            for each adjacent_cell of occupied_cell:
-                for each cluster in clusters:
-                    if cluster[adjacent_cell] exists and of same color:
-                        create cluster[occupied_cell]
-                        in_cluster |= cluster
-                        del cluster in clusters  // delete by reference
-                if in_cluster == {}:
-                    create in_cluster[occupied_cell]
-                clusters.append(in_cluster)
+Dominance algorithm:
+    ...

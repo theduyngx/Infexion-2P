@@ -117,6 +117,8 @@ def evaluate(board: Board) -> float:
     value += (num_red_clusters ** NUM_CLUSTER_POWER - num_blue_clusters ** NUM_CLUSTER_POWER)
 
     # domination evaluation
+    # NOTE: this is where we make sure it doesn't recoil from de-clustering itself. Because:
+    # dominance is important - even when de-clustering, as long as you dominate, it's good.
     # ...
 
     return value
@@ -128,11 +130,10 @@ def create_clusters(board: Board) -> dict[int, Cluster]:
     @param board : the given board
     @return      : dictionary of clusters
     """
-    state = board.__getstate__()
     clusters: dict[int, Cluster] = defaultdict()
 
     # for each cell in state
-    for cell in state.values():
+    for cell in board.get_cells():
         # skip empty cells
         if cell.power == EMPTY_POWER:
             continue

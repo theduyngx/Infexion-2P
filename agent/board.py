@@ -132,9 +132,6 @@ class Board:
     ### FOR UNDO ACTION DEBUG
     def get_state_copy(self):
         return self._state.copy()
-
-    def __getstate__(self):
-        return self._state
     ###
 
     def __getitem__(self, pos: HexPos) -> CellState:
@@ -152,6 +149,13 @@ class Board:
         @param state : the state of the cell
         """
         self._state[pos.__hash__()] = state
+
+    def get_cells(self):
+        """
+        Get the board's cells.
+        @return: the board's cells.
+        """
+        return self._state.values()
 
     def empty_cell(self, pos: HexPos) -> bool:
         """
