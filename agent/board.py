@@ -4,7 +4,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction
+from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction, HexDir
 from referee.game.constants import *
 
 
@@ -60,6 +60,13 @@ class BoardMutation:
 # representing the state of a game with respect to your chosen strategy.
 
 
+def adjacent_positions(pos: HexPos) -> list[HexPos]:
+    adjacent_list = []
+    for dir in HexDir:
+        adjacent_list.append(HexPos(pos.r + dir.r, pos.q + dir.q))
+    return adjacent_list
+
+
 class Board:
     __slots__ = [
         "_mutable",
@@ -95,6 +102,9 @@ class Board:
     def get_state_copy(self):
         return self._state.copy()
     ###
+
+    def __getstate__(self):
+        return self._state
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """

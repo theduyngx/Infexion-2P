@@ -200,7 +200,6 @@ class Board:
 
         if abs(red_power - blue_power) < WIN_POWER_DIFF:
             return None
-
         return (PlayerColor.RED, PlayerColor.BLUE)[red_power < blue_power]
 
     @property
@@ -220,9 +219,6 @@ class Board:
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
     def _within_bounds(self, coord: HexPos) -> bool:
-        ###
-        assert self
-        ###
         r, q = coord
         return 0 <= r < BOARD_N and 0 <= q < BOARD_N
 
@@ -243,7 +239,6 @@ class Board:
         if type(action) != SpawnAction:
             raise IllegalActionException(
                 f"Action '{action}' is not a SPAWN action.", self._turn_color)
-
         self._validate_action_pos_input(action.cell)
 
     def _validate_spread_action_input(self, action: SpreadAction):
@@ -256,7 +251,6 @@ class Board:
 
     def _resolve_spawn_action(self, action: SpawnAction) -> BoardMutation:
         self._validate_spawn_action_input(action)
-
         cell = action.cell
 
         if self._total_power >= MAX_TOTAL_POWER:
@@ -295,11 +289,11 @@ class Board:
         return BoardMutation(
             action,
             cell_mutations={
-                               # Remove token stack from source cell.
-                               CellMutation(from_cell, self[from_cell], CellState()),
-                           } | {
-                               # Add token stack to destination cells.
-                               CellMutation(to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
-                                            ) for to_cell in to_cells
-                           }
+               # Remove token stack from source cell.
+               CellMutation(from_cell, self[from_cell], CellState()),
+            } | {
+               # Add token stack to destination cells.
+               CellMutation(to_cell, self[to_cell], CellState(action_player, self[to_cell].power + 1)
+                            ) for to_cell in to_cells
+            }
         )

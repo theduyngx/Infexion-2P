@@ -1,5 +1,7 @@
+from collections import defaultdict, deque
+
 from referee.game import PlayerColor
-from .board import Board
+from .board import Board, adjacent_positions, CellState, EMPTY_POWER
 
 
 def evaluate(board: Board) -> float:
@@ -22,34 +24,56 @@ def evaluate(board: Board) -> float:
 def cluster_evaluation(board: Board) -> float:
     # A possible way to separate clusters:
     """
-    ALGORITHM 1 -> O((nm)^2):
+    ALGORITHM -> O(nm):
 
     for each occupied_cell on board:
-        in_cluster = false
-        for cluster in clusters:
-            if occupied_cell in cluster:
-                if in_cluster == true:
-                    clusters.join_cluster(occupied_cell.prev_cluster, cluster)
-                    occupied_cell.prev_cluster = joint_cluster
-                else:
-                    cluster.append(occupied_cell)
-                    occupied_cell.prev_cluster = cluster
-                    in_cluster = true
-        cluster = [occupied_cell]
-        clusters.append(cluster)
-
-    ----------------------------
-    ALGORITHM 2 (improved using dictionaries) -> O(nm):
-
-    for each occupied_cell on board:
-        in_cluster = []
+        in_cluster: dict = {}
         for each adjacent_cell of occupied_cell:
             for each cluster in clusters:
-                if cluster[adjacent_cell] exists:
+                if cluster[adjacent_cell] exists and of same color:
                     create cluster[occupied_cell]
-                    // merge bit-wise (meaning O(1), merging by reference);
-                    // need to check again whether to use |= or |
-                    cluster |= in_cluster
-                    in_cluster = cluster
+                    in_cluster |= cluster
+                    del cluster in clusters  // delete by reference
+            if in_cluster == {}:
+                create in_cluster[occupied_cell]
+            clusters.append(in_cluster)
+
+    It can still be improved, in that cells that already have entries within specific clusters may not
+    have to be reconsidered. Although this can be flimsy and ultimately not that much of an improvement.
     """
+
+    # There is a trade-off in speed and space here: space-wise suggests storing, incongruously enough, the entire
+    # board in full instead of sparse representation where unoccupied cells are not to be considered.
+    # This is because not storing in full won't allow undo_action, which is incredibly powerful since it lets
+    # us to not have to create a new state at every node generation.
+
+    state = board.__getstate__()
+    clusters = deque([])
+
+    # for each cell in state
+    for cell in state.values():
+        # skip empty cells
+        if cell.power == EMPTY_POWER:
+            continue
+
+        # everything related to current occupied position
+        pos = cell.pos
+        player = cell.player
+        pos_hash = pos.__hash__()
+        in_cluster = defaultdict()
+        adjacent = adjacent_positions(pos)
+
+        # for each adjacent cell
+        for adj_pos in adjacent:
+            adj_hash = adj_pos.__hash__()
+            for i in range(len(clusters)):
+                cluster = clusters[i]
+                # if adjacent cell belongs to a cluster already and of same color as player in question
+                if adj_hash in cluster and cluster[adj_hash].player == player:
+                    cluster[pos_hash] = CellState(pos, cell.power, player)
+                    in_cluster |= cluster
+                    del clusters[i]
+            if not in_cluster:
+                in_cluster[pos_hash] = CellState(pos, cell.power, player)
+            clusters.append(in_cluster)
     return 0

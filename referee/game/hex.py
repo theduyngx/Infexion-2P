@@ -113,12 +113,3 @@ class HexPos(HexVec):
             (self.r - other.r) % BOARD_N, 
             (self.q - other.q) % BOARD_N
         )
-
-    # # temporary overridden hash and eq methods
-    # def __hash__(self):
-    #     return hash((self.r, self.q))
-    #
-    # def __eq__(self, other):
-    #     if type(other) != HexPos:
-    #         return False
-    #     return self.r == other.r and self.q == other.q
