@@ -1,48 +1,73 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
+from agent.search import minimax
+from agent.agent_test import random_move
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, HexDir
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
 
-
+# NOTE: Should find a better way to store this, seems like it belongs to __init__.py
 board: Board = Board()
 
 
 def print_referee(referee: dict):
-    print("-------------------------------")
+    """
+    Print referee data. Space remaining sometimes works, sometimes doesn't. Though most of the time
+    it does work, so I suppose it's fine.
+    @param referee : the referee
+    """
+    print("---------------------------------------")
     print("Time remaining  :", referee["time_remaining"])
     print("Space remaining :", referee["space_remaining"])
+    print("---------------------------------------")
 
 
 class Agent:
+    """
+    Agent class representing the agent player.
+    """
+    __slots__ = [
+        "_color"
+    ]
+
     def __init__(self, color: PlayerColor, **referee: dict):
         """
         Initialise the agent.
+        @param color   : the player's color
+        @param referee : the referee
         """
+        print_referee(referee)
         self._color = color
-        match color:
-            case PlayerColor.RED:
-                print("Testing: I am playing as red")
-            case PlayerColor.BLUE:
-                print("Testing: I am playing as blue")
+
+    def get_color(self) -> PlayerColor:
+        """
+        Non-property getter to keep the color of the Agent final.
+        @return: player's color
+        """
+        return self._color
 
     def action(self, **referee: dict) -> Action:
         """
-        Return the next action to take.
+        Return the next action to take by the agent.
+        @param referee : the referee
+        @return        : the action to be taken next
         """
-        match self._color:
-            case PlayerColor.RED:
-                return SpawnAction(HexPos(3, 3))
-            case PlayerColor.BLUE:
-                return SpawnAction(HexPos(4, 3))
-                # return SpreadAction(HexPos(4, 3), HexDir.Up)
+        if board.total_power() < MAX_TOTAL_POWER:
+            match self._color:
+                case PlayerColor.RED:
+                    return minimax(board, self._color)
+                case PlayerColor.BLUE:
+                    return random_move(board, self._color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
         Update the agent with the last player's action.
+        @param color   : the player's color
+        @param action  : action taken by agent
+        @param referee : the referee
         """
         assert self
         print_referee(referee)
-        board.apply_action(action, concrete=True)
+        board.apply_action(action)
 
         match action:
             case SpawnAction(cell):

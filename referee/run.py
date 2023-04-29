@@ -26,8 +26,7 @@ async def run_game(players: list[Player],
     Return the winning player (interface) or 'None' if drawn.
     """
 
-    async def _update_handlers(handlers: list[AsyncGenerator | None],
-                               update: GameUpdate | None):
+    async def _update_handlers(handlers: list[AsyncGenerator | None], update: GameUpdate | None):
         for handler in handlers:
             try:
                 if handler is not None:

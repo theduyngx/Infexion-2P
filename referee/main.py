@@ -18,8 +18,7 @@ from traceback import format_tb
 
 from .game import Player, PlayerColor
 from .log import LogStream, LogColor, LogLevel
-from .run import game_user_wait, run_game, \
-    game_commentator, game_event_logger, game_delay, output_board_updates
+from .run import game_user_wait, run_game, game_commentator, game_event_logger, game_delay, output_board_updates
 from .agent import AgentProxyPlayer
 from .options import get_options
 
@@ -105,13 +104,13 @@ def main(options: Namespace | None = None):
             }
 
         # Play the game!
-        async def _run(options: Namespace) -> Player | None:
+        async def _run(ops: Namespace) -> Player | None:
             event_handlers = [
                 game_event_logger(gl) if gl is not None else None,
                 game_commentator(rl),
-                output_board_updates(rl, options.use_colour, options.use_unicode) if options.verbosity >= 2 else None,
-                game_delay(options.wait) if options.wait > 0 else None,
-                game_user_wait(rl) if options.wait < 0 else None,
+                output_board_updates(rl, ops.use_colour, ops.use_unicode) if ops.verbosity >= 2 else None,
+                game_delay(ops.wait) if ops.wait > 0 else None,
+                game_user_wait(rl) if ops.wait < 0 else None,
             ]
 
             return await run_game(
