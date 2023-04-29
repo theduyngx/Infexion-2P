@@ -6,8 +6,10 @@ from referee.game.constants import *
 
 
 # Constants
-EMPTY_POWER : int = 0
-MIN_MOVE_WIN: int = 2
+EMPTY_POWER    : int = 0
+MIN_MOVE_WIN   : int = 2
+PLAYER_COLOR   : PlayerColor = PlayerColor.RED
+OPPONENT_COLOR : PlayerColor = PLAYER_COLOR.opponent
 
 
 @dataclass(frozen=True, slots=True)
@@ -125,14 +127,9 @@ class Board:
                     initial_state[hash_pos] = CellState(pos)
 
         self._state.update(initial_state)
-        self._turn_color: PlayerColor = PlayerColor.RED
+        self._turn_color: PlayerColor = PLAYER_COLOR
         self._turn_count: int = 0
         self._non_concrete_history: list[BoardMutation] = []
-
-    ### FOR UNDO ACTION DEBUG
-    def get_state_copy(self):
-        return self._state.copy()
-    ###
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
@@ -235,8 +232,8 @@ class Board:
 
         return any([
             self.turn_count >= MAX_TURNS,
-            self.color_power(PlayerColor.RED)  == EMPTY_POWER,
-            self.color_power(PlayerColor.BLUE) == EMPTY_POWER
+            self.color_power(PLAYER_COLOR)   == EMPTY_POWER,
+            self.color_power(OPPONENT_COLOR) == EMPTY_POWER
         ])
 
     def total_power(self) -> int:
@@ -246,7 +243,7 @@ class Board:
         """
         return sum(map(lambda cell: cell.power, self._state.values()))
 
-    def _player_cells(self, color: PlayerColor) -> list[CellState]:
+    def player_cells(self, color: PlayerColor) -> list[CellState]:
         """
         Get the list of cells of specified player's
         @param color: the player's color
@@ -263,7 +260,7 @@ class Board:
         @param color: the player's color
         @return     : number of player pieces
         """
-        return len(self._player_cells(color))
+        return len(self.player_cells(color))
 
     def color_power(self, color: PlayerColor) -> int:
         """
@@ -271,7 +268,7 @@ class Board:
         @param color: player's color
         @return     : their power
         """
-        return sum(map(lambda cell: cell.power, self._player_cells(color)))
+        return sum(map(lambda cell: cell.power, self.player_cells(color)))
 
     def player_movable_cells(self, color: PlayerColor) -> list[CellState]:
         """

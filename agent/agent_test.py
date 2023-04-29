@@ -1,7 +1,7 @@
 from random import randint
 
 from agent.board import Board
-from agent.action import get_child_nodes
+from agent.search import get_child_nodes
 from referee.game import Action, PlayerColor
 
 
