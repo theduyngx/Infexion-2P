@@ -3,7 +3,7 @@
 from agent.search import minimax
 from agent.agent_test import random_move
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
 
 # NOTE: Should find a better way to store this, seems like it belongs to __init__.py
 board: Board = Board()
@@ -54,6 +54,8 @@ class Agent:
         if board.total_power() < MAX_TOTAL_POWER:
             match self._color:
                 case PlayerColor.RED:
+                    if board.turn_count < 1:
+                        return SpawnAction(HexPos(3, 3))
                     return minimax(board, self._color)
                 case PlayerColor.BLUE:
                     return random_move(board, self._color)

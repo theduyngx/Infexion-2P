@@ -1,10 +1,9 @@
 from collections import defaultdict
 from dataclasses import dataclass
-
 from referee.game import PlayerColor, HexPos
 from .board import Board, adjacent_positions, CellState, PLAYER_COLOR, OPPONENT_COLOR
 
-PIECE_POWER_FACTOR  : float = 1.4
+PIECE_POWER_FACTOR  : float = 1.5
 DOMINANCE_FACTOR    : float = 1.4
 CLUSTER_SIZE_FACTOR : float = 1.3
 NUM_CLUSTER_FACTOR  : float = 1.1
@@ -17,16 +16,12 @@ def evaluate(board: Board) -> float:
     it is for the BLUE player.
 
     NOTE:
-     1. Possible heuristic improvements: bounded-ness
-        If we know for certain the upper/lower bound of the heuristic, not necessarily in a standardized
+    Possible heuristic improvements: bounded-ness
+    -   If we know for certain the upper/lower bound of the heuristic, not necessarily in a standardized
         [0, 1] way but a more context-driven way, then we can significantly speed up evaluation process.
-        i.e. We know evaluation can not exceed 49000 (just an example) because of how the game works and
+    -   i.e. We know evaluation can not exceed 49000 (just an example) because of how the game works and
              how we evaluate the scores (given that we've come to it in a proper manner). Then we can
              cut off branches more efficiently and evaluate more accurately.
-     2. Dominance and cluster needs more debugging (it doesn't seem correct yet):
-        -  Just need to print out stuffs to see if number of clusters are calculated properly
-        -  For dominance, we need to print out the number of opposing clusters to see if it's working
-           properly or not as well.
 
     @param board : current state of board
     @return      : the evaluated value of the board
@@ -38,10 +33,10 @@ def evaluate(board: Board) -> float:
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
-    num_red_clusters  = 0
-    num_blue_clusters = 0
     red_dominates     = 0
     blue_dominates    = 0
+    num_red_clusters  = 0
+    num_blue_clusters = 0
     for cluster in clusters.values():
         if cluster.color == PlayerColor.RED:
             sign = 1
@@ -220,5 +215,4 @@ def create_clusters(board: Board) -> dict[int, Cluster]:
 
             # add the cluster with added position, whatever it may be
             clusters[in_cluster.__hash__()] = in_cluster
-
     return clusters

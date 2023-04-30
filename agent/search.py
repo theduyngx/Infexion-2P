@@ -4,7 +4,7 @@ from .evaluation import evaluate
 
 # Constants
 INF   : float = 9999
-DEPTH : int   = 4
+DEPTH : int   = 3
 
 
 def minimax(board: Board, color: PlayerColor) -> Action:
@@ -48,7 +48,7 @@ def alphabeta(board  : Board,
         value = -INF
         ret   = None
         # for each child node of board
-        for possible_action in get_child_nodes(board, color):
+        for possible_action in get_legal_moves(board, color):
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -71,7 +71,7 @@ def alphabeta(board  : Board,
         value = INF
         ret   = None
         # for each child node of board
-        for possible_action in get_child_nodes(board, color):
+        for possible_action in get_legal_moves(board, color):
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -90,12 +90,9 @@ def alphabeta(board  : Board,
         return value, ret
 
 
-def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
+def get_legal_moves(board: Board, color: PlayerColor) -> list[Action]:
     """
-    Get all possible child nodes from a specific state of the board. The child nodes therefore
-    indicates all possible moves that could be applied to the board by the specified player
-    color's turn. It should be noted that it returns the list of actions before applied to board
-    to create the child state.
+    Get all possible legal moves of a specified player color from a specific state of the board.
     @param board : the board
     @param color : specified player's color
     @return      : list of all actions that could be applied to board
@@ -106,7 +103,7 @@ def get_child_nodes(board: Board, color: PlayerColor) -> list[Action]:
     for state in movable_dict:
         # append spawn actions
         pos = state.pos
-        if board.empty_cell(pos):
+        if not board.cell_occupied(pos):
             actions.append(SpawnAction(pos))
         # append spread actions for each direction
         else:
