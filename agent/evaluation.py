@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from referee.game import PlayerColor, HexPos
 from .board import Board, adjacent_positions, CellState, PLAYER_COLOR, OPPONENT_COLOR
 
-PIECE_POWER_FACTOR  : float = 1.5
+PIECE_POWER_FACTOR  : float = 1.54
 DOMINANCE_FACTOR    : float = 1.4
 CLUSTER_SIZE_FACTOR : float = 1.3
 NUM_CLUSTER_FACTOR  : float = 1.1
@@ -49,6 +49,7 @@ def evaluate(board: Board) -> float:
         if cluster.color == PLAYER_COLOR:
             for opponent_len in cluster.get_opponents():
                 print(opponent_len)
+                # so far, dominance factor is entirely dictated by number of pieces, not their power
                 if len(cluster) < opponent_len:
                     blue_dominates += 1
                 elif len(cluster) > opponent_len:
