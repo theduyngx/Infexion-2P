@@ -16,6 +16,7 @@ class Agent:
         Initialise the agent.
         """
         self._color = color
+        self._board = BoardUpdate.board
         match color:
             case PlayerColor.RED:
                 print("Testing: I am playing as red")
