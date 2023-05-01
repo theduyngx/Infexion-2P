@@ -20,11 +20,11 @@ class InterchangeException(Exception):
 
 @dataclass(frozen=True, slots=True, init=True)
 class AsyncProcessStatus:
-    time_delta: float
-    time_used: float
-    space_known: bool
-    space_curr: float
-    space_peak: float
+    time_delta  : float
+    time_used   : float
+    space_known : bool
+    space_curr  : float
+    space_peak  : float
 
 
 @contextmanager

@@ -1,0 +1,874 @@
+* referee : RED to play (turn 1) ...
+* referee : RED plays action SPAWN(3, 3)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         ..      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             ..      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 179.993930417
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 3-3
+---------------------------------------
+Time remaining  : 179.996110365
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 3-3
+* referee : BLUE to play (turn 2) ...
+* referee : BLUE plays action SPAWN(1, 4)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         ..      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             ..      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 179.993470217
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 1-4
+---------------------------------------
+Time remaining  : 179.995432596
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 1-4
+* referee : RED to play (turn 3) ...
+* referee : RED plays action SPAWN(2, 3)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         ..      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             ..      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 179.269123925
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 2-3
+---------------------------------------
+Time remaining  : 179.995139661
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 2-3
+* referee : BLUE to play (turn 4) ...
+* referee : BLUE plays action SPAWN(0, 4)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         ..      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                         b1      ..      ..     
+* referee :                             ..      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 179.268871857
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 0-4
+---------------------------------------
+Time remaining  : 179.994415
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 0-4
+* referee : RED to play (turn 5) ...
+* referee : RED plays action SPAWN(0, 0)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                         b1      ..      ..     
+* referee :                             ..      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 178.449621447
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 0-0
+---------------------------------------
+Time remaining  : 179.994187328
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 0-0
+* referee : BLUE to play (turn 6) ...
+* referee : BLUE plays action SPREAD(1, 4, -1, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         b1      ..      ..     
+* referee :                             b1      ..     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 178.449324115
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPREAD from 1-4, [↓]
+---------------------------------------
+Time remaining  : 179.993452163
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPREAD from 1-4, [↓]
+* referee : RED to play (turn 7) ...
+* referee : RED plays action SPAWN(0, 6)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         b1      ..      ..     
+* referee :                             b1      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 177.071172213
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 0-6
+---------------------------------------
+Time remaining  : 179.993121978
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 0-6
+* referee : BLUE to play (turn 8) ...
+* referee : BLUE plays action SPREAD(0, 4, 0, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             ..      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 177.070886628
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPREAD from 0-4, [↘]
+---------------------------------------
+Time remaining  : 179.992247429
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPREAD from 0-4, [↘]
+* referee : RED to play (turn 9) ...
+* referee : RED plays action SPAWN(0, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 175.811766363
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 0-1
+---------------------------------------
+Time remaining  : 179.991839311
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 0-1
+* referee : BLUE to play (turn 10) ...
+* referee : BLUE plays action SPAWN(3, 5)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 ..      ..      ..      b1      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 175.811357998
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 3-5
+---------------------------------------
+Time remaining  : 179.991212681
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 3-5
+* referee : RED to play (turn 11) ...
+* referee : RED plays action SPAWN(0, 2)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 173.778798909
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 0-2
+---------------------------------------
+Time remaining  : 179.990923162
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 0-2
+* referee : BLUE to play (turn 12) ...
+* referee : BLUE plays action SPAWN(1, 5)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 173.778442987
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 1-5
+---------------------------------------
+Time remaining  : 179.990299581
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 1-5
+* referee : RED to play (turn 13) ...
+* referee : RED plays action SPAWN(0, 3)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      ..      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      ..      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 166.61410128400001
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 0-3
+---------------------------------------
+Time remaining  : 179.990038845
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 0-3
+* referee : BLUE to play (turn 14) ...
+* referee : BLUE plays action SPAWN(5, 5)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      ..      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 166.613788459
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 5-5
+---------------------------------------
+Time remaining  : 179.989522852
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 5-5
+* referee : RED to play (turn 15) ...
+* referee : RED plays action SPAWN(1, 0)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      ..      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 156.33761015
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 1-0
+---------------------------------------
+Time remaining  : 179.989276046
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 1-0
+* referee : BLUE to play (turn 16) ...
+* referee : BLUE plays action SPAWN(1, 4)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :         r1      ..      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 156.337319621
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 1-4
+---------------------------------------
+Time remaining  : 179.988440805
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 1-4
+* referee : RED to play (turn 17) ...
+* referee : RED plays action SPAWN(1, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :         r1      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      ..     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 142.147875416
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 1-1
+---------------------------------------
+Time remaining  : 179.988175379
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 1-1
+* referee : BLUE to play (turn 18) ...
+* referee : BLUE plays action SPAWN(1, 6)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :         r1      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      b1     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 142.147554373
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 1-6
+---------------------------------------
+Time remaining  : 179.987422216
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 1-6
+* referee : RED to play (turn 19) ...
+* referee : RED plays action SPREAD(1, 0, 0, -1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      b1      ..     
+* referee :                             b2      r2     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 126.661570178
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPREAD from 1-0, [↖]
+---------------------------------------
+Time remaining  : 179.987160684
+Space remaining : None
+---------------------------------------
+Testing: RED SPREAD from 1-0, [↖]
+* referee : BLUE to play (turn 20) ...
+* referee : BLUE plays action SPREAD(1, 5, 0, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         r1      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      b3     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 126.66128190399999
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPREAD from 1-5, [↘]
+---------------------------------------
+Time remaining  : 179.986442329
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPREAD from 1-5, [↘]
+* referee : RED to play (turn 21) ...
+* referee : RED plays action SPREAD(0, 0, 1, -1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      ..      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      r4     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 121.462287876
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPREAD from 0-0, [↑]
+---------------------------------------
+Time remaining  : 179.986237158
+Space remaining : None
+---------------------------------------
+Testing: RED SPREAD from 0-0, [↑]
+* referee : BLUE to play (turn 22) ...
+* referee : BLUE plays action SPAWN(5, 4)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      r1      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      b1      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      r4     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 121.462039462
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 5-4
+---------------------------------------
+Time remaining  : 179.98569453
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 5-4
+* referee : RED to play (turn 23) ...
+* referee : RED plays action SPREAD(2, 3, -1, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      ..      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      r2      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      r4     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 113.59794413300001
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPREAD from 2-3, [↓]
+---------------------------------------
+Time remaining  : 179.985514509
+Space remaining : None
+---------------------------------------
+Testing: RED SPREAD from 2-3, [↓]
+* referee : BLUE to play (turn 24) ...
+* referee : BLUE plays action SPAWN(4, 1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      r2      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             b2      r4     
+* referee :                                 r1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 113.59774465600002
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 4-1
+---------------------------------------
+Time remaining  : 179.985018468
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 4-1
+* referee : RED to play (turn 25) ...
+* referee : RED plays action SPREAD(0, 6, 0, -1)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      b1      ..     
+* referee :                     r1      r2      ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                             r3      r4     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 108.16679861000003
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPREAD from 0-6, [↖]
+---------------------------------------
+Time remaining  : 179.984838352
+Space remaining : None
+---------------------------------------
+Testing: RED SPREAD from 0-6, [↖]
+* referee : BLUE to play (turn 26) ...
+* referee : BLUE plays action SPREAD(3, 5, -1, 0)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      ..      ..     
+* referee :                     r1      r2      b1      ..     
+* referee :                         ..      ..      ..     
+* referee :                             r3      r4     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 108.16658000700002
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPREAD from 3-5, [↙]
+---------------------------------------
+Time remaining  : 179.984271644
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPREAD from 3-5, [↙]
+* referee : RED to play (turn 27) ...
+* referee : RED plays action SPAWN(1, 5)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      ..      ..     
+* referee :                     r1      r2      b1      ..     
+* referee :                         ..      r1      ..     
+* referee :                             r3      r4     
+* referee :                                 ..     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 102.34168233300002
+Space remaining : 249.8671875
+---------------------------------------
+Testing: RED SPAWN at 1-5
+---------------------------------------
+Time remaining  : 179.984052205
+Space remaining : None
+---------------------------------------
+Testing: RED SPAWN at 1-5
+* referee : BLUE to play (turn 28) ...
+* referee : BLUE plays action SPAWN(0, 6)
+* referee : 
+* referee : =========================== game board ===========================
+* referee : 
+* referee :                                 ..     
+* referee :                             ..      ..     
+* referee :                         ..      ..      ..     
+* referee :                     ..      b1      ..      ..     
+* referee :                 ..      ..      ..      ..      ..     
+* referee :             ..      ..      ..      ..      b1      ..     
+* referee :         ..      r1      ..      r1      ..      b1      ..     
+* referee :             r1      ..      ..      ..      ..      ..     
+* referee :                 r1      ..      ..      ..      ..     
+* referee :                     r1      r2      b1      ..     
+* referee :                         ..      r1      ..     
+* referee :                             r3      r4     
+* referee :                                 b1     
+* referee : 
+* referee : ==================================================================
+* referee : 
+---------------------------------------
+Time remaining  : 102.34150060500002
+Space remaining : 249.8671875
+---------------------------------------
+Testing: BLUE SPAWN at 0-6
+---------------------------------------
+Time remaining  : 179.983539386
+Space remaining : None
+---------------------------------------
+Testing: BLUE SPAWN at 0-6
+* referee : RED to play (turn 29) ...
+* referee : RED plays action SPREAD(0, 6, 0, 1)
+* referee ! player error: ILLEGAL ACTION: SPREAD cell 0-6 not occupied by RED
+* referee : game over, winner is BLUE
+* referee @ result: player 2 [agent:Agent]
+

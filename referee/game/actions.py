@@ -13,7 +13,7 @@ from .hex import HexPos, HexDir
 
 
 @dataclass(frozen=True, slots=True)
-class SpawnAction():
+class SpawnAction:
     cell: HexPos
 
     def __str__(self) -> str:
@@ -21,7 +21,7 @@ class SpawnAction():
 
 
 @dataclass(frozen=True, slots=True)
-class SpreadAction():
+class SpreadAction:
     cell: HexPos
     direction: HexDir
 
