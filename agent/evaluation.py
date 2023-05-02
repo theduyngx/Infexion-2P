@@ -2,11 +2,11 @@ from .cluster import create_clusters
 from referee.game import PlayerColor
 from .board import Board, PLAYER_COLOR
 
-PIECE_POWER_FACTOR     : float = 3.0
+PIECE_POWER_FACTOR     : float = 2.4
 NUM_CLUSTER_FACTOR     : float = 1.2
 SIZE_CLUSTER_FACTOR    : float = 1.4
 SIZE_DOMINANCE_FACTOR  : float = 1.5
-POWER_DOMINANCE_FACTOR : float = 0.8
+POWER_DOMINANCE_FACTOR : float = 0.55
 
 
 def evaluate(board: Board) -> float:

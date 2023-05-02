@@ -1,7 +1,7 @@
 # COMP30024 Artificial Intelligence, Semester 1 2023
 # Project Part B: Game Playing Agent
 from agent.search import minimax
-from agent.agent_test import greedy_move
+from agent.agent_test import greedy_move, random_move
 from agent.board import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
 
