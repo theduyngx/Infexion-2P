@@ -1,7 +1,12 @@
+"""
+    Module  : minimax.py
+    Purpose : The minimax search algorithm to find the best next move for the agent,
+              with alpha-beta pruning to improve performance.
+"""
+
 from referee.game import PlayerColor, Action
 from .board import Board
 from .evaluation import evaluate
-
 
 # Constants
 INF   : float = 9999
