@@ -1,6 +1,6 @@
 from referee.game import PlayerColor, Action
 from .board import Board
-from .evaluation import evaluate, create_clusters
+from .evaluation import evaluate
 
 
 # Constants
@@ -13,37 +13,14 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
 
-    NOTE: the behavior so far is like this: for whatever reason, our player insists NOT to use
-    spread action for pieces with any power level above 1. It seems like there's a faulty feature
-    in evaluation where power of a piece is too valued.
+    NOTE: be mindful of the behavior specifically specified in Infexion ver 1.1
     @param board : the board
     @param color : the agent's color
     @return      : the action to take for agent
     """
     alpha = -INF
     beta  = INF
-
-    ###
-    # moves = board.get_legal_moves(PlayerColor.RED)
-    # print("Number of legal moves =", len(moves))
-    # for move in moves:
-    #     print(move)
-    ###
-
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
-
-    ###
-    # clusters = create_clusters(board)
-    # print()
-    # print("===================================")
-    # print("Number of clusters =", len(clusters))
-    # for cluster in clusters.values():
-    #     print("Cluster color", cluster.color)
-    #     print("Cluster size =", len(cluster))
-    #     print()
-    # print("===================================")
-    ###
-
     return action
 
 

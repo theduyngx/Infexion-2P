@@ -14,14 +14,6 @@ def evaluate(board: Board) -> float:
     'negative' the evaluated value, the worse it is for the RED player and, conversely, the better
     it is for the BLUE player.
 
-    NOTE:
-    Possible heuristic improvements: bounded-ness
-    -   If we know for certain the upper/lower bound of the heuristic, not necessarily in a standardized
-        [0, 1] way but a more context-driven way, then we can significantly speed up evaluation process.
-    -   i.e. We know evaluation can not exceed 49000 (just an example) because of how the game works and
-             how we evaluate the scores (given that we've come to it in a proper manner). Then we can
-             cut off branches more efficiently and evaluate more accurately.
-
     @param board : current state of board
     @return      : the evaluated value of the board
     """
