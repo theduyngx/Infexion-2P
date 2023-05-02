@@ -230,9 +230,9 @@ def create_clusters(board: Board) -> Clusters:
                     if cluster[adj_pos].color == in_cluster.color:
                         in_cluster.reference_append(cluster)
                         clusters_copy.remove(cluster)
-                    # # dominance factor
-                    # else:
-                    #     in_cluster.opponent_update(cluster)
+                    # dominance factor
+                    else:
+                        in_cluster.opponent_update(cluster)
                 else:
                     in_cluster.append(adj_pos, board[adj_pos])
 

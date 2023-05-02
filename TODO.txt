@@ -70,6 +70,35 @@ Premature stop (adding an argument probably):
     already won then there's no need to go any further. If we haven't won, then for each node we will
     call the recursive version of minimax.
 
+Reusing spawn-able cells:
+    When obtaining the list of possible actions, we're iterating through the entire board every single
+    time. However, on average, most cells remain spawn-able throughout. We can reuse by via apply_action
+    and undo_action, and by storing the spawn-able cells as a dictionary:
+
+    apply_action:
+        // note: action.cell is cell where action occurs (SpawnAction(cell, dir) kind of)
+        // mutation.cell is all the cells were the mutation spreads to
+        if action is spawn:
+            del spawns[action.cell]
+        else:
+            for mutation in action:
+                cell = mutation.cell
+                if cell in spawns:
+                    del spawns[cell]
+            add spawns[action.cell]
+
+    undo_action:
+        if action is spawn:
+            add spawns[action.cell]
+        else:
+            for mutation in action:
+                rollback to prev for each cell
+                if mutation.cell is empty cell:
+                    add spawns[cell]
+            del spawns[action.cell]
+
+
+
 
 STOCHASTIC BIAS PRUNING (Monte Carlo):
 

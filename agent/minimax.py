@@ -12,17 +12,28 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     """
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
+
+    NOTE: the behavior so far is like this: for whatever reason, our player insists NOT to use
+    spread action for pieces with any power level above 1. It seems like there's a faulty feature
+    in evaluation where power of a piece is too valued.
     @param board : the board
     @param color : the agent's color
     @return      : the action to take for agent
     """
     alpha = -INF
     beta  = INF
-    b_copy = board.copy()
+
+    ###
+    moves = board.get_legal_moves(PlayerColor.RED)
+    print("Number of legal moves =", len(moves))
+    for move in moves:
+        print(move)
+    ###
+
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
-    assert b_copy == board
     clusters = create_clusters(board)
 
+    ###
     print()
     print("===================================")
     print("Number of clusters =", len(clusters))
@@ -31,6 +42,8 @@ def minimax(board: Board, color: PlayerColor) -> Action:
         print("Cluster size =", len(cluster))
         print()
     print("===================================")
+    ###
+
     return action
 
 

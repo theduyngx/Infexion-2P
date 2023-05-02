@@ -154,20 +154,7 @@ class Board:
         @param pos : the specified position
         @return    : boolean indicating whether the position is occupied or not
         """
-        return self._state[pos.__hash__()].power > EMPTY_POWER
-
-    ### DEBUG
-    def copy(self):
-        return Board(self._state.copy())
-
-    def get_state(self):
-        return self._state
-
-    def __eq__(self, other):
-        if type(other) == Board:
-            return self.get_state() == other.get_state()
-        return False
-    ###
+        return self[pos].power > EMPTY_POWER
 
     def get_cells(self):
         """
@@ -184,18 +171,18 @@ class Board:
         """
         match action:
             case SpawnAction():
-                res_action = self.spawn(action)
+                board_mutation = self.spawn(action)
             case SpreadAction():
-                res_action = self.spread(action)
+                board_mutation = self.spread(action)
             case _:
-                exit(1)
+                raise Exception("apply_action: action not of valid type")
 
-        for mutation in res_action.cell_mutations:
+        for mutation in board_mutation.cell_mutations:
             self[mutation.pos] = mutation.next
 
         # only add to history in the case where it is going down the search tree
         if not concrete:
-            self._non_concrete_history.append(res_action)
+            self._non_concrete_history.append(board_mutation)
         self._turn_color = self._turn_color.opponent
         self._turn_count += 1
 
@@ -206,8 +193,8 @@ class Board:
         """
         if not self._non_concrete_history:
             return
-        action: BoardMutation = self._non_concrete_history.pop()
-        for mutation in action.cell_mutations:
+        board_mutation: BoardMutation = self._non_concrete_history.pop()
+        for mutation in board_mutation.cell_mutations:
             self[mutation.pos] = mutation.prev
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
@@ -252,7 +239,7 @@ class Board:
         The total power of all cells on the board.
         @return: total power
         """
-        return sum(map(lambda cell: cell.power, self._state.values()))
+        return sum(map(lambda cell: cell.power, self.get_cells()))
 
     def player_cells(self, color: PlayerColor) -> list[CellState]:
         """
@@ -262,7 +249,7 @@ class Board:
         """
         return list(filter(
             lambda cell: cell.color == color,
-            self._state.values()
+            self.get_cells()
         ))
 
     def num_players(self, color: PlayerColor) -> int:
@@ -361,13 +348,13 @@ class Board:
         """
         # for every possible move from a given board state, including SPAWN and SPREAD
         actions: list[Action] = []
-        for cell in self._state.values():
+        for cell in self.get_cells():
             # append spawn actions
             pos = cell.pos
             if not self.cell_occupied(pos):
                 if self.total_power() < MAX_TOTAL_POWER:
                     actions.append(SpawnAction(pos))
-            # append spread actions for each direction
+            # append spread actions for every direction
             elif self[pos].color == color:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
         return actions
