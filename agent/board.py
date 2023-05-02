@@ -76,17 +76,7 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
     """
     adjacent_list = []
     for dir in HexDir:
-        r_coord = pos.r + dir.value.r
-        q_coord = pos.q + dir.value.q
-        if r_coord < 0:
-            r_coord += BOARD_N
-        elif r_coord >= BOARD_N:
-            r_coord -= BOARD_N
-        if q_coord < 0:
-            q_coord += BOARD_N
-        elif q_coord >= BOARD_N:
-            q_coord -= BOARD_N
-        adjacent_list.append(HexPos(r_coord, q_coord))
+        adjacent_list.append(pos + dir)
     return adjacent_list
 
 
@@ -126,6 +116,8 @@ class Board:
                 hash_pos = pos.__hash__()
                 if hash_pos not in initial_state:
                     initial_state[hash_pos] = CellState(pos)
+                else:
+                    assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
 
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PLAYER_COLOR
@@ -154,7 +146,7 @@ class Board:
         @param pos : the specified position
         @return    : boolean indicating whether the position is occupied or not
         """
-        return self[pos].power > EMPTY_POWER
+        return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
 
     def get_cells(self):
         """
@@ -162,42 +154,6 @@ class Board:
         @return: the board's cells.
         """
         return self._state.values()
-
-    def apply_action(self, action: Action, concrete=True):
-        """
-        Apply an action to a board, mutating the board state.
-        @param action   : specified action to be applied
-        @param concrete : whether action is non-concrete (an applied action within search), or otherwise
-        """
-        match action:
-            case SpawnAction():
-                board_mutation = self.spawn(action)
-            case SpreadAction():
-                board_mutation = self.spread(action)
-            case _:
-                raise Exception("apply_action: action not of valid type")
-
-        for mutation in board_mutation.cell_mutations:
-            self[mutation.pos] = mutation.next
-
-        # only add to history in the case where it is going down the search tree
-        if not concrete:
-            self._non_concrete_history.append(board_mutation)
-        self._turn_color = self._turn_color.opponent
-        self._turn_count += 1
-
-    def undo_action(self):
-        """
-        Undo the last action played, mutating the board state. Throws an
-        IndexError if no actions have been played.
-        """
-        if not self._non_concrete_history:
-            return
-        board_mutation: BoardMutation = self._non_concrete_history.pop()
-        for mutation in board_mutation.cell_mutations:
-            self[mutation.pos] = mutation.prev
-        self._turn_color = self._turn_color.opponent
-        self._turn_count -= 1
 
     def non_concrete_history_empty(self) -> bool:
         """
@@ -268,7 +224,7 @@ class Board:
         """
         return sum(map(lambda cell: cell.power, self.player_cells(color)))
 
-    def cell_occupied(self, pos: HexPos) -> bool:
+    def _pos_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
         @param pos : specified cell's coordinates
@@ -288,7 +244,7 @@ class Board:
         if self.total_power() >= MAX_TOTAL_POWER:
             raise Exception("SPAWN: total power exceeded")
 
-        if self.cell_occupied(pos):
+        if self._pos_occupied(pos):
             raise Exception("SPAWN: cell occupied")
 
         return BoardMutation(
@@ -323,22 +279,54 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
-        for to_cell in to_cells:
-            if not self.cell_occupied(to_cell):
-                self[to_cell] = CellState(to_cell)
-
         return BoardMutation(
             action,
             cell_mutations = {
-                # Remove token stack from source cell.
-                CellMutation(from_cell, self[from_cell], CellState(action.cell)),
+                # Remove the piece that is currently in the position of action
+                CellMutation(from_cell, self[from_cell], CellState(from_cell)),
             } | {
-                # Add token stack to destination cells.
+                # Cells that get spread to will now be occupied by player
                 CellMutation(
-                    to_cell, self[to_cell], CellState(action.cell, player_color, self[to_cell].power + 1)
+                    to_cell, self[to_cell], CellState(to_cell, player_color, self[to_cell].power + 1)
                 ) for to_cell in to_cells
             }
         )
+
+    def apply_action(self, action: Action, concrete=True):
+        """
+        Apply an action to a board, mutating the board state.
+        @param action   : specified action to be applied
+        @param concrete : whether action is non-concrete (an applied action within search), or otherwise
+        """
+        match action:
+            case SpawnAction():
+                board_mutation = self.spawn(action)
+            case SpreadAction():
+                board_mutation = self.spread(action)
+            case _:
+                raise Exception("apply_action: action not of valid type")
+
+        for mutation in board_mutation.cell_mutations:
+            self[mutation.pos] = mutation.next
+
+        # only add to history in the case where it is going down the search tree
+        if not concrete:
+            self._non_concrete_history.append(board_mutation)
+        self._turn_color = self._turn_color.opponent
+        self._turn_count += 1
+
+    def undo_action(self):
+        """
+        Undo the last action played, mutating the board state. Throws an
+        IndexError if no actions have been played.
+        """
+        if not self._non_concrete_history:
+            return
+        board_mutation: BoardMutation = self._non_concrete_history.pop()
+        for mutation in board_mutation.cell_mutations:
+            self[mutation.pos] = mutation.prev
+        self._turn_color = self._turn_color.opponent
+        self._turn_count -= 1
 
     def get_legal_moves(self, color: PlayerColor) -> list[Action]:
         """
@@ -348,13 +336,14 @@ class Board:
         """
         # for every possible move from a given board state, including SPAWN and SPREAD
         actions: list[Action] = []
+        assert len(self._state) == MAX_TOTAL_POWER
         for cell in self.get_cells():
             # append spawn actions
             pos = cell.pos
-            if not self.cell_occupied(pos):
+            if not self._pos_occupied(pos):
                 if self.total_power() < MAX_TOTAL_POWER:
                     actions.append(SpawnAction(pos))
             # append spread actions for every direction
-            elif self[pos].color == color:
+            if self[pos].color == color:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
         return actions
