@@ -2,10 +2,10 @@ from .cluster import create_clusters
 from referee.game import PlayerColor
 from .board import Board, PLAYER_COLOR
 
-PIECE_POWER_FACTOR  : float = 1.54
-DOMINANCE_FACTOR    : float = 1.4
-CLUSTER_SIZE_FACTOR : float = 1.3
-NUM_CLUSTER_FACTOR  : float = 1.1
+CLUSTER_SIZE_FACTOR : float = 1.4
+NUM_CLUSTER_FACTOR  : float = 1.2
+PIECE_POWER_FACTOR  : float = 3.0
+DOMINANCE_FACTOR    : float = 1.5
 
 
 def evaluate(board: Board) -> float:
@@ -28,7 +28,7 @@ def evaluate(board: Board) -> float:
     # player power evaluation
     pow_blue = board.color_power(PlayerColor.BLUE)
     pow_red  = board.color_power(PlayerColor.RED)
-    value = pow_red  ** PIECE_POWER_FACTOR - pow_blue ** PIECE_POWER_FACTOR
+    value    = (pow_red - pow_blue) * PIECE_POWER_FACTOR
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
@@ -54,8 +54,7 @@ def evaluate(board: Board) -> float:
                     red_dominates += 1
 
         # cluster and dominance factor add-on, respectively
-        value += sign * (len(cluster) ** CLUSTER_SIZE_FACTOR)
-        value += (red_dominates ** DOMINANCE_FACTOR - blue_dominates ** DOMINANCE_FACTOR)
-    value += (num_red_clusters ** NUM_CLUSTER_FACTOR - num_blue_clusters ** NUM_CLUSTER_FACTOR)
-
+        value += sign * len(cluster) * CLUSTER_SIZE_FACTOR
+        value += (red_dominates - blue_dominates) * DOMINANCE_FACTOR
+    value += (num_red_clusters - num_blue_clusters) * NUM_CLUSTER_FACTOR
     return value

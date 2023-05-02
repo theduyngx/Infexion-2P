@@ -156,6 +156,19 @@ class Board:
         """
         return self._state[pos.__hash__()].power > EMPTY_POWER
 
+    ### DEBUG
+    def copy(self):
+        return Board(self._state.copy())
+
+    def get_state(self):
+        return self._state
+
+    def __eq__(self, other):
+        if type(other) == Board:
+            return self.get_state() == other.get_state()
+        return False
+    ###
+
     def get_cells(self):
         """
         Get the board's cells.
@@ -175,7 +188,7 @@ class Board:
             case SpreadAction():
                 res_action = self.spread(action)
             case _:
-                return
+                exit(1)
 
         for mutation in res_action.cell_mutations:
             self[mutation.pos] = mutation.next
@@ -228,14 +241,11 @@ class Board:
         Check if the game is over or not, meaning if a player has won the game.
         @return: true if game is over
         """
-        if self.turn_count < MIN_MOVE_WIN:
-            return False
+        return self.turn_count >= MIN_MOVE_WIN and \
+            (self.turn_count >= MAX_TURNS or self.player_wins(PLAYER_COLOR) or self.player_wins(OPPONENT_COLOR))
 
-        return any([
-            self.turn_count >= MAX_TURNS,
-            self.color_power(PLAYER_COLOR)   == EMPTY_POWER,
-            self.color_power(OPPONENT_COLOR) == EMPTY_POWER
-        ])
+    def player_wins(self, player: PlayerColor) -> bool:
+        return self.color_power(player) == EMPTY_POWER
 
     def total_power(self) -> int:
         """
@@ -271,15 +281,6 @@ class Board:
         """
         return sum(map(lambda cell: cell.power, self.player_cells(color)))
 
-    def player_movable_cells(self, color: PlayerColor) -> list[CellState]:
-        """
-        Get all movable cells of the specified player.
-        @param color : player's color
-        @return      : a dictionary of movable cells, where the key is the cell's position
-        """
-        return [cell for hash_pos, cell in self._state.items()
-                if cell.color == color or (self.total_power() < MAX_TOTAL_POWER and cell.power == EMPTY_POWER)]
-
     def cell_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
@@ -296,6 +297,13 @@ class Board:
         @return       : the board mutation
         """
         pos = action.cell
+
+        if self.total_power() >= MAX_TOTAL_POWER:
+            raise Exception("SPAWN: total power exceeded")
+
+        if self.cell_occupied(pos):
+            raise Exception("SPAWN: cell occupied")
+
         return BoardMutation(
             action,
             cell_mutations={
@@ -315,7 +323,13 @@ class Board:
         @return       : board mutation
         """
         from_cell, dir = action.cell, action.direction
-        action_player: PlayerColor = self._turn_color
+        player_color: PlayerColor = self._turn_color
+
+        if self[from_cell].power == 0:
+            raise Exception("SPREAD: cell is empty")
+
+        if self[from_cell].color != player_color:
+            raise Exception("SPREAD:", from_cell, "has color", self[from_cell].color, "which differs", player_color)
 
         # Compute destination cell coords.
         to_cells = [
@@ -334,7 +348,7 @@ class Board:
             } | {
                 # Add token stack to destination cells.
                 CellMutation(
-                    to_cell, self[to_cell], CellState(action.cell, action_player, self[to_cell].power + 1)
+                    to_cell, self[to_cell], CellState(action.cell, player_color, self[to_cell].power + 1)
                 ) for to_cell in to_cells
             }
         )
@@ -347,13 +361,13 @@ class Board:
         """
         # for every possible move from a given board state, including SPAWN and SPREAD
         actions: list[Action] = []
-        movable_dict: list[CellState] = self.player_movable_cells(color)
-        for state in movable_dict:
+        for cell in self._state.values():
             # append spawn actions
-            pos = state.pos
+            pos = cell.pos
             if not self.cell_occupied(pos):
-                actions.append(SpawnAction(pos))
+                if self.total_power() < MAX_TOTAL_POWER:
+                    actions.append(SpawnAction(pos))
             # append spread actions for each direction
-            else:
+            elif self[pos].color == color:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
         return actions

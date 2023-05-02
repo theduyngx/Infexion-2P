@@ -5,7 +5,7 @@ from .evaluation import evaluate, create_clusters
 
 # Constants
 INF   : float = 9999
-DEPTH : int   = 3
+DEPTH : int   = 2
 
 
 def minimax(board: Board, color: PlayerColor) -> Action:
@@ -18,7 +18,9 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     """
     alpha = -INF
     beta  = INF
+    b_copy = board.copy()
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
+    assert b_copy == board
     clusters = create_clusters(board)
 
     print()
@@ -94,6 +96,8 @@ def alphabeta(board  : Board,
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
+            # NOTE: relying on reference based to have the argument changed
+            # Must make sure that the argument is actually updated properly
             beta = min(beta, value)
 
             # alpha cutoff

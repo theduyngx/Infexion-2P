@@ -58,6 +58,8 @@ class Agent:
                         return SpawnAction(HexPos(3, 3))
                     return minimax(board, self._color)
                 case PlayerColor.BLUE:
+                    if board.turn_count < 2:
+                        return SpawnAction(HexPos(5, 3))
                     return random_move(board, self._color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):

@@ -1,46 +1,42 @@
 Evaluation function (ordered by priority):
-  1. Material / Power: Essentially RED - BLUE
-  2. Clusters
+    1. Material / Power: Essentially RED - BLUE
+    2. Clusters
 
 Clusters (ordered by priority):
-  1. Priority by cluster size
-  2. Priority by number of clusters
-  3. There must be a certain point, depending on the board's state, that maximizes the benefit
-     between cluster size and number of clusters
+    1. Priority by cluster size
+    2. Priority by number of clusters
+    3. There must be a certain point, depending on the board's state, that maximizes the benefit between
+       cluster size and number of clusters
 
 Said context of the state:
-  This is entirely dictated by the dominance factor of each side's clusters
-  1. Check for each adjacent clusters of opposing sides, which cluster is bigger
-  2. Second priority is the power of the pieces within the cluster
-  Once again, there should be a mathematical balance between the pieces' stack powers and the
-  cluster size it is in.
+    This is entirely dictated by the dominance factor of each side's clusters
+    1. Check for each adjacent clusters of opposing sides, which cluster is bigger
+    2. Second priority is the power of the pieces within the cluster
+    Once again, there should be a mathematical balance between the pieces' stack powers and the cluster
+    size it is in.
 
 --> From this, we can conclude that:
-  -  It is generally better to have bigger clusters than to have more clusters. Although this
-     should be dictated by the dominance factor of the state.
-  -  The dominance factor should be that: bigger clusters are generally better than small
-     sized ones. Although some small size with large stack values should be a second priority
-     to consider.
-     Therefore, it is not necessarily better to have bigger clusters. But sometimes, bigger
-     clusters can still be dominated by slightly smaller clusters with large stack pieces.
+    -  It is generally better to have bigger clusters than to have more clusters. Although this should be
+       dictated by the dominance factor of the state.
+    -  The dominance factor should be that: bigger clusters are generally better than small sized ones.
+       Although some small size with large stack values should be a second priority to consider.
+    -> Therefore, it is not necessarily better to have bigger clusters. But sometimes, bigger clusters can
+       still be dominated by slightly smaller clusters with large stack pieces.
 
-  -  Therefore, a move is considered good if it can, first and foremost, capture an opposition
-     piece. But how much better, or even worse, will then be checked by the effect the most has
-     on the state's clusters.
-     +  If our cluster will grow in size, it is also perhaps a good move
-     +  If the opposition's clusters decrease in size, and that it divides the cluster up, it
-        could also be a good move.
-     +  In general, though, this is a balance act and the calculation should show that much.
-        It is not always assured that a specific aspect being changed will necessarily always
-        lead to a better result, but the general score deduced from all these factors will be
-        the end-of-all.
+    -  Hence, a move is considered good if it can, first and foremost, capture opponent pieces. How much
+       better, or even worse, will then be checked by the effect the most has on the state's clusters.
+        +  If our cluster will grow in size, it is also perhaps a good move
+        +  If the opposition's clusters decrease in size, and that it divides the cluster up, it could also
+           be a good move.
+        +  In general, though, this is a balance act and the calculation should show that much. It is not
+           always assured that a specific aspect being changed will necessarily always lead to a better
+           result, but the general score deduced from all these factors will be the end-of-all.
 
-  -  IMPORTANT ADDITION:
-     There is indeed piece importance. Which is based entirely upon end-game. As in, the less
-     number of pieces of a specific player on the board, the more important their pieces become.
-     However, it should be noted that this only applies to the other side. As in, the other
-     side now would want to focus on capturing the pieces. For your side, you would perhaps
-     want to populate the pieces instead.
+    -  IMPORTANT ADDITION:
+       There is indeed piece importance. Which is based on end-game detection: the less the number of
+       pieces of a specific player on the board, the more important their pieces become. However, it should
+       be noted that this only applies to the other side. As in, the other side now would want to focus on
+       capturing the pieces. For your side, you would perhaps want to populate the pieces instead.
 
 
 ---------------------------------------------------------------------------------------
@@ -61,6 +57,20 @@ Balance of cluster size & cluster total power:
      But it is even less desirable to have great values in small clusters in this case.
 
 
+OPTIMIZATION FOR MINIMAX:
+Premature stop (adding an argument probably):
+    if depth == 0 or game_over:
+        if depth >= DEPTH - 1:
+            stop_recursion = True
+            return action
+
+    This is because depth == DEPTH - 1 indicates it is already our turn, and the game is already over
+    Meaning we've already either won, or lost.
+    A better way is to write separate functions. First one will look at the first depth, and if we've
+    already won then there's no need to go any further. If we haven't won, then for each node we will
+    call the recursive version of minimax.
+
+
 STOCHASTIC BIAS PRUNING (Monte Carlo):
 
 	def MonteCarloSearch(gameState, timeLimit):
@@ -70,7 +80,7 @@ STOCHASTIC BIAS PRUNING (Monte Carlo):
 	    while current_time - start_time < timeLimit:
 			selected_node = traverse(root)
 			reward = rollout(selected_node.state)
-			backpropagate(selected_node, reward)
+			back_propagate(selected_node, reward)
 			current_time = get_current_time()
 	    
 	    return best_child(root).action
@@ -97,7 +107,7 @@ STOCHASTIC BIAS PRUNING (Monte Carlo):
 			state = state.get_next_state(action)
 	    return state.get_reward()
 
-	def backpropagate(node, reward):
+	def back_propagate(node, reward):
 	    while node is not None:
 			node.visits += 1
 			node.reward += reward
