@@ -24,24 +24,24 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     beta  = INF
 
     ###
-    moves = board.get_legal_moves(PlayerColor.RED)
-    print("Number of legal moves =", len(moves))
-    for move in moves:
-        print(move)
+    # moves = board.get_legal_moves(PlayerColor.RED)
+    # print("Number of legal moves =", len(moves))
+    # for move in moves:
+    #     print(move)
     ###
 
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
-    clusters = create_clusters(board)
 
     ###
-    print()
-    print("===================================")
-    print("Number of clusters =", len(clusters))
-    for cluster in clusters.values():
-        print("Cluster color", cluster.color)
-        print("Cluster size =", len(cluster))
-        print()
-    print("===================================")
+    # clusters = create_clusters(board)
+    # print()
+    # print("===================================")
+    # print("Number of clusters =", len(clusters))
+    # for cluster in clusters.values():
+    #     print("Cluster color", cluster.color)
+    #     print("Cluster size =", len(cluster))
+    #     print()
+    # print("===================================")
     ###
 
     return action
