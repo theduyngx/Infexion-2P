@@ -79,6 +79,13 @@ class Cluster:
         """
         return sum(self.cells)
 
+    def get_opponents(self):
+        """
+        Get the iterable list of hashed values of opponent clusters.
+        @return: iterable list of hashed opponent clusters
+        """
+        return self.opponents.keys()
+
     def append(self, pos: HexPos, cell: CellState):
         """
         Append a cell from the board to the cluster.
@@ -143,6 +150,18 @@ class Clusters:
             self.clusters = clusters
         else:
             self.clusters = defaultdict()
+
+    def __getitem__(self, key: Cluster | int) -> Cluster:
+        """
+        Get cluster from the list of clusters.
+        @param key : either the cluster (any mutation of itself as long as initial state remains intact)
+                     or the cluster's hashed value
+        @return    : the cluster from list
+        """
+        if type(key) == Cluster:
+            return self.clusters[key.__hash__()]
+        elif type(key) == int:
+            return self.clusters[key]
 
     def __contains__(self, cluster: Cluster) -> bool:
         """
