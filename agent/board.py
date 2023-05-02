@@ -76,8 +76,8 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
     """
     adjacent_list = []
     for dir in HexDir:
-        r_coord = pos.r + dir.r
-        q_coord = pos.q + dir.q
+        r_coord = pos.r + dir.value.r
+        q_coord = pos.q + dir.value.q
         if r_coord < 0:
             r_coord += BOARD_N
         elif r_coord >= BOARD_N:
@@ -111,7 +111,8 @@ class Board:
 
     def __init__(self, initial_state: dict[int, CellState] = None):
         """
-        Board constructor.
+        Board constructor. The attribute state has key being the hashed value of the hex position of
+        the cell, and the value being the cell and its state.
         @param initial_state: board's state, if just initialized then it will be an empty dictionary
         """
         self._state: dict[int, CellState] = defaultdict()
@@ -146,6 +147,14 @@ class Board:
         @param state : the state of the cell
         """
         self._state[pos.__hash__()] = state
+
+    def __contains__(self, pos: HexPos) -> bool:
+        """
+        Check if a position is occupied by a piece within the board or not.
+        @param pos : the specified position
+        @return    : boolean indicating whether the position is occupied or not
+        """
+        return self._state[pos.__hash__()].power > EMPTY_POWER
 
     def get_cells(self):
         """
@@ -329,3 +338,22 @@ class Board:
                 ) for to_cell in to_cells
             }
         )
+
+    def get_legal_moves(self, color: PlayerColor) -> list[Action]:
+        """
+        Get all possible legal moves of a specified player color from a specific state of the board.
+        @param color : specified player's color
+        @return      : list of all actions that could be applied to board
+        """
+        # for every possible move from a given board state, including SPAWN and SPREAD
+        actions: list[Action] = []
+        movable_dict: list[CellState] = self.player_movable_cells(color)
+        for state in movable_dict:
+            # append spawn actions
+            pos = state.pos
+            if not self.cell_occupied(pos):
+                actions.append(SpawnAction(pos))
+            # append spread actions for each direction
+            else:
+                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+        return actions

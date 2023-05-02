@@ -1,7 +1,6 @@
 from referee.game import PlayerColor, Action
 from .board import Board
-from .evaluation import evaluate
-from .search import get_legal_moves
+from .evaluation import evaluate, create_clusters
 
 
 # Constants
@@ -20,6 +19,16 @@ def minimax(board: Board, color: PlayerColor) -> Action:
     alpha = -INF
     beta  = INF
     _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
+    clusters = create_clusters(board)
+
+    print()
+    print("===================================")
+    print("Number of clusters =", len(clusters))
+    for cluster in clusters.values():
+        print("Cluster color", cluster.color)
+        print("Cluster size =", len(cluster))
+        print()
+    print("===================================")
     return action
 
 
@@ -49,8 +58,9 @@ def alphabeta(board  : Board,
     if color == PlayerColor.RED:
         value = -INF
         ret   = None
+        legal_moves = board.get_legal_moves(color)
         # for each child node of board
-        for possible_action in get_legal_moves(board, color):
+        for possible_action in legal_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -66,14 +76,14 @@ def alphabeta(board  : Board,
             # beta cutoff
             if value >= beta:
                 break
-        return value, ret
 
     # minimize
     else:
         value = INF
         ret   = None
+        legal_moves = board.get_legal_moves(color)
         # for each child node of board
-        for possible_action in get_legal_moves(board, color):
+        for possible_action in legal_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -89,4 +99,6 @@ def alphabeta(board  : Board,
             # alpha cutoff
             if value <= alpha:
                 break
-        return value, ret
+
+    # return evaluated value and corresponding action
+    return value, ret

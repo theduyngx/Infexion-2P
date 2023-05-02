@@ -1,7 +1,6 @@
 from random import randint
 
 from agent.board import Board
-from agent.search import get_legal_moves
 from referee.game import Action, PlayerColor
 
 
@@ -12,6 +11,6 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color (it is its turn)
     @return      : the random action to be taken by agent
     """
-    actions: list[Action] = get_legal_moves(board, color)
+    actions: list[Action] = board.get_legal_moves(color)
     random_index: int = randint(0, len(actions)-1)
     return actions[random_index]

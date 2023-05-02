@@ -1,6 +1,5 @@
 from agent.board import Board
 from referee.game import Action
-from .search import get_legal_moves
 
 
 # Constants
