@@ -37,12 +37,6 @@ class Agent:
         """
         print_referee(referee)
         self._color = color
-        self._board = BoardUpdate.board
-        match color:
-            case PlayerColor.RED:
-                print("Testing: I am playing as red")
-            case PlayerColor.BLUE:
-                print("Testing: I am playing as blue")
 
     def get_color(self) -> PlayerColor:
         """
