@@ -18,24 +18,24 @@ class CellState:
     The CellState class is used to represent the state of a single cell on the game board.
     Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
     Attributes:
-        pos    : the position of the cell
-        player : the player currently occupied in cell, if there's any
-        power  : the stack power of the piece (if any) on cell
+        pos   : the position of the cell
+        color : the color of player currently occupied in cell, if there's any
+        power : the stack power of the piece (if any) on cell
     """
-    pos    : HexPos
-    player : PlayerColor | None = None
-    power  : int = EMPTY_POWER
+    pos   : HexPos
+    color : PlayerColor | None = None
+    power : int = EMPTY_POWER
 
     def __post_init__(self):
-        if self.player is None or self.power > MAX_CELL_POWER:
+        if self.color is None or self.power > MAX_CELL_POWER:
             object.__setattr__(self, "power" , EMPTY_POWER)
-            object.__setattr__(self, "player", None)
+            object.__setattr__(self, "color", None)
 
     def __str__(self):
-        return f"CellState({self.pos.r}, {self.pos.q}, {self.player}, {self.power})"
+        return f"CellState({self.pos.r}, {self.pos.q}, {self.color}, {self.power})"
 
     def __iter__(self):
-        yield self.player
+        yield self.color
         yield self.power
 
 
@@ -251,7 +251,7 @@ class Board:
         @return      : the list of cells that specified player occupies
         """
         return list(filter(
-            lambda cell: cell.player == color,
+            lambda cell: cell.color == color,
             self._state.values()
         ))
 
@@ -278,7 +278,7 @@ class Board:
         @return      : a dictionary of movable cells, where the key is the cell's position
         """
         return [cell for hash_pos, cell in self._state.items()
-                if cell.player == color or (self.total_power() < MAX_TOTAL_POWER and cell.power == EMPTY_POWER)]
+                if cell.color == color or (self.total_power() < MAX_TOTAL_POWER and cell.power == EMPTY_POWER)]
 
     def cell_occupied(self, pos: HexPos) -> bool:
         """

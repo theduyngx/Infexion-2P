@@ -16,30 +16,29 @@ class Cluster:
     can be used for quick accessing itself in a consistent and efficient manner.
 
     Attributes:
-        init_pos   : the initial cell's position
         init_state : the initial cell's state
+        init_pos   : the initial cell's position
         color      : the color of the cluster
         cells      : all cells that are within the cluster, initialized with the initial cell
         opponents  : dictionary of adjacent opponent clusters, with key being the cluster itself and value
                       being its number of cells
     """
-    init_pos   : HexPos
     init_state : CellState
+    init_pos   : HexPos
     color      : PlayerColor
     cells      : dict[int, CellState] = defaultdict
     opponents  : dict[int, int] = defaultdict
 
-    def __init__(self, init_pos: HexPos, init_state: CellState):
+    def __init__(self, init_state: CellState):
         """
         Cluster constructor. Requires the information of the initial cell.
-        @param init_pos   : initial cell's position
         @param init_state : initial cell's state
         """
-        self.init_pos   = init_pos
         self.init_state = init_state
-        self.color       = init_state.player
-        self.cells       = {self.init_pos.__hash__(): self.init_state}
-        self.opponents   = defaultdict()
+        self.init_pos   = init_state.pos
+        self.color      = init_state.color
+        self.cells      = {self.init_pos.__hash__(): self.init_state}
+        self.opponents  = defaultdict()
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
@@ -48,6 +47,9 @@ class Cluster:
         @return    : cell's state
         """
         return self.cells[pos.__hash__()]
+
+    def __setitem__(self, pos: HexPos, cell: CellState):
+        self.cells[pos.__hash__()] = cell
 
     def get_opponents(self):
         assert self.color == PLAYER_COLOR
@@ -75,8 +77,8 @@ class Cluster:
         @param board : the board
         """
         if pos in board:
-            if board[pos].player == self.color:
-                self.cells[pos.__hash__()] = board[pos]
+            if board[pos].color == self.color:
+                self[pos] = board[pos]
 
     def reference_append(self, other):
         """
@@ -126,7 +128,7 @@ class Clusters:
     def __init__(self, clusters: dict[int, Cluster] = None):
         """
         Clusters constructor.
-        @param clusters: the dictionary of clusters, default being None
+        @param clusters: the dictionary of clusters, default = None
         """
         if clusters:
             self.clusters = clusters
@@ -152,11 +154,11 @@ class Clusters:
     def values(self):
         return self.clusters.values()
 
-    def delete(self, cluster: Cluster):
+    def remove(self, cluster: Cluster):
         del self.clusters[cluster.__hash__()]
 
 
-def create_clusters(board: Board) -> dict[int, Cluster]:
+def create_clusters(board: Board) -> Clusters:
     """
     Create a dictionary of clusters currently on the board, where the key is each cluster's hash.
     @param board : the given board
@@ -166,21 +168,27 @@ def create_clusters(board: Board) -> dict[int, Cluster]:
 
     # for each opponent cell in state
     for cell in board.player_cells(OPPONENT_COLOR):
-        # everything related to current occupied position
-        pos        = cell.pos
-        adjacent   = adjacent_positions(pos)
-        in_cluster = Cluster(pos, CellState(pos, OPPONENT_COLOR, cell.power))
+        in_cluster = Cluster(cell)
 
         # for each adjacent cell
-        for adj_pos in adjacent:
+        for adj_pos in adjacent_positions(cell.pos):
             clusters_copy = clusters.copy()
+
+            # NOTE: This is where it's wrong - we might have looped through the same cluster multiple times
+            # and when that cluster gets merged in clusters_copy, it doesn't recognize this as the same
+            # cluster anymore
             for cluster in clusters.values():
 
-                # if adjacent cell belongs to a cluster already and of same color as player in question
+                # which is why we must skip it here
+                if cluster not in clusters_copy:
+                    continue
+
+                # if adjacent cell already belongs to a cluster and of same color
                 if adj_pos in cluster:
-                    if cluster[adj_pos].player == OPPONENT_COLOR:
+                    if cluster[adj_pos].color == in_cluster.color:
                         in_cluster.reference_append(cluster)
-                        clusters_copy.delete(cluster)
+                        clusters_copy.remove(cluster)
+                # if not, we append
                 else:
                     in_cluster.append(adj_pos, board)
 
@@ -191,24 +199,26 @@ def create_clusters(board: Board) -> dict[int, Cluster]:
 
     # for each player cell in state
     for cell in board.player_cells(PLAYER_COLOR):
-        # everything related to current occupied position
-        pos        = cell.pos
-        adjacent   = adjacent_positions(pos)
-        in_cluster = Cluster(pos, CellState(pos, PLAYER_COLOR, cell.power))
+        in_cluster = Cluster(cell)
 
         # for each adjacent cell
-        for adj_pos in adjacent:
+        for adj_pos in adjacent_positions(cell.pos):
             clusters_copy = clusters.copy()
             for cluster in clusters.values():
 
-                # if adjacent cell belongs to a cluster already and of same color as player in question
+                ###
+                if cluster not in clusters_copy:
+                    continue
+                ###
+
+                # if adjacent cell belongs to a cluster already and of same color
                 if adj_pos in cluster:
-                    if cluster[adj_pos].player == PLAYER_COLOR:
+                    if cluster[adj_pos].color == in_cluster.color:
                         in_cluster.reference_append(cluster)
-                        clusters_copy.delete(cluster)
-                    # dominance factor
-                    else:
-                        in_cluster.opponent_update(cluster)
+                        clusters_copy.remove(cluster)
+                    # # dominance factor
+                    # else:
+                    #     in_cluster.opponent_update(cluster)
                 else:
                     in_cluster.append(adj_pos, board)
 
