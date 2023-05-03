@@ -21,7 +21,7 @@ SIZE_DOMINANCE_FACTOR  : float = 1.55
 POWER_DOMINANCE_FACTOR : float = 0.45
 
 
-def evaluate(board: Board) -> float:
+def evaluate(board: Board) -> (float, float):
     """
     Evaluation function to evaluate the desirability of the board. It should be noted that the more
     'negative' the evaluated value, the worse it is for the RED player and, conversely, the better
@@ -35,10 +35,13 @@ def evaluate(board: Board) -> float:
     value  = (num_red - num_blue) * NUM_PIECE_FACTOR
     value += (pow_red - pow_blue) * POWER_PIECE_FACTOR
 
+    # monte-carlo evaluation value
+    monte_carlo_val = 0
+
     if num_blue == 0:
-        return INF
+        return INF, INF
     if num_red == 0:
-        return -INF
+        return -INF, -INF
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
@@ -79,4 +82,10 @@ def evaluate(board: Board) -> float:
         value += (num_player_dominates - num_opponent_dominates) * SIZE_DOMINANCE_FACTOR
         value += (pow_player_dominates - pow_opponent_dominates) * POWER_DOMINANCE_FACTOR
     value += (num_player_clusters - num_opponent_clusters) * NUM_CLUSTER_FACTOR
-    return value
+
+    # RAJA: Adding another return value specifically for ordering
+    # the heapq for MonteCarlo
+    monte_carlo_val += (num_player_clusters + num_player_dominates + pow_player_dominates)
+    monte_carlo_val /= (num_opponent_clusters + num_opponent_dominates + pow_opponent_dominates)
+
+    return value, monte_carlo_val
