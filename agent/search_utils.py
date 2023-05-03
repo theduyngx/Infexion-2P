@@ -1,3 +1,13 @@
+"""
+    Module  : search_utils.py
+    Purpose : Utility functions for search algorithms, mainly for getting information of a specific
+              position as well as getting all legal moves for a specific agent.
+
+Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
+would like to get every possible legal move that's available for it, or reduced, if agent would like
+to ignore specific actions that are considered 'quiet', viz. not having significant effects.
+"""
+
 from agent.board import Board
 from agent.constants import MIN_TOTAL_POWER
 from referee.game import HexPos, HexDir, PlayerColor, Action, SpawnAction, MAX_TOTAL_POWER, SpreadAction
@@ -15,7 +25,7 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
 def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]:
     """
     Get all possible legal moves of a specified player color from a specific state of the board.
-    @param board:
+    @param board : specified board
     @param color : specified player's color
     @param full  : to get the full list of legal moves if true, or reduced list if otherwise
     @return      : list of all actions that could be applied to board

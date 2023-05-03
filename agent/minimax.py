@@ -7,7 +7,7 @@
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
 from .board import Board
 from .evaluation import evaluate
-from .constants import INF
+from .constants import INF, DEPTH
 from .search_utils import get_legal_moves
 
 
@@ -25,7 +25,7 @@ def minimax(board: Board, depth: int, color: PlayerColor) -> Action:
     alpha = -INF
     beta  = INF
     assert not board.game_over
-    _, action = alphabeta(board, color, depth, None, alpha, beta)
+    _, action, _ = alphabeta(board, color, depth, None, alpha, beta)
     match action:
         case SpawnAction(_) | SpreadAction(_, _):
             pass
@@ -40,7 +40,7 @@ def alphabeta(board  : Board,
               action : Action,
               alpha  : float,
               beta   : float
-              ) -> (float, Action):
+              ) -> (float, Action, bool):
     """
     Alpha-beta pruning for minimax search algorithm.
     @param board  : the board
@@ -54,7 +54,8 @@ def alphabeta(board  : Board,
 
     # reached depth limit, or terminal node
     if depth == 0 or board.game_over:
-        return evaluate(board), action
+        stop = depth >= DEPTH - 1
+        return evaluate(board), action, stop
 
     # maximize
     if color == PlayerColor.RED:
@@ -67,7 +68,7 @@ def alphabeta(board  : Board,
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
 
             # undo after finishing
             board.undo_action()
@@ -75,6 +76,10 @@ def alphabeta(board  : Board,
                 value = curr_val
                 ret   = possible_action
             alpha = max(alpha, value)
+
+            # stop prematurely
+            if stop:
+                return value, ret, True
 
             # beta cutoff
             if value >= beta:
@@ -91,7 +96,7 @@ def alphabeta(board  : Board,
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
 
             # undo action after finishing
             board.undo_action()
@@ -100,12 +105,16 @@ def alphabeta(board  : Board,
                 ret   = possible_action
             beta = min(beta, value)
 
+            # stop prematurely
+            if stop:
+                return value, ret, True
+
             # alpha cutoff
             if value <= alpha:
                 break
 
     # return evaluated value and corresponding action
-    return value, ret
+    return value, ret, False
 
 
 def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> map:
