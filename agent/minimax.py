@@ -8,6 +8,7 @@ from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
 from .board import Board
 from .evaluation import evaluate
 from .constants import INF
+from .search_utils import get_legal_moves
 
 
 def minimax(board: Board, depth: int, color: PlayerColor) -> Action:
@@ -59,7 +60,7 @@ def alphabeta(board  : Board,
     if color == PlayerColor.RED:
         value = -INF
         ret   = None
-        legal_moves = board.get_legal_moves(color, full=False)
+        legal_moves = get_legal_moves(board, color, full=False)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:
@@ -83,7 +84,7 @@ def alphabeta(board  : Board,
     else:
         value = INF
         ret   = None
-        legal_moves = board.get_legal_moves(color, full=False)
+        legal_moves = get_legal_moves(board, color, full=False)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:

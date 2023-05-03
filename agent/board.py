@@ -12,7 +12,7 @@ quite reasonable, hence the decision.
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, Action, SpawnAction, SpreadAction, HexDir
+from referee.game import HexPos, Action, SpawnAction, SpreadAction
 from referee.game.constants import *
 from .constants import *
 
@@ -71,15 +71,6 @@ class BoardMutation:
     """
     action: Action
     cell_mutations: set[CellMutation]
-
-
-def adjacent_positions(pos: HexPos) -> list[HexPos]:
-    """
-    Get all adjacent positions to the specified one.
-    @param pos : the specified position
-    @return    : list of 6 of its adjacent positions
-    """
-    return [pos + dir for dir in HexDir]
 
 
 class Board:
@@ -240,7 +231,7 @@ class Board:
         color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
         return len(color_cells), sum(color_cells)
 
-    def _pos_occupied(self, pos: HexPos) -> bool:
+    def pos_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
         @param pos : specified cell's coordinates
@@ -260,7 +251,7 @@ class Board:
         # exception handling
         if self.total_power() >= MAX_TOTAL_POWER:
             raise Exception("SPAWN: total power exceeded")
-        if self._pos_occupied(pos):
+        if self.pos_occupied(pos):
             raise Exception("SPAWN: cell occupied")
 
         # minimal, efficient board mutation
@@ -345,45 +336,3 @@ class Board:
             self[mutation.pos] = mutation.prev
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
-
-    def get_legal_moves(self, color: PlayerColor, full=True) -> list[Action]:
-        """
-        Get all possible legal moves of a specified player color from a specific state of the board.
-        @param color : specified player's color
-        @param full  : to get the full list of legal moves if true, or reduced list if otherwise
-        @return      : list of all actions that could be applied to board
-        """
-        # for every possible move from a given board state, including SPAWN and SPREAD
-        actions: list[Action] = []
-        assert len(self._state) == MAX_TOTAL_POWER
-        player_power   = self.color_power(color)
-        opponent_power = self.color_power(color.opponent)
-        for cell in self.get_cells():
-
-            # append spawn actions - if full then always append (if power < 49), otherwise append on condition
-            pos = cell.pos
-            if not self._pos_occupied(pos):
-                if self.total_power() < MAX_TOTAL_POWER:
-                    if full:
-                        actions.append(SpawnAction(pos))
-
-                    # append on condition: board power < 10, player power >= opponent's, has adjacent pieces
-                    elif self.total_power() < MIN_TOTAL_POWER and player_power >= opponent_power:
-                        adj_list = adjacent_positions(pos)
-                        # and that if only the spawn action is not quiet - viz. has adjacent piece
-                        if any([self._pos_occupied(adj) for adj in adj_list]):
-                            actions.append(SpawnAction(pos))
-
-            # append spread actions for every direction
-            elif self[pos].color == color:
-
-                # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-                if not full and self[pos].power == 1 and self.total_power() > MIN_TOTAL_POWER:
-                    for dir in HexDir:
-                        adj = pos + dir
-                        if self._pos_occupied(adj):
-                            actions.append(SpreadAction(pos, dir))
-                # otherwise, full list requested, or position has power exceeding 1
-                else:
-                    actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-        return actions

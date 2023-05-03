@@ -12,7 +12,8 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, PlayerColor
-from .board import Board, adjacent_positions, CellState, PLAYER_COLOR, OPPONENT_COLOR
+from .board import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
+from .search_utils import adjacent_positions
 
 
 @dataclass(slots=True)
