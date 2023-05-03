@@ -57,12 +57,15 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     player_num, player_power = board.color_number_and_power(color)
     opponent_num, opponent_power = board.color_number_and_power(color.opponent)
 
-    # endgame conditions: minimal player power requirement and number of opponents
-    if player_power > MAX_TOTAL_POWER / 2 and opponent_num <= MAX_ENDGAME_NUM_OPPONENT:
+    # endgame conditions: minimal player power requirement
+    if player_power > MAX_TOTAL_POWER / 2:
         opponents = board.player_cells(color.opponent)
-
-        # endgame condition - at least 1 opponent piece is of single stack power
-        if any([opponent.power == 1 for opponent in opponents]):
+        single_power = [opponent.power == 1 for opponent in opponents]
+        # endgame: either opponent only has a single stacked piece left, or it is heavily overwhelmed
+        # and all of its pieces are of single power
+        endgame = (opponent_num <= MAX_ENDGAME_NUM_OPPONENT and any(single_power)) or \
+                  (opponent_num <= MAX_ENDGAME_NUM_OPPONENT * 2 and all(single_power))
+        if endgame:
             for opponent in opponents:
                 # for each direction, get the same direction ranges
                 for dir in HexDir:
@@ -79,13 +82,6 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                             # append to actions if cell can reach the opponent
                             if cell.power >= abs(s):
                                 actions.append(SpreadAction(curr_pos, dir))
-
-            # # if found actions, return immediately
-            # if len(actions) > 0:
-            #     print("\nFOUND")
-            #     for action in actions:
-            #         print(action)
-            #     print()
     return actions, player_power, opponent_power
 
 

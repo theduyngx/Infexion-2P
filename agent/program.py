@@ -5,8 +5,7 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from agent.constants import DEPTH
-from agent.search import minimax
+from agent.search import minimax, search
 from agent.agent_test import greedy_move, random_move
 from agent.board import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
@@ -60,9 +59,7 @@ class Agent:
         if board.total_power() < MAX_TOTAL_POWER:
             match self._color:
                 case PlayerColor.RED:
-                    if board.turn_count < 1:
-                        return SpawnAction(HexPos(3, 3))
-                    return minimax(board, DEPTH, self._color, full=False)
+                    return search(board, self._color)
                 case PlayerColor.BLUE:
                     return greedy_move(board, self._color)
                     # return minimax(board, 2, self._color, full=True)

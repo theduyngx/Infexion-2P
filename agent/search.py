@@ -6,7 +6,7 @@ This may use a hybrid of Minimax and Monte Carlo tree search algorithms to produ
 results by improving accuracy. So far, it is only using Minimax.
 """
 
-from referee.game import PlayerColor, Action
+from referee.game import PlayerColor, Action, SpawnAction, HexPos
 from .board import Board
 from .constants import DEPTH
 from .minimax import minimax
@@ -20,4 +20,6 @@ def search(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color
     @return      : the action to take for agent
     """
-    return minimax(board, DEPTH, color)
+    if board.turn_count < 1:
+        return SpawnAction(HexPos(3, 3))
+    return minimax(board, DEPTH, color, full=False)
