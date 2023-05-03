@@ -116,9 +116,8 @@ class Board:
         the cell, and the value being the cell and its state.
         @param initial_state: board's state, if just initialized then it will be an empty dictionary
         """
+        # the state uses dense representation, which also stores the empty cells
         self._state: dict[int, CellState] = defaultdict()
-
-        ### INELEGANT EMPTY CELL INIT
         if initial_state is None:
             initial_state = {}
         for r in range(BOARD_N):
@@ -130,6 +129,7 @@ class Board:
                 else:
                     assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
 
+        # other properties initialized
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PLAYER_COLOR
         self._turn_count: int = 0
@@ -199,6 +199,11 @@ class Board:
             (self.turn_count >= MAX_TURNS or self.player_wins(PLAYER_COLOR) or self.player_wins(OPPONENT_COLOR))
 
     def player_wins(self, player: PlayerColor) -> bool:
+        """
+        Check if specified player has won the game.
+        @param player : specified player
+        @return       : true if won, false if not
+        """
         return self.color_power(player) == EMPTY_POWER
 
     def total_power(self) -> int:
@@ -229,11 +234,20 @@ class Board:
 
     def color_power(self, color: PlayerColor) -> int:
         """
-        Protected method getting the current total power of a specified player.
+        Method getting the current total power of a specified player.
         @param color : player's color
         @return      : their power
         """
         return sum(map(lambda cell: cell.power, self.player_cells(color)))
+
+    def color_number_and_power(self, color: PlayerColor) -> (int, int):
+        """
+        Method getting the current total power of a specified player and the number of pieces.
+        @param color : player's color
+        @return      : their number of pieces on board and power
+        """
+        color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
+        return len(color_cells), sum(color_cells)
 
     def _pos_occupied(self, pos: HexPos) -> bool:
         """
@@ -252,12 +266,13 @@ class Board:
         """
         pos = action.cell
 
+        # exception handling
         if self.total_power() >= MAX_TOTAL_POWER:
             raise Exception("SPAWN: total power exceeded")
-
         if self._pos_occupied(pos):
             raise Exception("SPAWN: cell occupied")
 
+        # minimal, efficient board mutation
         return BoardMutation(
             action,
             cell_mutations={
@@ -279,9 +294,9 @@ class Board:
         from_cell, dir = action.cell, action.direction
         player_color: PlayerColor = self._turn_color
 
+        # exception handling
         if self[from_cell].power == 0:
             raise Exception("SPREAD: cell is empty")
-
         if self[from_cell].color != player_color:
             raise Exception("SPREAD:", from_cell, "has color", self[from_cell].color, "which differs", player_color)
 
@@ -290,6 +305,7 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
+        # minimal, efficient board mutation
         return BoardMutation(
             action,
             cell_mutations = {

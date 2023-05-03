@@ -45,7 +45,6 @@ class HexVec:
 # neighbouring cells.
 
 class HexDir(Enum):
-
     DownRight = HexVec(0, 1)
     Down      = HexVec(-1, 1)
     DownLeft  = HexVec(-1, 0)
