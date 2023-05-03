@@ -1,4 +1,4 @@
-from agent.board import Board
+from agent.game import Board
 from referee.game import Action
 
 

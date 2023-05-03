@@ -5,12 +5,11 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
+from referee.game import Action, SpawnAction, SpreadAction
 from .utils import *
 
-from agent.search import minimax, search
-from agent.agent_test import greedy_move, random_move
-from agent.board import Board
+from agent.search import greedy_move, random_move, minimax, search
+from agent.game import Board
 
 
 class Agent:

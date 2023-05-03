@@ -12,7 +12,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, PlayerColor
-from .board import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
+from agent.game import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
 from .search_utils import adjacent_positions
 
 

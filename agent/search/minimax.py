@@ -5,9 +5,8 @@
 """
 
 from referee.game import PlayerColor, Action
-from .board import Board
+from agent.game import Board, INF, DEPTH
 from .evaluation import evaluate
-from .constants import INF, DEPTH
 from .search_utils import get_legal_moves, assert_action, move_ordering
 
 

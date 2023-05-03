@@ -9,8 +9,7 @@ would like to get every possible legal move that's available for it, or reduced,
 to ignore specific actions that are considered 'quiet', viz. not having significant effects.
 """
 
-from agent.board import Board
-from agent.constants import MIN_TOTAL_POWER, EMPTY_POWER
+from agent.game import Board, MIN_TOTAL_POWER, EMPTY_POWER
 from referee.game import HexPos, HexDir, PlayerColor, Action, SpawnAction, MAX_TOTAL_POWER, SpreadAction, BOARD_N
 
 # Constant
