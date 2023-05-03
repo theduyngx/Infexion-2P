@@ -7,8 +7,8 @@ import heapq
 
 
 # Constants
-INF   : int = 9999
-LIMIT : int = 600
+INF: int = 9999
+LIMIT: int = 600
 
 
 def monte_carlo(board: Board, limit=LIMIT) -> Action:
@@ -36,6 +36,5 @@ def monte_carlo(board: Board, limit=LIMIT) -> Action:
             pass
 
         for neighbor in get_legal_moves(curr_state.board, curr_state.board.turn_color):
-            
 
     return None
