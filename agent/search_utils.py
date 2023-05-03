@@ -141,7 +141,8 @@ def get_legal_moves(board: Board, color: PlayerColor, player: PlayerColor, full=
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-    assert len(actions) > 0
+    if full:
+        assert len(actions) > 0
     return actions
 
 

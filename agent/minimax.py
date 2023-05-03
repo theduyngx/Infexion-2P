@@ -54,7 +54,9 @@ def alphabeta(board  : Board,
     """
 
     # reached depth limit, or terminal node
-    stop = False
+    stop  = False
+    ret   = None
+    value = 0
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
         assert_action(action)
@@ -62,8 +64,6 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        value = -INF
-        ret   = None
         legal_moves = get_legal_moves(board, color, player, full)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
@@ -75,7 +75,7 @@ def alphabeta(board  : Board,
 
             # undo after finishing
             board.undo_action()
-            if curr_val > value:
+            if curr_val > value or ret is None:
                 value = curr_val
                 ret   = possible_action
             alpha = max(alpha, value)
@@ -86,8 +86,6 @@ def alphabeta(board  : Board,
 
     # minimize
     else:
-        value = INF
-        ret   = None
         legal_moves = get_legal_moves(board, color, player, full)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
@@ -99,7 +97,7 @@ def alphabeta(board  : Board,
 
             # undo action after finishing
             board.undo_action()
-            if curr_val < value:
+            if curr_val < value or ret is None:
                 value = curr_val
                 ret   = possible_action
             beta = min(beta, value)
