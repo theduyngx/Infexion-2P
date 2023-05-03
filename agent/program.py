@@ -8,7 +8,7 @@ COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playin
 from agent.search import minimax, search
 from agent.agent_test import greedy_move, random_move
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
 
 
 def print_referee(referee: dict):
@@ -56,13 +56,12 @@ class Agent:
         @return        : the action to be taken next
         """
         board = self._board
-        if board.total_power() < MAX_TOTAL_POWER:
-            match self._color:
-                case PlayerColor.RED:
-                    return search(board, self._color)
-                case PlayerColor.BLUE:
-                    return greedy_move(board, self._color)
-                    # return minimax(board, 2, self._color, full=True)
+        match self._color:
+            case PlayerColor.RED:
+                return search(board, self._color)
+            case PlayerColor.BLUE:
+                # return greedy_move(board, self._color)
+                return minimax(board, 2, self._color, full=True)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

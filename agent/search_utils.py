@@ -30,7 +30,7 @@ def assert_action(action):
         case _:
             print(type(action))
             print(action)
-            raise Exception("Action not matched with any pattern")
+            raise "Action not matched with any pattern"
 
 
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
@@ -85,22 +85,32 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     return actions, player_power, opponent_power
 
 
-def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]:
+def get_legal_moves(board: Board, color: PlayerColor, player: PlayerColor, full=True) -> list[Action]:
     """
     Get all possible legal moves of a specified player color from a specific state of the board.
     There are several optimizations made for this function in order reduce the number of legal
     moves had to be generated in the minimax tree. This includes endgame detection and ignoring
     specific moves based on domain knowledge of the game.
-    @param board : specified board
-    @param color : specified player's color
-    @param full  : to get the full list of legal moves if true, or reduced list if otherwise
-    @return      : list of all actions that could be applied to board
+    However, in the case when player is overwhelmed, then full will be forcefully set to True.
+    @param board  : specified board
+    @param color  : specified player's color
+    @param player : the actual player's actual
+    @param full   : to get the full list of legal moves if true, or reduced list if otherwise
+    @return       : list of all actions that could be applied to board
     """
 
     # endgame check
     actions, player_power, opponent_power = check_endgame(board, color)
     if len(actions) > 0:
         return actions
+
+    # if the actual player side is being overwhelmed, forcefully get all legal moves possible
+    if color == player:
+        player_overwhelmed = player_power <= opponent_power // 3 and \
+                             player_power + opponent_power >= MAX_TOTAL_POWER // 2
+        if player_overwhelmed:
+            print("OVERWHELMED -", player)
+            full = True
 
     # for every possible move from a given board state, including SPAWN and SPREAD
     for cell in board.get_cells():
@@ -131,6 +141,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+    assert len(actions) > 0
     return actions
 
 
