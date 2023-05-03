@@ -10,7 +10,6 @@ from agent.search import minimax
 from agent.agent_test import greedy_move, random_move
 from agent.board import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
-from .monte_carlo import monte_carlo
 
 
 def print_referee(referee: dict):
@@ -65,9 +64,8 @@ class Agent:
                         return SpawnAction(HexPos(3, 3))
                     return minimax(board, DEPTH, self._color, full=False)
                 case PlayerColor.BLUE:
-                    # return greedy_move(board, self._color)
+                    return greedy_move(board, self._color)
                     # return minimax(board, 2, self._color, full=True)
-                    return monte_carlo(board, self._color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

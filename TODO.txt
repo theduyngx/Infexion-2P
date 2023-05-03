@@ -71,7 +71,7 @@ OPTIMIZATION FOR MINIMAX:
                     add spawns[cell]
             del spawns[action.cell]
 
-2.  Reusing expanded / generated branches:
+2.  Reusing expanded / generated branches (hard)
     We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
     the opponent makes said move and continue with the minimax search.
     Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
@@ -79,7 +79,7 @@ OPTIMIZATION FOR MINIMAX:
 
 3.  Transposition Tables and Board Symmetries (hard)
 
-4.  Endgame:
+4.  Endgame (✓)
     Speed up end game, probably will require a different evaluation function where it significantly emphasizes
     on the piece power that we can capture.
 

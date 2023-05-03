@@ -26,7 +26,7 @@ def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     alpha = -INF
     beta  = INF
     assert not board.game_over
-    _, action, _ = alphabeta(board, color, depth, None, alpha, beta, full)
+    _, action, _ = alphabeta(board, color, depth, None, alpha, beta, color, full)
     assert_action(action)
     return action
 
@@ -37,7 +37,8 @@ def alphabeta(board  : Board,
               action : Action,
               alpha  : float,
               beta   : float,
-              full   = False
+              player : PlayerColor,
+              full   = False,
               ) -> (float, Action, bool):
     """
     Alpha-beta pruning for minimax search algorithm.
@@ -47,12 +48,15 @@ def alphabeta(board  : Board,
     @param action : deduced best action
     @param alpha  : alpha - move that improves player's position
     @param beta   : beta  - move that improves opponent's position
+    @param player : the color of the actual player's side
     @param full   : whether agent uses reduced-moves minimax
     @return       : evaluated score of the board and the action to be made
     """
 
     # reached depth limit, or terminal node
-    stop = False
+    stop  = False
+    ret   = None
+    value = 0
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
         assert_action(action)
@@ -60,20 +64,18 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        value = -INF
-        ret   = None
-        legal_moves = get_legal_moves(board, color, full)
+        legal_moves = get_legal_moves(board, color, player, full)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, full)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, player, full)
 
             # undo after finishing
             board.undo_action()
-            if curr_val > value:
+            if curr_val > value or ret is None:
                 value = curr_val
                 ret   = possible_action
             alpha = max(alpha, value)
@@ -84,20 +86,18 @@ def alphabeta(board  : Board,
 
     # minimize
     else:
-        value = INF
-        ret   = None
-        legal_moves = get_legal_moves(board, color, full)
+        legal_moves = get_legal_moves(board, color, player, full)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, full)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, player, full)
 
             # undo action after finishing
             board.undo_action()
-            if curr_val < value:
+            if curr_val < value or ret is None:
                 value = curr_val
                 ret   = possible_action
             beta = min(beta, value)
