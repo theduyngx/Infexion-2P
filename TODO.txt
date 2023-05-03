@@ -1,39 +1,42 @@
 Evaluation function (ordered by priority):
-  1. Material / Power: Essentially RED - BLUE
-  2. Clusters
+    1. Material / Power: Essentially RED - BLUE
+    2. Clusters
 
 Clusters (ordered by priority):
-  1. Priority by cluster size
-  2. Priority by number of clusters
-  3. There must be a certain point, depending on the board's state, that maximizes the benefit
-     between cluster size and number of clusters
+    1. Priority by cluster size
+    2. Priority by number of clusters
+    3. There must be a certain point, depending on the board's state, that maximizes the benefit between
+       cluster size and number of clusters
 
 Said context of the state:
-  This is entirely dictated by the dominance factor of each side's clusters
-  1. Check for each adjacent clusters of opposing sides, which cluster is bigger
-  2. Second priority is the power of the pieces within the cluster
-  Once again, there should be a mathematical balance between the pieces' stack powers and the
-  cluster size it is in.
+    This is entirely dictated by the dominance factor of each side's clusters
+    1. Check for each adjacent clusters of opposing sides, which cluster is bigger
+    2. Second priority is the power of the pieces within the cluster
+    Once again, there should be a mathematical balance between the pieces' stack powers and the cluster
+    size it is in.
 
 --> From this, we can conclude that:
-  -  It is generally better to have bigger clusters than to have more clusters. Although this
-     should be dictated by the dominance factor of the state.
-  -  The dominance factor should be that: bigger clusters are generally better than small
-     sized ones. Although some small size with large stack values should be a second priority
-     to consider.
-     Therefore, it is not necessarily better to have bigger clusters. But sometimes, bigger
-     clusters can still be dominated by slightly smaller clusters with large stack pieces.
+    -  It is generally better to have bigger clusters than to have more clusters. Although this should be
+       dictated by the dominance factor of the state.
+    -  The dominance factor should be that: bigger clusters are generally better than small sized ones.
+       Although some small size with large stack values should be a second priority to consider.
+    -> Therefore, it is not necessarily better to have bigger clusters. But sometimes, bigger clusters can
+       still be dominated by slightly smaller clusters with large stack pieces.
 
-  -  Therefore, a move is considered good if it can, first and foremost, capture an opposition
-     piece. But how much better, or even worse, will then be checked by the effect the most has
-     on the state's clusters.
-     +  If our cluster will grow in size, it is also perhaps a good move
-     +  If the opposition's clusters decrease in size, and that it divides the cluster up, it
-        could also be a good move.
-     +  In general, though, this is a balance act and the calculation should show that much.
-        It is not always assured that a specific aspect being changed will necessarily always
-        lead to a better result, but the general score deduced from all these factors will be
-        the end-of-all.
+    -  Hence, a move is considered good if it can, first and foremost, capture opponent pieces. How much
+       better, or even worse, will then be checked by the effect the most has on the state's clusters.
+        +  If our cluster will grow in size, it is also perhaps a good move
+        +  If the opposition's clusters decrease in size, and that it divides the cluster up, it could also
+           be a good move.
+        +  In general, though, this is a balance act and the calculation should show that much. It is not
+           always assured that a specific aspect being changed will necessarily always lead to a better
+           result, but the general score deduced from all these factors will be the end-of-all.
+
+    -  IMPORTANT ADDITION:
+       There is indeed piece importance. Which is based on end-game detection: the less the number of
+       pieces of a specific player on the board, the more important their pieces become. However, it should
+       be noted that this only applies to the other side. As in, the other side now would want to focus on
+       capturing the pieces. For your side, you would perhaps want to populate the pieces instead.
 
 
 ---------------------------------------------------------------------------------------
@@ -54,5 +57,108 @@ Balance of cluster size & cluster total power:
      But it is even less desirable to have great values in small clusters in this case.
 
 
-Dominance algorithm:
-    ...
+OPTIMIZATION FOR MINIMAX:
+Premature stop (adding an argument probably):
+    if depth == 0 or game_over:
+        if depth >= DEPTH - 1:
+            stop_recursion = True
+            return action
+
+    This is because depth == DEPTH - 1 indicates it is already our turn, and the game is already over
+    Meaning we've already either won, or lost.
+    A better way is to write separate functions. First one will look at the first depth, and if we've
+    already won then there's no need to go any further. If we haven't won, then for each node we will
+    call the recursive version of minimax.
+
+Reusing spawn-able cells:
+    When obtaining the list of possible actions, we're iterating through the entire board every single
+    time. However, on average, most cells remain spawn-able throughout. We can reuse by via apply_action
+    and undo_action, and by storing the spawn-able cells as a dictionary:
+
+    apply_action:
+        // note: action.cell is cell where action occurs (SpawnAction(cell, dir) kind of)
+        // mutation.cell is all the cells were the mutation spreads to
+        if action is spawn:
+            del spawns[action.cell]
+        else:
+            for mutation in action:
+                cell = mutation.cell
+                if cell in spawns:
+                    del spawns[cell]
+            add spawns[action.cell]
+
+    undo_action:
+        if action is spawn:
+            add spawns[action.cell]
+        else:
+            for mutation in action:
+                rollback to prev for each cell
+                if mutation.cell is empty cell:
+                    add spawns[cell]
+            del spawns[action.cell]
+
+
+
+
+STOCHASTIC BIAS PRUNING (Monte Carlo):
+
+	def MonteCarloSearch(gameState, timeLimit):
+	    root = Node(state=gameState)
+	    start_time = current_time = get_current_time()
+	    
+	    while current_time - start_time < timeLimit:
+			selected_node = traverse(root)
+			reward = rollout(selected_node.state)
+			back_propagate(selected_node, reward)
+			current_time = get_current_time()
+	    
+	    return best_child(root).action
+
+	def traverse(node):
+	    while node is not a leaf node:
+			if node is not fully expanded:
+				return expand(node)
+			else:
+				node = best_ucb1(node)
+		return node
+
+	def expand(node):
+	    actions = node.get_untried_actions()
+	    action = random.choice(actions)
+	    child_state = node.state.get_next_state(action)
+	    child_node = Node(state=child_state, parent=node, action=action)
+	    node.add_child(child_node)
+	    return child_node
+
+	def rollout(state):
+	    while state is not terminal:
+			action = random.choice(state.get_legal_actions())
+			state = state.get_next_state(action)
+	    return state.get_reward()
+
+	def back_propagate(node, reward):
+	    while node is not None:
+			node.visits += 1
+			node.reward += reward
+			node = node.parent
+
+	def best_child(node):
+	    best_node = None
+	    best_reward = float('-inf')
+	    for child in node.children:
+			child_reward = child.reward / child.visits
+			if child_reward > best_reward:
+				best_reward = child_reward
+				best_node = child
+	    return best_node
+
+	def best_ucb1(node):
+	    best_node = None
+	    best_ucb1_value = float('-inf')
+	    for child in node.children:
+			ucb1_value = (child.reward / child.visits) + 
+				          math.sqrt(2 * math.log(node.visits) / child.visits)
+			if ucb1_value > best_ucb1_value:
+				best_ucb1_value = ucb1_value
+				best_node = child
+	    return best_node

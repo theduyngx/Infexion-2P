@@ -1,18 +1,24 @@
+"""
+    Module  : minimax.py
+    Purpose : The minimax search algorithm to find the best next move for the agent,
+              with alpha-beta pruning to improve performance.
+"""
+
 from referee.game import PlayerColor, Action
 from .board import Board
 from .evaluation import evaluate
-from .search import get_legal_moves
-
 
 # Constants
 INF   : float = 9999
-DEPTH : int   = 3
+DEPTH : int   = 2
 
 
 def minimax(board: Board, color: PlayerColor) -> Action:
     """
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
+
+    NOTE: be mindful of the behavior specifically specified in Infexion ver 1.1
     @param board : the board
     @param color : the agent's color
     @return      : the action to take for agent
@@ -49,8 +55,9 @@ def alphabeta(board  : Board,
     if color == PlayerColor.RED:
         value = -INF
         ret   = None
+        legal_moves = board.get_legal_moves(color)
         # for each child node of board
-        for possible_action in get_legal_moves(board, color):
+        for possible_action in legal_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -66,14 +73,14 @@ def alphabeta(board  : Board,
             # beta cutoff
             if value >= beta:
                 break
-        return value, ret
 
     # minimize
     else:
         value = INF
         ret   = None
+        legal_moves = board.get_legal_moves(color)
         # for each child node of board
-        for possible_action in get_legal_moves(board, color):
+        for possible_action in legal_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -84,9 +91,13 @@ def alphabeta(board  : Board,
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
+            # NOTE: relying on reference based to have the argument changed
+            # Must make sure that the argument is actually updated properly
             beta = min(beta, value)
 
             # alpha cutoff
             if value <= alpha:
                 break
-        return value, ret
+
+    # return evaluated value and corresponding action
+    return value, ret

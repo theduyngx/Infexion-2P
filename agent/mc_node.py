@@ -111,3 +111,6 @@ class MonteCarloNode:
 
     def __hash__(self):
         return hash(frozenset(self.board.get_cells()))
+
+    def __iter__(self):
+        yield
