@@ -13,7 +13,7 @@ from .board import Board, PLAYER_COLOR
 
 # weighting factors
 NUM_PIECE_FACTOR       : float = 1.6
-POWER_PIECE_FACTOR     : float = 1.5
+POWER_PIECE_FACTOR     : float = 1.6
 NUM_CLUSTER_FACTOR     : float = 1.2
 SIZE_CLUSTER_FACTOR    : float = 1.4
 SIZE_DOMINANCE_FACTOR  : float = 1.55

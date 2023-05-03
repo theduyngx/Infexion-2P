@@ -7,26 +7,24 @@
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
 from .board import Board
 from .evaluation import evaluate
-
-# Constants
-INF   : float = 9999
-DEPTH : int   = 2
+from .constants import INF
 
 
-def minimax(board: Board, color: PlayerColor) -> Action:
+def minimax(board: Board, depth: int, color: PlayerColor) -> Action:
     """
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
 
     NOTE: be mindful of the behavior specifically specified in Infexion ver 1.1
     @param board : the board
+    @param depth : the depth
     @param color : the agent's color
     @return      : the action to take for agent
     """
     alpha = -INF
     beta  = INF
     assert not board.game_over
-    _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
+    _, action = alphabeta(board, color, depth, None, alpha, beta)
     match action:
         case SpawnAction(_) | SpreadAction(_, _):
             pass

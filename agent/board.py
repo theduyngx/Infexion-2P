@@ -12,15 +12,9 @@ quite reasonable, hence the decision.
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction, HexDir
+from referee.game import HexPos, Action, SpawnAction, SpreadAction, HexDir
 from referee.game.constants import *
-
-
-# Constants
-EMPTY_POWER    : int = 0
-MIN_MOVE_WIN   : int = 2
-PLAYER_COLOR   : PlayerColor = PlayerColor.RED
-OPPONENT_COLOR : PlayerColor = PLAYER_COLOR.opponent
+from .constants import *
 
 
 @dataclass(frozen=True, slots=True)

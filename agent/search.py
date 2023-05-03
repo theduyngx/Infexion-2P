@@ -19,4 +19,5 @@ def search(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color
     @return      : the action to take for agent
     """
-    return minimax(board, color)
+    depth = 3
+    return minimax(board, depth, color)
