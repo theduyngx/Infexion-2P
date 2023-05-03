@@ -5,22 +5,12 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
+from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
+from .utils import *
+
 from agent.search import minimax, search
 from agent.agent_test import greedy_move, random_move
 from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction
-
-
-def print_referee(referee: dict):
-    """
-    Print referee data. Space remaining sometimes works, sometimes doesn't. Though most of the time
-    it does work, so I suppose it's fine.
-    @param referee : the referee
-    """
-    print("---------------------------------------")
-    print("Time remaining  :", referee["time_remaining"])
-    print("Space remaining :", referee["space_remaining"])
-    print("---------------------------------------")
 
 
 class Agent:
@@ -56,12 +46,16 @@ class Agent:
         @return        : the action to be taken next
         """
         board = self._board
-        match self._color:
+        color = self._color
+        color_print = ansi_color(color)
+        print(f"{color_print} TURN:")
+        match color:
             case PlayerColor.RED:
-                return search(board, self._color)
+                print_referee(referee)
+                return search(board, color)
             case PlayerColor.BLUE:
-                # return greedy_move(board, self._color)
-                return minimax(board, 2, self._color, full=True)
+                # return greedy_move(board, color)
+                return minimax(board, 2, color, full=True)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -70,14 +64,13 @@ class Agent:
         @param action  : action taken by agent
         @param referee : the referee
         """
-        assert self
-        print_referee(referee)
         self._board.apply_action(action)
+        color_print = ansi_color(color)
 
         match action:
             case SpawnAction(cell):
-                print(f"Testing: {color} SPAWN at {cell}")
+                print(f"{color_print} SPAWN at {cell}")
                 pass
             case SpreadAction(cell, direction):
-                print(f"Testing: {color} SPREAD from {cell}, {direction}")
+                print(f"{color_print} SPREAD from {cell} - {direction}")
                 pass

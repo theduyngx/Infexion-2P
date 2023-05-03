@@ -127,16 +127,26 @@ class Board:
         game specification document.
         """
 
-        def apply_ansi(string, bold=True, ansi_color=None):
+        def apply_ansi(string, bold=True, ansi_color=None, mutated=False):
             # Helper function to apply ANSI color codes
             bold_code = "\033[1m" if bold else ""
             color_code = ""
+            string = "[".strip() + string.strip() + "]".strip() if mutated else string
             if ansi_color == "r":
                 color_code = "\033[31m"
             if ansi_color == "b":
                 color_code = "\033[34m"
             return f"{bold_code}{color_code}{string}\033[0m"
 
+        def is_mutated(cells_mutated: set[CellMutation], position: HexPos):
+            # Student-written helper method for checking if cell is just mutated
+            # This helps to mark positions that are just mutated to make it clearer
+            if cells_mutated is None:
+                return False
+            return any([mutated.cell == position for mutated in cells_mutated])
+
+        mutation = self._history[len(self._history) - 1]
+        cell_mutations = None if mutation is None else mutation.cell_mutations
         dim = BOARD_N
         output = ""
         for row in range(dim * 2 - 1):
@@ -145,16 +155,15 @@ class Board:
                 # Map row, col to r, q
                 r = max((dim - 1) - row, 0) + col
                 q = max(row - (dim - 1), 0) + col
-                if self._cell_occupied(HexPos(r, q)):
-                    color, power = self._state[HexPos(r, q)]
+                pos = HexPos(r, q)
+                if self._cell_occupied(pos):
+                    color, power = self._state[pos]
                     color = "r" if color == PlayerColor.RED else "b"
                     text = f"{color}{power}".center(4)
-                    if use_color:
-                        output += apply_ansi(text, ansi_color=color, bold=True)
-                    else:
-                        output += text
+                    output += apply_ansi(text, ansi_color=color, bold=True, mutated=is_mutated(cell_mutations, pos)) \
+                        if use_color else text
                 else:
-                    output += " .. "
+                    output += "[__]" if is_mutated(cell_mutations, pos) else " .. "
                 output += "    "
             output += "\n"
         return output
@@ -180,7 +189,6 @@ class Board:
         """
         if self.turn_count < 2:
             return False
-
         return any([
             self.turn_count >= MAX_TURNS,
             self._color_power(PlayerColor.RED) == 0,
@@ -197,7 +205,6 @@ class Board:
 
         red_power = self._color_power(PlayerColor.RED)
         blue_power = self._color_power(PlayerColor.BLUE)
-
         if abs(red_power - blue_power) < WIN_POWER_DIFF:
             return None
         return (PlayerColor.RED, PlayerColor.BLUE)[red_power < blue_power]

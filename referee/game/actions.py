@@ -26,8 +26,8 @@ class SpreadAction:
     direction: HexDir
 
     def __str__(self) -> str:
-        return f"SPREAD({self.cell.r}, {self.cell.q}, " + \
-               f"{self.direction.r}, {self.direction.q})"
+        return f"SPREAD({self.cell.r}, {self.cell.q} - " + \
+               f"{self.direction})"
 
 
 Action = SpawnAction | SpreadAction
