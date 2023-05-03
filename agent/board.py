@@ -141,6 +141,13 @@ class Board:
         """
         return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
 
+    def __hash__(self) -> int:
+        """
+        State hashed value. This is to check if a state has been visited or not in the memory tree.
+        @return: hashed value of state
+        """
+        return hash(self._state)
+
     def get_cells(self):
         """
         Get the board's cells.

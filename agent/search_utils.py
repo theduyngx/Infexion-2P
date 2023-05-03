@@ -14,7 +14,11 @@ from agent.constants import MIN_TOTAL_POWER
 from referee.game import HexPos, HexDir, PlayerColor, Action, SpawnAction, MAX_TOTAL_POWER, SpreadAction
 
 
-def assert_action(action: Action):
+def assert_action(action):
+    """
+    Asserting that a given object is indeed a proper Action.
+    @param action : the given supposed action
+    """
     match action:
         case SpawnAction(_):
             pass

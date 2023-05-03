@@ -4,6 +4,7 @@
 
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
+
 from agent.constants import DEPTH
 from agent.search import minimax
 from agent.agent_test import greedy_move, random_move
@@ -64,7 +65,7 @@ class Agent:
                     return minimax(board, DEPTH, self._color, full=False)
                 case PlayerColor.BLUE:
                     return greedy_move(board, self._color)
-                    # return minimax(board, 2, self._color)
+                    # return minimax(board, 2, self._color, full=True)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
