@@ -61,7 +61,7 @@ class Agent:
                 case PlayerColor.RED:
                     if board.turn_count < 1:
                         return SpawnAction(HexPos(3, 3))
-                    return minimax(board, DEPTH, self._color)
+                    return minimax(board, DEPTH, self._color, full=False)
                 case PlayerColor.BLUE:
                     return greedy_move(board, self._color)
                     # return minimax(board, 2, self._color)

@@ -91,6 +91,8 @@ OPTIMIZATION FOR MINIMAX:
 6.  IMPORTANT: Instant win (✓)
     Implement instant win (our real turn and we win immediately).
 
+7.  NOTE: Be careful of new behaviors in Infexion V1.1
+
 
 ---------------------------------------------------------------------------------------
 

@@ -1,7 +1,8 @@
 """
     Module  : search_utils.py
     Purpose : Utility functions for search algorithms, mainly for getting information of a specific
-              position as well as getting all legal moves for a specific agent.
+              position as well as getting all legal moves for a specific agent and move ordering
+              for general searching algorithms.
 
 Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
 would like to get every possible legal move that's available for it, or reduced, if agent would like
@@ -11,6 +12,18 @@ to ignore specific actions that are considered 'quiet', viz. not having signific
 from agent.board import Board
 from agent.constants import MIN_TOTAL_POWER
 from referee.game import HexPos, HexDir, PlayerColor, Action, SpawnAction, MAX_TOTAL_POWER, SpreadAction
+
+
+def assert_action(action: Action):
+    match action:
+        case SpawnAction(_):
+            pass
+        case SpreadAction(_, _):
+            pass
+        case _:
+            print(type(action))
+            print(action)
+            raise Exception("Action not matched with any pattern")
 
 
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
@@ -25,6 +38,20 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
 def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]:
     """
     Get all possible legal moves of a specified player color from a specific state of the board.
+
+    NOTE: add endgame detection here
+    Pseudocode:
+    if player_power > MAX_TOTAL_POWER / 2 and num_opponent <= 2:
+        if there exists an opponent power == 1 (meaning at most 1 opponent with power above 1):
+            if opponent_power > 2:
+                for all red pieces:
+                    if red.action can eat opponent:
+                        actions.append(action)
+            else:
+                for both power-1 blue pieces:
+                    if red.action can eat opponent:
+                        actions.append(action)
+
     @param board : specified board
     @param color : specified player's color
     @param full  : to get the full list of legal moves if true, or reduced list if otherwise
@@ -63,3 +90,42 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
     return actions
+
+
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> map:
+    """
+    Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
+    to choose a better move first in order to prune more branches before expanding them.
+    @param board   : the board
+    @param color   : player's color to have their legal moves ordered by probabilistic desirability
+    @param actions : the list of legal actions for player
+    @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
+    """
+    # for each action of the player's list of legal moves
+    action_values: list[tuple[Action, int]] = [(None, 0)] * len(actions)
+    index = 0
+    for action in actions:
+        match action:
+            # spawn means adding their power by 1
+            case SpawnAction(_):
+                action_values[index] = (action, 1)
+            # spread can either be a power-1 spread, or higher, which is possibly more desirable
+            case SpreadAction(pos, dir):
+                power = board[action.cell].power
+                if power > 1:
+                    action_values[index] = (action, power)
+                else:
+                    adj = pos + dir
+                    adj_cell = board[adj]
+                    if adj_cell.color == color.opponent:
+                        action_values[index] = (action, adj_cell.power)
+                    else:
+                        action_values[index] = (action, 0)
+            # error case
+            case _:
+                raise Exception()
+        index += 1
+
+    # sort the actions by their desirability, in decreasing order
+    action_values.sort(key=lambda tup: tup[1], reverse=True)
+    return map(lambda tup: tup[0], action_values)
