@@ -59,7 +59,7 @@ def alphabeta(board  : Board,
     if color == PlayerColor.RED:
         value = -INF
         ret   = None
-        legal_moves = board.get_legal_moves(color)
+        legal_moves = board.get_legal_moves(color, full=False)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:
@@ -83,7 +83,7 @@ def alphabeta(board  : Board,
     else:
         value = INF
         ret   = None
-        legal_moves = board.get_legal_moves(color)
+        legal_moves = board.get_legal_moves(color, full=False)
         ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
         for possible_action in ordered_map:
@@ -97,8 +97,6 @@ def alphabeta(board  : Board,
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
-            # NOTE: relying on reference based to have the argument changed
-            # Must make sure that the argument is actually updated properly
             beta = min(beta, value)
 
             # alpha cutoff

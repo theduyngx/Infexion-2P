@@ -53,12 +53,7 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
             case _:
                 raise Exception()
 
-    # if no such action found, either spawn randomly or choose any other random action
+    # if no such action found, prioritize spawn randomly, then choose any other random action
     if greedy_action is None:
-        if spawns:
-            random_index: int = randint(0, len(spawns)-1)
-            greedy_action = spawns[random_index]
-        else:
-            random_index: int = randint(0, len(actions)-1)
-            greedy_action = actions[random_index]
+        return spawns[randint(0, len(spawns)-1)] if spawns else actions[randint(0, len(actions)-1)]
     return greedy_action

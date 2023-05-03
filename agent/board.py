@@ -79,10 +79,7 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
     @param pos : the specified position
     @return    : list of 6 of its adjacent positions
     """
-    adjacent_list = []
-    for dir in HexDir:
-        adjacent_list.append(pos + dir)
-    return adjacent_list
+    return [pos + dir for dir in HexDir]
 
 
 class Board:
@@ -349,22 +346,44 @@ class Board:
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
 
-    def get_legal_moves(self, color: PlayerColor) -> list[Action]:
+    def get_legal_moves(self, color: PlayerColor, full=True) -> list[Action]:
         """
         Get all possible legal moves of a specified player color from a specific state of the board.
         @param color : specified player's color
+        @param full  : to get the full list of legal moves if true, or reduced list if otherwise
         @return      : list of all actions that could be applied to board
         """
         # for every possible move from a given board state, including SPAWN and SPREAD
         actions: list[Action] = []
         assert len(self._state) == MAX_TOTAL_POWER
+        player_power   = self.color_power(color)
+        opponent_power = self.color_power(color.opponent)
         for cell in self.get_cells():
-            # append spawn actions
+
+            # append spawn actions - if full then always append (if power < 49), otherwise append on condition
             pos = cell.pos
             if not self._pos_occupied(pos):
                 if self.total_power() < MAX_TOTAL_POWER:
-                    actions.append(SpawnAction(pos))
+                    if full:
+                        actions.append(SpawnAction(pos))
+
+                    # append on condition: board power < 10, player power >= opponent's, has adjacent pieces
+                    elif self.total_power() < MIN_TOTAL_POWER and player_power >= opponent_power:
+                        adj_list = adjacent_positions(pos)
+                        # and that if only the spawn action is not quiet - viz. has adjacent piece
+                        if any([self._pos_occupied(adj) for adj in adj_list]):
+                            actions.append(SpawnAction(pos))
+
             # append spread actions for every direction
-            if self[pos].color == color:
-                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+            elif self[pos].color == color:
+
+                # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
+                if not full and self[pos].power == 1 and self.total_power() > MIN_TOTAL_POWER:
+                    for dir in HexDir:
+                        adj = pos + dir
+                        if self._pos_occupied(adj):
+                            actions.append(SpreadAction(pos, dir))
+                # otherwise, full list requested, or position has power exceeding 1
+                else:
+                    actions.extend([SpreadAction(pos, dir) for dir in HexDir])
         return actions

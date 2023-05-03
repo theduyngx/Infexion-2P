@@ -8,6 +8,7 @@ results by improving accuracy. So far, it is only using Minimax.
 
 from referee.game import PlayerColor, Action
 from .board import Board
+from .constants import DEPTH
 from .minimax import minimax
 
 
@@ -19,5 +20,4 @@ def search(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color
     @return      : the action to take for agent
     """
-    depth = 3
-    return minimax(board, depth, color)
+    return minimax(board, DEPTH, color)
