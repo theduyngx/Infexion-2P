@@ -115,7 +115,7 @@ class Cluster:
             if other.color == self.color:
                 self.cells |= other.cells
 
-    def opponent_update(self, other):
+    def opponent_update(self, other: 'Cluster'):
         """
         Update adjacent opponent cluster number of cells. If opponent cluster is not yet recorded, then
         a new entry for it will be added.
@@ -203,7 +203,7 @@ class Clusters:
         """
         self.clusters[cluster.__hash__()] = cluster
 
-    def copy(self):
+    def copy(self) -> 'Clusters':
         """
         Creating a copy of itself.
         @return: copy of itself

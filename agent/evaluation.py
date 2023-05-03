@@ -10,10 +10,11 @@ currently on the board, the total power, as well as their clusters.
 from .cluster import create_clusters
 from referee.game import PlayerColor
 from .board import Board, PLAYER_COLOR
+from .constants import INF
 
 # weighting factors
-NUM_PIECE_FACTOR       : float = 1.6
-POWER_PIECE_FACTOR     : float = 1.6
+NUM_PIECE_FACTOR       : float = 1.8
+POWER_PIECE_FACTOR     : float = 1.7
 NUM_CLUSTER_FACTOR     : float = 1.2
 SIZE_CLUSTER_FACTOR    : float = 1.4
 SIZE_DOMINANCE_FACTOR  : float = 1.55
@@ -33,6 +34,11 @@ def evaluate(board: Board) -> float:
     num_red , pow_red  = board.color_number_and_power(PlayerColor.RED)
     value  = (num_red - num_blue) * NUM_PIECE_FACTOR
     value += (pow_red - pow_blue) * POWER_PIECE_FACTOR
+
+    if num_blue == 0:
+        return INF
+    if num_red == 0:
+        return -INF
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
