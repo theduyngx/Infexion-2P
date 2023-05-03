@@ -56,7 +56,7 @@ def alphabeta(board  : Board,
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
         assert_action(action)
-        return evaluate(board), action, stop
+        return evaluate(board)[0], action, stop
 
     # maximize
     if color == PlayerColor.RED:
