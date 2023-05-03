@@ -12,15 +12,9 @@ quite reasonable, hence the decision.
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, PlayerColor, Action, SpawnAction, SpreadAction, HexDir
+from referee.game import HexPos, Action, SpawnAction, SpreadAction
 from referee.game.constants import *
-
-
-# Constants
-EMPTY_POWER    : int = 0
-MIN_MOVE_WIN   : int = 2
-PLAYER_COLOR   : PlayerColor = PlayerColor.RED
-OPPONENT_COLOR : PlayerColor = PLAYER_COLOR.opponent
+from .constants import *
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,18 +73,6 @@ class BoardMutation:
     cell_mutations: set[CellMutation]
 
 
-def adjacent_positions(pos: HexPos) -> list[HexPos]:
-    """
-    Get all adjacent positions to the specified one.
-    @param pos : the specified position
-    @return    : list of 6 of its adjacent positions
-    """
-    adjacent_list = []
-    for dir in HexDir:
-        adjacent_list.append(pos + dir)
-    return adjacent_list
-
-
 class Board:
     """
     The Board class encapsulates the state of the game board, and provides methods for applying actions
@@ -116,9 +98,8 @@ class Board:
         the cell, and the value being the cell and its state.
         @param initial_state: board's state, if just initialized then it will be an empty dictionary
         """
+        # the state uses dense representation, which also stores the empty cells
         self._state: dict[int, CellState] = defaultdict()
-
-        ### INELEGANT EMPTY CELL INIT
         if initial_state is None:
             initial_state = {}
         for r in range(BOARD_N):
@@ -130,6 +111,7 @@ class Board:
                 else:
                     assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
 
+        # other properties initialized
         self._state.update(initial_state)
         self._turn_color: PlayerColor = PLAYER_COLOR
         self._turn_count: int = 0
@@ -158,6 +140,13 @@ class Board:
         @return    : boolean indicating whether the position is occupied or not
         """
         return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
+
+    def __hash__(self) -> int:
+        """
+        State hashed value. This is to check if a state has been visited or not in the memory tree.
+        @return: hashed value of state
+        """
+        return hash(self._state)
 
     def get_cells(self):
         """
@@ -199,6 +188,11 @@ class Board:
             (self.turn_count >= MAX_TURNS or self.player_wins(PLAYER_COLOR) or self.player_wins(OPPONENT_COLOR))
 
     def player_wins(self, player: PlayerColor) -> bool:
+        """
+        Check if specified player has won the game.
+        @param player : specified player
+        @return       : true if won, false if not
+        """
         return self.color_power(player) == EMPTY_POWER
 
     def total_power(self) -> int:
@@ -229,13 +223,22 @@ class Board:
 
     def color_power(self, color: PlayerColor) -> int:
         """
-        Protected method getting the current total power of a specified player.
+        Method getting the current total power of a specified player.
         @param color : player's color
         @return      : their power
         """
         return sum(map(lambda cell: cell.power, self.player_cells(color)))
 
-    def _pos_occupied(self, pos: HexPos) -> bool:
+    def color_number_and_power(self, color: PlayerColor) -> (int, int):
+        """
+        Method getting the current total power of a specified player and the number of pieces.
+        @param color : player's color
+        @return      : their number of pieces on board and power
+        """
+        color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
+        return len(color_cells), sum(color_cells)
+
+    def pos_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
         @param pos : specified cell's coordinates
@@ -252,12 +255,13 @@ class Board:
         """
         pos = action.cell
 
+        # exception handling
         if self.total_power() >= MAX_TOTAL_POWER:
             raise Exception("SPAWN: total power exceeded")
-
-        if self._pos_occupied(pos):
+        if self.pos_occupied(pos):
             raise Exception("SPAWN: cell occupied")
 
+        # minimal, efficient board mutation
         return BoardMutation(
             action,
             cell_mutations={
@@ -279,9 +283,9 @@ class Board:
         from_cell, dir = action.cell, action.direction
         player_color: PlayerColor = self._turn_color
 
+        # exception handling
         if self[from_cell].power == 0:
             raise Exception("SPREAD: cell is empty")
-
         if self[from_cell].color != player_color:
             raise Exception("SPREAD:", from_cell, "has color", self[from_cell].color, "which differs", player_color)
 
@@ -290,6 +294,7 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
+        # minimal, efficient board mutation
         return BoardMutation(
             action,
             cell_mutations = {
@@ -338,23 +343,3 @@ class Board:
             self[mutation.pos] = mutation.prev
         self._turn_color = self._turn_color.opponent
         self._turn_count -= 1
-
-    def get_legal_moves(self, color: PlayerColor) -> list[Action]:
-        """
-        Get all possible legal moves of a specified player color from a specific state of the board.
-        @param color : specified player's color
-        @return      : list of all actions that could be applied to board
-        """
-        # for every possible move from a given board state, including SPAWN and SPREAD
-        actions: list[Action] = []
-        assert len(self._state) == MAX_TOTAL_POWER
-        for cell in self.get_cells():
-            # append spawn actions
-            pos = cell.pos
-            if not self._pos_occupied(pos):
-                if self.total_power() < MAX_TOTAL_POWER:
-                    actions.append(SpawnAction(pos))
-            # append spread actions for every direction
-            if self[pos].color == color:
-                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-        return actions

@@ -5,13 +5,11 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
+from agent.constants import DEPTH
 from agent.search import minimax
 from agent.agent_test import greedy_move, random_move
 from agent.board import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
-
-# NOTE: Should find a better way to store this, seems like it belongs to __init__.py
-board: Board = Board()
 
 
 def print_referee(referee: dict):
@@ -31,7 +29,8 @@ class Agent:
     Agent class representing the agent player.
     """
     __slots__ = [
-        "_color"
+        "_color",
+        "_board"
     ]
 
     def __init__(self, color: PlayerColor, **referee: dict):
@@ -42,6 +41,7 @@ class Agent:
         """
         print_referee(referee)
         self._color = color
+        self._board = Board()
 
     def get_color(self) -> PlayerColor:
         """
@@ -56,14 +56,16 @@ class Agent:
         @param referee : the referee
         @return        : the action to be taken next
         """
+        board = self._board
         if board.total_power() < MAX_TOTAL_POWER:
             match self._color:
                 case PlayerColor.RED:
                     if board.turn_count < 1:
                         return SpawnAction(HexPos(3, 3))
-                    return minimax(board, self._color)
+                    return minimax(board, DEPTH, self._color, full=False)
                 case PlayerColor.BLUE:
-                    return minimax(board, self._color)
+                    return greedy_move(board, self._color)
+                    # return minimax(board, 2, self._color, full=True)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -74,7 +76,7 @@ class Agent:
         """
         assert self
         print_referee(referee)
-        board.apply_action(action)
+        self._board.apply_action(action)
 
         match action:
             case SpawnAction(cell):

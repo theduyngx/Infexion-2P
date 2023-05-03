@@ -41,36 +41,10 @@ Said context of the state:
 
 ---------------------------------------------------------------------------------------
 
-CLUSTERS:
-So far the calculation we've come up is:
-     Cluster size ^ 1.4  +  Number of clusters * 1.2
-
-Punishable factor is dominance factor:
-     Red dominance - Blue dominance
-
-Dominance factor calculation:
-     for each adjacent opposing clusters:
-         RED:(Balance of cluster size & cluster total power) - BLUE:(same)
-
-Balance of cluster size & cluster total power:
-     Probably just do the same as the cluster size and number of clusters balance thing.
-     But it is even less desirable to have great values in small clusters in this case.
-
 
 OPTIMIZATION FOR MINIMAX:
-Premature stop (adding an argument probably):
-    if depth == 0 or game_over:
-        if depth >= DEPTH - 1:
-            stop_recursion = True
-            return action
 
-    This is because depth == DEPTH - 1 indicates it is already our turn, and the game is already over
-    Meaning we've already either won, or lost.
-    A better way is to write separate functions. First one will look at the first depth, and if we've
-    already won then there's no need to go any further. If we haven't won, then for each node we will
-    call the recursive version of minimax.
-
-Reusing spawn-able cells:
+1.  Reusing spawn-able cells:
     When obtaining the list of possible actions, we're iterating through the entire board every single
     time. However, on average, most cells remain spawn-able throughout. We can reuse by via apply_action
     and undo_action, and by storing the spawn-able cells as a dictionary:
@@ -97,7 +71,30 @@ Reusing spawn-able cells:
                     add spawns[cell]
             del spawns[action.cell]
 
+2.  Reusing expanded / generated branches:
+    We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
+    the opponent makes said move and continue with the minimax search.
+    Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
+    On a likely chance that the branch is not yet pruned, we will be able to reuse an entire depth = 2 tree.
 
+3.  Transposition Tables and Board Symmetries (hard)
+
+4.  Endgame:
+    Speed up end game, probably will require a different evaluation function where it significantly emphasizes
+    on the piece power that we can capture.
+
+5.  Weed out redundant moves (✓)
+    There are lots of moves that can be considered equivalent as per domain knowledge (like spawning in the
+    middle of nowhere here is the same as there). If we can, somehow in some way, weed these moves out of
+    the picture, we can significantly speed up the process.
+
+6.  IMPORTANT: Instant win (✓)
+    Implement instant win (our real turn and we win immediately).
+
+7.  NOTE: Be careful of new behaviors in Infexion V1.1
+
+
+---------------------------------------------------------------------------------------
 
 
 STOCHASTIC BIAS PRUNING (Monte Carlo):

@@ -7,25 +7,27 @@
 from referee.game import PlayerColor, Action
 from .board import Board
 from .evaluation import evaluate
-
-# Constants
-INF   : float = 9999
-DEPTH : int   = 2
+from .constants import INF, DEPTH
+from .search_utils import get_legal_moves, assert_action, move_ordering
 
 
-def minimax(board: Board, color: PlayerColor) -> Action:
+def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     """
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
 
     NOTE: be mindful of the behavior specifically specified in Infexion ver 1.1
     @param board : the board
+    @param depth : the depth
     @param color : the agent's color
+    @param full  : whether agent uses reduced-moves minimax
     @return      : the action to take for agent
     """
     alpha = -INF
     beta  = INF
-    _, action = alphabeta(board, color, DEPTH, None, alpha, beta)
+    assert not board.game_over
+    _, action, _ = alphabeta(board, color, depth, None, alpha, beta, full)
+    assert_action(action)
     return action
 
 
@@ -34,8 +36,9 @@ def alphabeta(board  : Board,
               depth  : int,
               action : Action,
               alpha  : float,
-              beta   : float
-              ) -> (float, Action):
+              beta   : float,
+              full   = False
+              ) -> (float, Action, bool):
     """
     Alpha-beta pruning for minimax search algorithm.
     @param board  : the board
@@ -44,24 +47,29 @@ def alphabeta(board  : Board,
     @param action : deduced best action
     @param alpha  : alpha - move that improves player's position
     @param beta   : beta  - move that improves opponent's position
+    @param full   : whether agent uses reduced-moves minimax
     @return       : evaluated score of the board and the action to be made
     """
 
     # reached depth limit, or terminal node
+    stop = False
     if depth == 0 or board.game_over:
-        return evaluate(board), action
+        stop = depth >= DEPTH - 1
+        assert_action(action)
+        return evaluate(board), action, stop
 
     # maximize
     if color == PlayerColor.RED:
         value = -INF
         ret   = None
-        legal_moves = board.get_legal_moves(color)
+        legal_moves = get_legal_moves(board, color, full)
+        ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
-        for possible_action in legal_moves:
+        for possible_action in ordered_map:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, full)
 
             # undo after finishing
             board.undo_action()
@@ -70,34 +78,33 @@ def alphabeta(board  : Board,
                 ret   = possible_action
             alpha = max(alpha, value)
 
-            # beta cutoff
-            if value >= beta:
+            # beta cutoff / stop prematurely
+            if stop or value >= beta:
                 break
 
     # minimize
     else:
         value = INF
         ret   = None
-        legal_moves = board.get_legal_moves(color)
+        legal_moves = get_legal_moves(board, color, full)
+        ordered_map = move_ordering(board, color, legal_moves)
         # for each child node of board
-        for possible_action in legal_moves:
+        for possible_action in ordered_map:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
-            curr_val, _ = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta)
+            curr_val, _, stop = alphabeta(board, color.opponent, depth-1, possible_action, alpha, beta, full)
 
             # undo action after finishing
             board.undo_action()
             if curr_val < value:
                 value = curr_val
                 ret   = possible_action
-            # NOTE: relying on reference based to have the argument changed
-            # Must make sure that the argument is actually updated properly
             beta = min(beta, value)
 
-            # alpha cutoff
-            if value <= alpha:
+            # alpha cutoff / stop prematurely
+            if stop or value <= alpha:
                 break
 
     # return evaluated value and corresponding action
-    return value, ret
+    return value, ret, stop

@@ -10,13 +10,15 @@ currently on the board, the total power, as well as their clusters.
 from .cluster import create_clusters
 from referee.game import PlayerColor
 from .board import Board, PLAYER_COLOR
+from .constants import INF
 
 # weighting factors
-PIECE_POWER_FACTOR     : float = 2.4
+NUM_PIECE_FACTOR       : float = 1.8
+POWER_PIECE_FACTOR     : float = 1.7
 NUM_CLUSTER_FACTOR     : float = 1.2
 SIZE_CLUSTER_FACTOR    : float = 1.4
-SIZE_DOMINANCE_FACTOR  : float = 1.5
-POWER_DOMINANCE_FACTOR : float = 0.55
+SIZE_DOMINANCE_FACTOR  : float = 1.55
+POWER_DOMINANCE_FACTOR : float = 0.45
 
 
 def evaluate(board: Board) -> float:
@@ -28,9 +30,15 @@ def evaluate(board: Board) -> float:
     @return      : the evaluated value of the board
     """
     # player power evaluation
-    pow_blue = board.color_power(PlayerColor.BLUE)
-    pow_red  = board.color_power(PlayerColor.RED)
-    value    = (pow_red - pow_blue) * PIECE_POWER_FACTOR
+    num_blue, pow_blue = board.color_number_and_power(PlayerColor.BLUE)
+    num_red , pow_red  = board.color_number_and_power(PlayerColor.RED)
+    value  = (num_red - num_blue) * NUM_PIECE_FACTOR
+    value += (pow_red - pow_blue) * POWER_PIECE_FACTOR
+
+    if num_blue == 0:
+        return INF
+    if num_red == 0:
+        return -INF
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
@@ -41,29 +49,30 @@ def evaluate(board: Board) -> float:
     num_opponent_dominates = 0
     pow_opponent_dominates = 0
     for cluster in clusters.values():
-        if cluster.color == PlayerColor.RED:
-            sign = 1
-            num_player_clusters += 1
-        else:
-            sign = -1
-            num_opponent_clusters += 1
+        sign = 1 if cluster.color == PlayerColor.RED else -1
 
-        # dominance factor is checked solely via player pieces
+        # player's cluster
         if cluster.color == PLAYER_COLOR:
+            num_player_clusters += 1
+            # dominance factor is checked solely via player pieces
             for opponent in cluster.get_opponents():
                 opponent_cluster = clusters[opponent]
 
                 # cluster size dominance
                 if len(cluster) < len(opponent_cluster):
-                    num_opponent_dominates += 1
+                    num_opponent_dominates += sign
                 elif len(cluster) > len(opponent_cluster):
-                    num_player_dominates += 1
+                    num_player_dominates += sign
 
                 # cluster power dominance
                 if cluster.get_power() < opponent_cluster.get_power():
-                    pow_opponent_dominates += 1
+                    pow_opponent_dominates += sign
                 elif cluster.get_power() > opponent_cluster.get_power():
-                    pow_player_dominates += 1
+                    pow_player_dominates += sign
+
+        # opponent's cluster
+        else:
+            num_opponent_clusters += 1
 
         # cluster and dominance factor add-on, respectively
         value += sign * len(cluster) * SIZE_CLUSTER_FACTOR
