@@ -63,7 +63,7 @@ class Agent:
                         return SpawnAction(HexPos(3, 3))
                     return minimax(board, self._color)
                 case PlayerColor.BLUE:
-                    return minimax(board, self._color)
+                    return greedy_move(board, self._color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
