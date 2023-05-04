@@ -20,7 +20,7 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color (it is its turn)
     @return      : the random action to be taken by agent
     """
-    actions: list[Action] = get_legal_moves(board, color)
+    actions: list[Action] = get_legal_moves(board, board.turn_color, color)
     random_index: int = randint(0, len(actions)-1)
     return actions[random_index]
 
