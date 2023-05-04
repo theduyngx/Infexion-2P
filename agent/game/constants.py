@@ -6,7 +6,7 @@
 from referee.game import PlayerColor
 
 INF             : float = float("inf")
-DEPTH           : int = 3
+DEPTH           : int = 4
 EMPTY_POWER     : int = 0
 MIN_MOVE_WIN    : int = 2
 MIN_TURN_COUNT  : int = 2
