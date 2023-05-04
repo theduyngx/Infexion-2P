@@ -80,7 +80,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     # dictionary for piece and actions, and their capture potential -> greedy
     action_capture : dict[(HexPos, HexDir), int] = defaultdict()
     stacked_capture: dict[(HexPos, HexDir), int] = defaultdict()
-    final          : dict[(HexPos, HexDir), int] = {}
+    final          : dict[(HexPos, HexDir), int]
 
     # endgame conditions: minimal player power requirement
     if player_power >= MAX_TOTAL_POWER // 4:
@@ -112,35 +112,41 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                             if cell.power >= abs(s):
                                 cleared  = True
                                 key = (curr_pos, dir)
-                                if not stacked:
-                                    if key in action_capture:
-                                        action_capture[key] += 1
-                                    else:
-                                        action_capture[key] = 1
+                                if key in action_capture:
+                                    action_capture[key] += 1
                                 else:
+                                    action_capture[key] = 1
+                                if stacked:
                                     stacked_capture[key] = 1
-
+                # if stacked opponent cannot be cleared, then it isn't endgame
                 if not cleared:
-                    action_capture = {}
-                    break
+                    return [], player_power, opponent_power
 
+        # if there is a stacked opponent, then we update number of captures in captured dict
         if stacked_capture:
             final = stacked_capture
             for key in stacked_capture.keys():
                 stacked_capture[key] += action_capture[key]
+        # otherwise, either no stacked opponent or not endgame (no opponent can be captured)
         elif action_capture:
             final = action_capture
+        else:
+            return [], player_power, opponent_power
 
+        # sort the actions by priority 1 - number of captures, and 2 - piece power
         action_sorted = sorted(final.items(),
                                key=lambda item: (item[1], board[item[0][0]].power),
                                reverse=True)
-        if action_sorted:
-            (pos, dir), max_capture = action_sorted[0]
-            max_power = board[pos].power
-            for (pos, dir), value in action_sorted:
-                if value < max_capture or board[pos].power < max_power:
-                    break
-                actions.append(SpreadAction(pos, dir))
+        (pos, dir), max_capture = action_sorted[0]
+        max_power = board[pos].power
+
+        # return only the list of actions that are most desirable (equal highest number of
+        # captures and equal highest power given the number of captures)
+        for (pos, dir), value in action_sorted:
+            if value < max_capture or board[pos].power < max_power:
+                break
+            actions.append(SpreadAction(pos, dir))
+        assert actions
     return actions, player_power, opponent_power
 
 
