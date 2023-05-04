@@ -152,11 +152,11 @@ class MonteCarloNode:
 
     # This simulation really only returns the new value,
     # although normalized to be in range [0, 1]
-    def quick_simulate(self, board: Board):
+    def quick_simulate(self, board: Board, turn_color: PlayerColor):
         num_moves: int = 0
         st = time.time()
         while num_moves < SIMULATION_LIMIT and not board.game_over:
-            new_action: Action = random_move(board, board.turn_color)
+            new_action: Action = random_move(board, turn_color)
             # new_action: Action = minimax(board, DEPTH, board.turn_color)
             board.apply_action(new_action, concrete=False)
             num_moves += 1
