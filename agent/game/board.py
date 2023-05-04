@@ -88,6 +88,7 @@ class Board:
         "_mutable",
         "_state",
         "_turn_color",
+        "_true_turn",
         "_non_concrete_history",
         "_turn_count"
     ]
@@ -113,8 +114,9 @@ class Board:
 
         # other properties initialized
         self._state.update(initial_state)
-        self._turn_color: PlayerColor = PLAYER_COLOR
         self._turn_count: int = 0
+        self._turn_color: PlayerColor = PLAYER_COLOR
+        self._true_turn : PlayerColor = PLAYER_COLOR
         self._non_concrete_history: list[BoardMutation] = []
 
     def __getitem__(self, pos: HexPos) -> CellState:
@@ -177,6 +179,14 @@ class Board:
         @return: color of player who is at their turn
         """
         return self._turn_color
+
+    @property
+    def true_turn(self) -> PlayerColor:
+        """
+        Get which player's turn is it truly.
+        @return: true player's turn
+        """
+        return self._true_turn
 
     @property
     def game_over(self) -> bool:
@@ -287,7 +297,8 @@ class Board:
         if self[from_cell].power == 0:
             raise Exception("SPREAD: cell is empty")
         if self[from_cell].color != player_color:
-            raise Exception("SPREAD:", from_cell, "has color", self[from_cell].color, "which differs", player_color)
+            raise Exception("SPREAD: cell " + str(from_cell) + " has color " + str(self[from_cell].color) +
+                            " which differs " + str(player_color))
 
         # Compute destination cell coords.
         to_cells = [
@@ -326,10 +337,12 @@ class Board:
             self[mutation.pos] = mutation.next
 
         # only add to history in the case where it is going down the search tree
-        if not concrete:
-            self._non_concrete_history.append(board_mutation)
         self._turn_color = self.turn_color.opponent
         self._turn_count += 1
+        if not concrete:
+            self._non_concrete_history.append(board_mutation)
+        else:
+            self._true_turn = self._turn_color
 
     def undo_action(self):
         """

@@ -20,7 +20,7 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color (it is its turn)
     @return      : the random action to be taken by agent
     """
-    actions, _ = get_legal_moves(board, color, color)
+    actions, _ = get_legal_moves(board, color, full=True)
     random_index: int = randint(0, len(actions)-1)
     return actions[random_index]
 
@@ -34,7 +34,7 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color turn
     @return      : the action to be taken by agent
     """
-    actions, _ = get_legal_moves(board, color, color)
+    actions, _ = get_legal_moves(board, color, full=True)
     spawns: list[Action] = []
     min_opponent_power = board.color_power(color.opponent)
     greedy_action = None

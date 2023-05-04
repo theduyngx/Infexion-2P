@@ -46,7 +46,7 @@ def adjacent_positions(pos: HexPos) -> list[HexPos]:
     return [pos + dir for dir in HexDir]
 
 
-def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
+def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
@@ -54,6 +54,8 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     Another possible improvement: Endgame detection can also depend on the number of opponent's
     clusters compared to their number of pieces. If it's the same, then it is highly clustered,
     and it is most definitely endgame as well.
+
+    Robustness: make sure it is the player who is dominating that gets to decide endgame.
     @param board : the board
     @param color : player's color
     @return      : the list of actions for endgame (if list is empty then not endgame),
@@ -108,7 +110,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                                     stacked_capture[key] = 1
                 # if stacked opponent cannot be cleared, then it isn't endgame
                 if not cleared:
-                    return [], player_power, opponent_power
+                    return []
 
         # if there is a stacked opponent, then we update number of captures in captured dict
         if stacked_capture:
@@ -119,7 +121,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
         elif action_capture:
             final = action_capture
         else:
-            return [], player_power, opponent_power
+            return []
 
         # sort the actions by priority 1 - number of captures, and 2 - piece power
         action_sorted = sorted(final.items(),
@@ -135,7 +137,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                 break
             actions.append(SpreadAction(pos, dir))
         assert actions
-    return actions, player_power, opponent_power
+    return actions
 
 
 def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
@@ -145,6 +147,10 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
     moves had to be generated in the minimax tree. This includes endgame detection and ignoring
     specific moves based on domain knowledge of the game.
     However, in the case when player is overwhelmed, then full will be forcefully set to True.
+
+    ERROR: despite overwhelmed, for whatever reason, it seems like the player cannot spawn in
+    cells that are not adjacent to another piece. This is a severe flaw. Yes, this is even
+    despite setting full = True.
     @param board  : specified board
     @param color  : specified player's color
     @param full   : to get the full list of legal moves if true, or reduced list if otherwise
@@ -152,20 +158,22 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
                     boolean indicating whether endgame has been reached
     """
 
-    # endgame check
-    get_all = full
-    actions, player_power, opponent_power = check_endgame(board, color)
-    total_power = player_power + opponent_power
-    if len(actions) > 0:
-        return actions, True
-
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
-    player = board.turn_color
-    if color == player:
-        player_overwhelmed = player_power <= opponent_power // 3 and \
-                             total_power >= MIN_TOTAL_POWER
-        if player_overwhelmed:
-            get_all = True
+    actions: list[Action] = []
+    player_power   = board.color_power(color)
+    opponent_power = board.color_power(color.opponent)
+    total_power    = player_power + opponent_power
+    if not full:
+        if color == board.true_turn:
+            player_overwhelmed = player_power <= opponent_power // 3 and \
+                                 total_power >= MIN_TOTAL_POWER
+            full = player_overwhelmed
+
+    # endgame check
+    if not full:
+        actions = check_endgame(board, color)
+        if len(actions) > 0:
+            return actions, True
 
     # for every possible move from a given board state, including SPAWN and SPREAD
     for cell in board.get_cells():
@@ -174,7 +182,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
         pos = cell.pos
         if not board.pos_occupied(pos):
             if board.total_power() < MAX_TOTAL_POWER:
-                if get_all:
+                if full:
                     actions.append(SpawnAction(pos))
 
                 # append on condition: within an acceptable range, spawn can be skipped
@@ -188,7 +196,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
         elif board[pos].color == color:
 
             # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-            if not get_all and board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
+            if not full and board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
                 for dir in HexDir:
                     adj = pos + dir
                     if board[adj].color == color.opponent:
@@ -196,7 +204,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-    if get_all:
+    if full:
         assert len(actions) > 0
     return actions, False
 
