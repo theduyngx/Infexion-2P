@@ -1,7 +1,7 @@
-from agent.board import Board
+from agent.game import Board
 from referee.game import Action, PlayerColor
-from .mc_node import MonteCarloNode
-from .mutable_heapq import MutableHeap
+from agent.mc_node import MonteCarloNode
+from agent.mutable_heapq import MutableHeap
 from .search_utils import get_legal_moves, move_ordering
 
 # Constants

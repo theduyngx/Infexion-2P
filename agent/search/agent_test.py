@@ -8,8 +8,8 @@ to more complex agents that are capable of making more complex moves.
 
 from random import randint
 
-from agent.board import Board
-from agent.search_utils import get_legal_moves
+from agent.game import Board
+from agent.search.search_utils import get_legal_moves
 from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
 
 

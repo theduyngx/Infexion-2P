@@ -1,7 +1,7 @@
 import heapq
 import itertools
 from .mc_node import MonteCarloNode
-from agent.board import Board
+from agent.game import Board
 
 REMOVED = None
 NEW = 'new'

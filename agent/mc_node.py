@@ -1,11 +1,11 @@
 from math import sqrt, log
 import copy
-from .board import Board
-from .evaluation import evaluate, mc_evaluate
-from .agent_test import random_move
+from agent.game import Board
+from agent.search.evaluation import evaluate, mc_evaluate
+from agent.search.agent_test import random_move
 from referee.game import PlayerColor, Action
-from .minimax import minimax
-from agent.constants import DEPTH
+from agent.search.minimax import minimax
+from agent.game.constants import DEPTH
 import time
 
 UCT_CONSTANT: int = sqrt(2)

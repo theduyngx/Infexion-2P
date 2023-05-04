@@ -5,12 +5,12 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from agent.constants import DEPTH
+from agent.game.constants import DEPTH
 from agent.search import minimax
-from agent.agent_test import greedy_move, random_move
-from agent.board import Board
+from agent.search.agent_test import greedy_move, random_move
+from agent.game import Board
 from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, HexPos, MAX_TOTAL_POWER
-from .monte_carlo import monte_carlo
+from agent.search import monte_carlo
 
 
 def print_referee(referee: dict):
@@ -63,8 +63,8 @@ class Agent:
                 case PlayerColor.RED:
                     if board.turn_count < 1:
                         return SpawnAction(HexPos(3, 3))
-                    # return minimax(board, DEPTH, self._color, full=False)
-                    return monte_carlo(board, self._color)
+                    return minimax(board, DEPTH, self._color, full=False)
+                    # return monte_carlo(board, self._color)
                 case PlayerColor.BLUE:
                     # return greedy_move(board, self._color)
                     return minimax(board, 2, self._color, full=True)
