@@ -12,10 +12,10 @@ def print_referee(referee: dict):
     it does work, so I suppose it's fine.
     @param referee : the referee
     """
-    print("---------------------------------------")
+    print("--------------------------------------")
     print("Time remaining  :", referee["time_remaining"])
     print("Space remaining :", referee["space_remaining"])
-    print("---------------------------------------")
+    print("--------------------------------------")
 
 
 def ansi_color(color: PlayerColor, ansi=True) -> str:

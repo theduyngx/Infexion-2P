@@ -1,18 +1,20 @@
 """
     Module  : search_utils.py
     Purpose : Utility functions for search algorithms, mainly for getting information of a specific
-              position as well as getting all legal moves for a specific agent and move ordering
-              for general searching algorithms.
+              position as well as getting all legal moves for a specific agent and other search
+              optimization functionalities including move ordering and dynamic move reductions.
 
 Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
 would like to get every possible legal move that's available for it, or reduced, if agent would like
-to ignore specific actions that are considered 'quiet', viz. not having significant effects.
+to ignore specific actions that are considered 'quiet', viz. not having significant effects. Move
+reduction also entails endgame detection, where the desirable moves become more apparent; hence any
+moves that may not seem desirable can simply be filtered out.
 """
 
 from agent.game import Board, MIN_TOTAL_POWER, EMPTY_POWER
 from referee.game import HexPos, HexDir, PlayerColor, \
-    Action, SpawnAction, SpreadAction, \
-    MAX_TOTAL_POWER, BOARD_N
+                         Action, SpawnAction, SpreadAction, \
+                         MAX_TOTAL_POWER, BOARD_N
 
 # Constant
 MAX_ENDGAME_NUM_OPPONENT: int = 2
@@ -136,14 +138,6 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
                     # and the skipped ones are those not adjacent to player's pieces
                     if any([board[adj].color == color for adj in adj_list]):
                         actions.append(SpawnAction(pos))
-
-                    # # if total power is under acceptable range, add when adjacent to its own color
-                    # if total_power <= MIN_TOTAL_POWER:
-                    #     if any([board[adj].color == color for adj in adj_list]):
-                    #         actions.append(SpawnAction(pos))
-                    # # or that if only the spawn action is not quiet - viz. has adjacent piece
-                    # elif any([board.pos_occupied(adj) for adj in adj_list]):
-                    #     actions.append(SpawnAction(pos))
 
         # append spread actions for every direction
         elif board[pos].color == color:

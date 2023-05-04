@@ -1,3 +1,8 @@
+"""
+    Module  : constants.py
+    Purpose : Storing global constants.
+"""
+
 from referee.game import PlayerColor
 
 INF             : float = float("inf")

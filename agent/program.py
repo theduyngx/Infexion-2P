@@ -8,7 +8,7 @@ COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playin
 from referee.game import Action, SpawnAction, SpreadAction
 from .utils import *
 
-from agent.search import greedy_move, random_move, minimax, search
+from agent.search import search, minimax, greedy_move, random_move
 from agent.game import Board
 
 
