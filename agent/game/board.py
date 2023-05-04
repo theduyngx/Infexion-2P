@@ -150,6 +150,17 @@ class Board:
         """
         return hash(self._state)
 
+    def __str__(self) -> str:
+        """
+        Represent the current board, used for debugging
+        @return: String Representation of the Board
+        """
+        str_list = []
+        for cell_state in self._state.values():
+            if cell_state.color is not None:
+                str_list.append(cell_state.__str__())
+        return '\n'.join(str_list)
+
     def get_cells(self):
         """
         Get the board's cells.
