@@ -90,6 +90,7 @@ def evaluate(board: Board) -> (float, float):
 
     return value, monte_carlo_val
 
+
 def mc_evaluate(board: Board) -> float:
     """
     Evaluation function to evaluate the state of the board after a monte carlo simulation.

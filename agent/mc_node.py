@@ -1,7 +1,7 @@
 from math import sqrt, log
 import copy
 from .board import Board
-from .evaluation import evaluate
+from .evaluation import evaluate, mc_evaluate
 from .agent_test import random_move
 from referee.game import PlayerColor, Action
 from .minimax import minimax
@@ -142,7 +142,7 @@ class MonteCarloNode:
     # This simulation really only returns the new value,
     # although normalized to be in range [0, 1]
     def quick_simulate(self):
-        self.calculate_new_uct()
+
         return
 
     # When picking a node to go to, always
