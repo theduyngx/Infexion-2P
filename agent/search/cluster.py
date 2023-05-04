@@ -1,18 +1,18 @@
 """
     Module  : cluster.py
-    Purpose : Including the classes representing a single cluster, a collection of clusters,
-              and a function to create said collection from a given state of the board.
+    Purpose : Including the classes representing a single cluster, a collection of clusters, and a
+              function to create said collection from a given state of the board.
 
 Note: A cluster is simply a region of adjacent pieces of the same color. This is an important piece
-of information because it is believed that cluster formation is a good strategy to build defense and
-offense within the game.
+of information because it is believed that cluster formation is a good strategy to build defense
+and offense within the game.
 """
 
 from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, PlayerColor
-from .board import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
+from agent.game import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
 from .search_utils import adjacent_positions
 
 
@@ -31,8 +31,8 @@ class Cluster:
         init_pos   : the initial cell's position
         color      : the color of the cluster
         cells      : all cells that are within the cluster, initialized with the initial cell
-        opponents  : dictionary of adjacent opponent clusters, with key being the cluster itself and value
-                      being its number of cells
+        opponents  : dictionary of adjacent opponent clusters - key being the cluster itself,
+                     and value being its number of cells
     """
     init_state : CellState
     init_pos   : HexPos
@@ -61,7 +61,7 @@ class Cluster:
 
     def __setitem__(self, pos: HexPos, cell: CellState):
         """
-        Setting an entry, with the key being the position and value being the cell at said position.
+        Setting an entry, with key being the position and value being cell at said position.
         @param pos  : specified position
         @param cell : the cell at position
         """
@@ -78,7 +78,7 @@ class Cluster:
 
     def __len__(self) -> int:
         """
-        The length of the cluster is defined as the number of cells that the cluster contains.
+        The length of the cluster is defined as the number of cells that it contains.
         @return: the number of cells that cluster contains
         """
         return len(self.cells)
@@ -108,7 +108,7 @@ class Cluster:
 
     def reference_append(self, other):
         """
-        Appending the cells of this object with another cluster's cells, but via reference.
+        Appending the cells of this object with another cluster's cells, via reference.
         This means the operation is in constant time in both time and space.
         @param other : the other cluster
         """
@@ -118,8 +118,8 @@ class Cluster:
 
     def opponent_update(self, other: 'Cluster'):
         """
-        Update adjacent opponent cluster number of cells. If opponent cluster is not yet recorded, then
-        a new entry for it will be added.
+        Update adjacent opponent cluster number of cells. If opponent cluster is not yet
+        recorded, then a new entry for it will be added.
         @param other : the adjacent opponent cluster
         """
         if type(other) == Cluster:
@@ -165,7 +165,7 @@ class Clusters:
     def __getitem__(self, key: Cluster | int) -> Cluster:
         """
         Get cluster from the list of clusters.
-        @param key : either the cluster (any mutation of itself as long as initial state remains intact)
+        @param key : either the cluster (any mutation of itself as long as initial state remains)
                      or the cluster's hashed value
         @return    : the cluster from list
         """

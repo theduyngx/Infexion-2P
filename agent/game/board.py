@@ -12,8 +12,8 @@ quite reasonable, hence the decision.
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, Action, SpawnAction, SpreadAction
-from referee.game.constants import *
+from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
+                         MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER
 from .constants import *
 
 
@@ -279,7 +279,7 @@ class Board:
                 CellMutation(
                     pos,
                     self[pos],
-                    CellState(pos, self._turn_color, 1)
+                    CellState(pos, self.turn_color, 1)
                 )
             },
         )
@@ -292,7 +292,7 @@ class Board:
         @return       : board mutation
         """
         from_cell, dir = action.cell, action.direction
-        player_color: PlayerColor = self._turn_color
+        player_color: PlayerColor = self.turn_color
 
         # exception handling
         if self[from_cell].power == 0:
@@ -339,7 +339,7 @@ class Board:
         # only add to history in the case where it is going down the search tree
         if not concrete:
             self._non_concrete_history.append(board_mutation)
-        self._turn_color = self._turn_color.opponent
+        self._turn_color = self.turn_color.opponent
         self._turn_count += 1
 
     def undo_action(self):
@@ -352,5 +352,5 @@ class Board:
         board_mutation: BoardMutation = self._non_concrete_history.pop()
         for mutation in board_mutation.cell_mutations:
             self[mutation.pos] = mutation.prev
-        self._turn_color = self._turn_color.opponent
+        self._turn_color = self.turn_color.opponent
         self._turn_count -= 1

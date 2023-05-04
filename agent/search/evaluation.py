@@ -7,10 +7,9 @@ The evaluation function will make use of information such as the number of piece
 currently on the board, the total power, as well as their clusters.
 """
 
-from .cluster import create_clusters
 from referee.game import PlayerColor
-from .board import Board, PLAYER_COLOR
-from .constants import INF
+from agent.game import Board, PLAYER_COLOR, INF
+from .cluster import create_clusters
 
 # weighting factors
 NUM_PIECE_FACTOR       : float = 1.8
