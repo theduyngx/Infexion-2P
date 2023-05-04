@@ -2,11 +2,12 @@ from agent.board import Board
 from referee.game import Action, PlayerColor
 from .mc_node import MonteCarloNode
 from .mutable_heapq import MutableHeap
-from .search_utils import get_legal_moves
+from .search_utils import get_legal_moves, move_ordering
 
 # Constants
 INF: int = 9999
-LIMIT: int = 600
+LIMIT: int = 1000
+SIMULATION_LIMIT: int = 600
 
 
 def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
@@ -48,7 +49,9 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
             board.apply_action(all_moves[i], concrete=False)
 
         # Then get all the neighbors associated with the current node
-        for neighbor in get_legal_moves(board, board.turn_color):
+        legal_moves = get_legal_moves(board, board.turn_color, turn_color)
+        ordered_map = move_ordering(board, board.turn_color, legal_moves)
+        for neighbor in ordered_map:
             board.apply_action(neighbor, concrete=False)
             curr_neighbor: MonteCarloNode = MonteCarloNode(neighbor, board, curr_state)
             # Only add to the node if the board has not yet been discovered
@@ -75,5 +78,5 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
 
     # Idea is that we go back to the initial node
     # and get the child node with the highest UCT
-    return sorted(initial_node.children, key=lambda x: x.uct, reversed=True)[0]
+    return sorted(initial_node.children, key=lambda x: x.uct, reverse=True)[0]
 
