@@ -57,6 +57,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     """
     # list of actions on the condition that it has reached endgame
     actions: list[Action] = []
+    stacked_actions: list[Action] = []
     player_num, player_power = board.color_number_and_power(color)
     opponent_num, opponent_power = board.color_number_and_power(color.opponent)
 
@@ -72,6 +73,7 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                 # if piece is stacked, then it must be cleared out, otherwise this isn't endgame
                 stacked = opponent.power > 1
                 cleared = not stacked
+                # captured = False
 
                 # for each direction, get the same direction ranges
                 for dir in HexDir:
@@ -87,15 +89,28 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
                                 continue
                             # append to actions if cell can reach the opponent
                             if cell.power >= abs(s):
-                                actions.append(SpreadAction(curr_pos, dir))
-                                cleared = True
+                                cleared  = True
+                                # captured = True
+                                if not stacked:
+                                    actions.append(SpreadAction(curr_pos, -dir))
+                                else:
+                                    stacked_actions.append(SpreadAction(curr_pos, -dir))
+                    #             break
+                    #     if captured:
+                    #         break
+                    # if captured:
+                    #     break
+
                 if not cleared:
                     actions = []
                     break
+        if stacked_actions:
+            stacked_actions.extend(actions)
+            actions = stacked_actions
     return actions, player_power, opponent_power
 
 
-def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]:
+def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
     Get all possible legal moves of a specified player color from a specific state of the board.
     There are several optimizations made for this function in order reduce the number of legal
@@ -105,14 +120,16 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
     @param board  : specified board
     @param color  : specified player's color
     @param full   : to get the full list of legal moves if true, or reduced list if otherwise
-    @return       : list of all actions that could be applied to board
+    @return       : list of all actions that could be applied to board, and
+                    boolean indicating whether endgame has been reached
     """
 
     # endgame check
+    get_all = full
     actions, player_power, opponent_power = check_endgame(board, color)
     total_power = player_power + opponent_power
     if len(actions) > 0:
-        return actions
+        return actions, True
 
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
     player = board.turn_color
@@ -120,7 +137,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
         player_overwhelmed = player_power <= opponent_power // 3 and \
                              total_power >= MIN_TOTAL_POWER
         if player_overwhelmed:
-            full = True
+            get_all = True
 
     # for every possible move from a given board state, including SPAWN and SPREAD
     for cell in board.get_cells():
@@ -129,7 +146,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
         pos = cell.pos
         if not board.pos_occupied(pos):
             if board.total_power() < MAX_TOTAL_POWER:
-                if full:
+                if get_all:
                     actions.append(SpawnAction(pos))
 
                 # append on condition: within an acceptable range, spawn can be skipped
@@ -143,17 +160,17 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> list[Action]
         elif board[pos].color == color:
 
             # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-            if not full and board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
+            if not get_all and board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
                 for dir in HexDir:
                     adj = pos + dir
-                    if board.pos_occupied(adj):
+                    if board[adj].color == color.opponent:
                         actions.append(SpreadAction(pos, dir))
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-    if full:
+    if get_all:
         assert len(actions) > 0
-    return actions
+    return actions, False
 
 
 def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> map:
@@ -166,29 +183,31 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> ma
     @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
     """
     # for each action of the player's list of legal moves
-    action_values: list[tuple[Action, int]] = [(None, 0)] * len(actions)
-    index = 0
+    action_values: list[tuple[Action, int]] = []
     for action in actions:
         match action:
             # spawn means adding their power by 1
             case SpawnAction(_):
-                action_values[index] = (action, 1)
+                # action_values[index] = (action, 1)
+                action_values.append((action, 1))
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
                 power = board[action.cell].power
                 if power > 1:
-                    action_values[index] = (action, power)
+                    # action_values[index] = (action, power)
+                    action_values.append((action, power))
                 else:
                     adj = pos + dir
                     adj_cell = board[adj]
                     if adj_cell.color == color.opponent:
-                        action_values[index] = (action, adj_cell.power)
-                    else:
-                        action_values[index] = (action, 0)
+                        # action_values[index] = (action, adj_cell.power)
+                        action_values.append((action, adj_cell.power))
+                    # else:
+                    #     action_values[index] = (action, 0)
             # error case
             case _:
                 raise Exception()
-        index += 1
+        # index += 1
 
     # sort the actions by their desirability, in decreasing order
     action_values.sort(key=lambda tup: tup[1], reverse=True)

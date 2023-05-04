@@ -61,8 +61,8 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        legal_moves = get_legal_moves(board, color, full)
-        ordered_map = move_ordering(board, color, legal_moves)
+        legal_moves, endgame = get_legal_moves(board, color, full)
+        ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
         # for each child node of board
         for possible_action in ordered_map:
 
@@ -83,8 +83,8 @@ def alphabeta(board  : Board,
 
     # minimize
     else:
-        legal_moves = get_legal_moves(board, color, full)
-        ordered_map = move_ordering(board, color, legal_moves)
+        legal_moves, endgame = get_legal_moves(board, color, full)
+        ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
         # for each child node of board
         for possible_action in ordered_map:
 
