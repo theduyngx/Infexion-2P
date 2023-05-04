@@ -51,21 +51,9 @@ def check_endgame(board: Board, color: PlayerColor) -> (list[Action], int, int):
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
 
-    Here's an idea to further improve endgame plays:
-    Create a dictionary storing all known pieces that can capture the opponents left on the board.
-    The dictionary is as follows: dict[player, num_opponents_captured]
-    For each opponent, store that piece to the dictionary with value of 1 initialized.
-    If piece is already in dict, then increment by 1.
-
-    And when the stacked opponent is iterated over, we make sure that only the piece that can capture
-    this stacked opponent is all that needs to be considered. If there is no such opponent, we don't
-    have to remove anything.
-
-    Finally, iterate over every entry of the dictionary. Store which move gets you the highest number
-    of captures, and second priority is which piece has the highest stack power. This is because higher
-    stack power gives you higher chance of dominating the opponent's cluster (if it has size > 1).
-
-    FLAW: cluster size larger than piece sent to clear cluster
+    Another possible improvement: Endgame detection can also depend on the number of opponent's
+    clusters compared to their number of pieces. If it's the same, then it is highly clustered,
+    and it is most definitely endgame as well.
     @param board : the board
     @param color : player's color
     @return      : the list of actions for endgame (if list is empty then not endgame),
@@ -239,7 +227,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> ma
                     adj = pos + dir
                     adj_cell = board[adj]
                     if adj_cell.color == color.opponent:
-                        action_values[index] = (action, adj_cell.power)
+                        action_values[index] = (action, adj_cell.power + 1)
                     else:
                         action_values[index] = (action, 0)
             # error case
