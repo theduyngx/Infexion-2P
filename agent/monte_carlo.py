@@ -6,8 +6,7 @@ from .search_utils import get_legal_moves, move_ordering
 
 # Constants
 INF: int = 9999
-LIMIT: int = 1000
-SIMULATION_LIMIT: int = 600
+LIMIT: int = 20
 
 
 def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
@@ -22,8 +21,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     open_min = MutableHeap()
     discovered = {}
 
-    initial_node = MonteCarloNode(None, board, None)
-    hash_curr = initial_node.__hash__(board)
+    initial_node = MonteCarloNode(None, board)
     discovered[initial_node.hash_val] = 1
     open_min.add_task(initial_node)
 
@@ -39,8 +37,8 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
         num_moves = 0
         all_moves = []
 
-        backtrack_start = curr_state
         # First get the board to the current state
+        backtrack_start = curr_state
         while backtrack_start.parent is not None:
             all_moves.append(backtrack_start.action)
             backtrack_start = backtrack_start.parent
@@ -56,8 +54,9 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
             curr_neighbor: MonteCarloNode = MonteCarloNode(neighbor, board, curr_state)
             # Only add to the node if the board has not yet been discovered
             if curr_neighbor.hash_val not in discovered:
-                new_evaluation = curr_neighbor.evaluate_node(board)
-                open_min.add_task(curr_neighbor, new_evaluation)
+                curr_neighbor.evaluate_node(board)
+                new_evaluation = curr_neighbor.evaluation
+                open_min.add_task(curr_neighbor, new_evaluation*multiplier)
                 discovered[curr_neighbor.hash_val] = 1
             board.undo_action()
 
@@ -65,7 +64,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
         # but only if this is not the first node
         if operation > 0:
             # Now you want to do the SIMULATION
-            curr_state.hard_simulate(board)
+            curr_state.quick_simulate(board)
 
             # Then we do BACKPROPAGATION
             curr_state.back_propagate(board)
