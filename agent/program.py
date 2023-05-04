@@ -1,24 +1,15 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
-from agent.search import minimax
-from agent.agent_test import random_move
-from agent.board import Board
-from referee.game import PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
+"""
+    Module  : program.py
+    Purpose : The agent program for the game.
 
-# NOTE: Should find a better way to store this, seems like it belongs to __init__.py
-board: Board = Board()
+COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
+"""
 
+from referee.game import Action, SpawnAction, SpreadAction
+from .utils import *
 
-def print_referee(referee: dict):
-    """
-    Print referee data. Space remaining sometimes works, sometimes doesn't. Though most of the time
-    it does work, so I suppose it's fine.
-    @param referee : the referee
-    """
-    print("---------------------------------------")
-    print("Time remaining  :", referee["time_remaining"])
-    print("Space remaining :", referee["space_remaining"])
-    print("---------------------------------------")
+from agent.search import search, greedy_move, random_move
+from agent.game import Board
 
 
 class Agent:
@@ -26,7 +17,8 @@ class Agent:
     Agent class representing the agent player.
     """
     __slots__ = [
-        "_color"
+        "_color",
+        "_board"
     ]
 
     def __init__(self, color: PlayerColor, **referee: dict):
@@ -37,6 +29,7 @@ class Agent:
         """
         print_referee(referee)
         self._color = color
+        self._board = Board()
 
     def get_color(self) -> PlayerColor:
         """
@@ -51,12 +44,18 @@ class Agent:
         @param referee : the referee
         @return        : the action to be taken next
         """
-        if board.total_power() < MAX_TOTAL_POWER:
-            match self._color:
-                case PlayerColor.RED:
-                    return minimax(board, self._color)
-                case PlayerColor.BLUE:
-                    return random_move(board, self._color)
+        board = self._board
+        color = self._color
+        color_print = ansi_color(color)
+        print(f"{color_print} TURN:")
+        match color:
+            case PlayerColor.RED:
+                print_referee(referee)
+                return search(board, color)
+            case PlayerColor.BLUE:
+                # return search(board, color, 3, full=False)
+                # return random_move(board, color)
+                return greedy_move(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -65,14 +64,14 @@ class Agent:
         @param action  : action taken by agent
         @param referee : the referee
         """
-        assert self
-        print_referee(referee)
-        board.apply_action(action)
+        assert referee
+        self._board.apply_action(action)
+        color_print = ansi_color(color)
 
         match action:
             case SpawnAction(cell):
-                print(f"Testing: {color} SPAWN at {cell}")
+                print(f"{color_print} SPAWN at {cell}")
                 pass
             case SpreadAction(cell, direction):
-                print(f"Testing: {color} SPREAD from {cell}, {direction}")
+                print(f"{color_print} SPREAD from {cell} - {direction}")
                 pass

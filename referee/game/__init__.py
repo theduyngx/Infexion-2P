@@ -28,14 +28,14 @@ class GameBegin:
 @dataclass
 class TurnBegin:
     turn_id: int
-    player: Player
+    player : Player
 
 
 @dataclass
 class TurnEnd:
     turn_id: int
-    player: Player
-    action: Action
+    player : Player
+    action : Action
 
 
 @dataclass
@@ -50,7 +50,8 @@ class PlayerError:
 
 @dataclass
 class GameEnd:
-    winner: Player | None
+    winner : Player | None
+    turn_id: int
 
 
 @dataclass
@@ -86,8 +87,6 @@ async def game(
     assert PlayerColor.BLUE in players
 
     board: Board = Board()
-    winner_color: PlayerColor | None = None
-
     yield GameBegin(board)
     try:
         # Initialise the players
@@ -100,8 +99,8 @@ async def game(
                 # Each loop iteration is a turn.
                 while True:
                     # Get the current player.
-                    turn_color: PlayerColor = board._turn_color
-                    p: Player = players[board._turn_color]
+                    turn_color: PlayerColor = board.turn_color
+                    p: Player = players[board.turn_color]
 
                     # Get the current player's requested action.
                     turn_id = board.turn_count + 1
@@ -123,7 +122,6 @@ async def game(
                     await p2.turn(turn_color, action)
 
     except PlayerException as e:
-        error_msg: str = e.args[0]
         if isinstance(e, IllegalActionException):
             error_msg = f"ILLEGAL ACTION: {e.args[0]}"
         else:
@@ -138,4 +136,4 @@ async def game(
         yield UnhandledError(str(e))
         raise e
 
-    yield GameEnd(players[winner_color] if winner_color is not None else None)
+    yield GameEnd(players[winner_color] if winner_color is not None else None, board.turn_count)
