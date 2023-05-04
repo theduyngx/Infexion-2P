@@ -107,9 +107,9 @@ def mc_evaluate(board: Board) -> float:
     monte_carlo_val = 0
 
     if num_blue == 0:
-        return INF, INF
+        return INF
     if num_red == 0:
-        return -INF, -INF
+        return -INF
 
     # clusters and dominance evaluation
     clusters = create_clusters(board)
