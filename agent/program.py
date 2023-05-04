@@ -53,8 +53,8 @@ class Agent:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                # return greedy_move(board, color)
-                return minimax(board, 2, color, full=True)
+                return greedy_move(board, color)
+                # return minimax(board, 2, color, full=True)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

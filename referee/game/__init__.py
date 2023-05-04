@@ -28,14 +28,14 @@ class GameBegin:
 @dataclass
 class TurnBegin:
     turn_id: int
-    player: Player
+    player : Player
 
 
 @dataclass
 class TurnEnd:
     turn_id: int
-    player: Player
-    action: Action
+    player : Player
+    action : Action
 
 
 @dataclass
@@ -50,7 +50,8 @@ class PlayerError:
 
 @dataclass
 class GameEnd:
-    winner: Player | None
+    winner : Player | None
+    turn_id: int
 
 
 @dataclass
@@ -135,4 +136,4 @@ async def game(
         yield UnhandledError(str(e))
         raise e
 
-    yield GameEnd(players[winner_color] if winner_color is not None else None)
+    yield GameEnd(players[winner_color] if winner_color is not None else None, board.turn_count)

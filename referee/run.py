@@ -38,7 +38,7 @@ async def run_game(players: list[Player],
     async for update in game(*players):
         await _update_handlers(event_handlers, update)
         match update:
-            case GameEnd(winner):
+            case GameEnd(winner, _):
                 return winner
 
 
@@ -55,14 +55,14 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
                 stream.info(f"let the game begin!")
             case TurnBegin(turn_id, player):
                 stream.info(f"{player} to play (turn {turn_id}) ...")
-            case TurnEnd(turn_id, player, action):
+            case TurnEnd(_, player, action):
                 stream.info(f"{player} plays action {action}")
             case PlayerError(message):
                 stream.error(f"player error: {message}")
-            case GameEnd(None):
+            case GameEnd(None, _):
                 stream.info(f"game ended in a draw")
-            case GameEnd(winner):
-                stream.info(f"game over, winner is {winner}")
+            case GameEnd(winner, turn_id):
+                stream.info(f"game over, winner is {winner}\nwin in {turn_id} turns")
             case UnhandledError(message):
                 stream.error(f"fatal error: {message}")
 
@@ -156,7 +156,7 @@ async def output_board_updates(stream      : LogStream,
             case BoardUpdate(board):
                 stream.info(f"\n{' game board '.center(width, '=')}\n\n")
                 stream.info(
-                    '\n'.join([f"{'':<7}{l}" for l in
+                    '\n'.join([f"{'':<7}{line}" for line in
                                board.render(
                                    use_color=use_color,
                                    use_unicode=use_unicode,
