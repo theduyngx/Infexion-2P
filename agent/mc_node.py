@@ -6,6 +6,7 @@ from .agent_test import random_move
 from referee.game import PlayerColor, Action
 from .minimax import minimax
 from agent.constants import DEPTH
+import time
 
 UCT_CONSTANT: int = sqrt(2)
 RED_VICTORY: int = 1
@@ -119,10 +120,13 @@ class MonteCarloNode:
         # TODO: Implement the game playing function
         #  using the evaluation function
         num_moves: int = 0
+        st = time.time()
         while not board.game_over:
             new_action: Action = minimax(board, DEPTH, board.turn_color)
             board.apply_action(new_action)
             num_moves += 1
+            et = time.time()
+            print(f'Current Time for Simulation: {et - st}, num_moves: {num_moves}')
 
         # Make sure to revert the board back
         for i in range(num_moves, 1, -1):
