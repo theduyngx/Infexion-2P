@@ -13,6 +13,7 @@ RED_VICTORY: int = 1
 BLUE_VICTORY: int = -1
 LOWER_BOUND: int = -49
 UPPER_BOUND: int = 49
+SIMULATION_LIMIT: int = 4
 
 
 class MonteCarloNode:
@@ -25,6 +26,7 @@ class MonteCarloNode:
         "action",
         "parent",
         "children",
+        "sim_score",
         "hash_val"
     ]
 
@@ -46,19 +48,28 @@ class MonteCarloNode:
         # TODO: better data structure to store children (LinkedList?)
         self.children: list[MonteCarloNode] = []
         self.hash_val = self.__hash__(board)
+        self.sim_score: float = 0
         return
 
     # Use this to calculate the evaluation value
     # of the node
     def evaluate_node(self, board: Board):
-        _, self.evaluation = evaluate(board)
+        self.evaluation = mc_evaluate(board)
+        return
+
+    def evaluate_simulation(self, board: Board):
+        self.sim_score = mc_evaluate(board)
         return
 
     # Formula for UCT Calculation, tries to find a
     # balance between exploitation and exploration
     def calculate_uct(self):
-        self.uct = self.value + \
-                   UCT_CONSTANT*sqrt((log(self.visited)/log(self.parent.visited)))
+        try:
+            self.uct = self.sim_score + \
+                       UCT_CONSTANT*sqrt(log(self.visited)/self.parent.visited)
+        # Cases where there is division or log of 0
+        except ValueError:
+            self.uct = self.sim_score
         return
 
     # Modified uct_value that does not need to simulate?
@@ -123,7 +134,7 @@ class MonteCarloNode:
         st = time.time()
         while not board.game_over:
             new_action: Action = minimax(board, DEPTH, board.turn_color)
-            board.apply_action(new_action)
+            board.apply_action(new_action, concrete=False)
             num_moves += 1
             et = time.time()
             print(f'Current Time for Simulation: {et - st}, num_moves: {num_moves}')
@@ -141,8 +152,22 @@ class MonteCarloNode:
 
     # This simulation really only returns the new value,
     # although normalized to be in range [0, 1]
-    def quick_simulate(self):
+    def quick_simulate(self, board: Board):
+        num_moves: int = 0
+        st = time.time()
+        while num_moves < SIMULATION_LIMIT and not board.game_over:
+            new_action: Action = random_move(board, board.turn_color)
+            # new_action: Action = minimax(board, DEPTH, board.turn_color)
+            board.apply_action(new_action, concrete=False)
+            num_moves += 1
+            et = time.time()
 
+        # Evaluate the simulation
+        self.evaluate_simulation(board)
+
+        # Then we undo the changes made to the board
+        for i in range(num_moves, 1, -1):
+            board.undo_action()
         return
 
     # When picking a node to go to, always
