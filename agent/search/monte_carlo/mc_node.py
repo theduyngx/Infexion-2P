@@ -3,9 +3,9 @@ import time
 from math import sqrt, log
 
 from agent.game import Board, DEPTH
-from .evaluation import mc_evaluate
-from .minimax import minimax
-from .agent_test import random_move
+from ..evaluation import mc_evaluate
+from ..minimax import minimax
+from ..agent_test import random_move
 from referee.game import PlayerColor, Action
 
 # Constants

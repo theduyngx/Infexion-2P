@@ -5,9 +5,9 @@
 """
 
 from referee.game import PlayerColor, Action
-from agent.game import Board, INF, DEPTH
-from .evaluation import evaluate
-from .search_utils import get_legal_moves, assert_action, move_ordering
+from agent.game import Board, assert_action, INF, DEPTH
+from ..evaluation import evaluate
+from .minimax_utils import get_legal_moves, move_ordering
 
 
 def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:

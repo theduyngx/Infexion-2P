@@ -8,8 +8,7 @@ currently on the board, the total power, as well as their clusters.
 """
 
 from referee.game import PlayerColor
-from agent.game import Board, PLAYER_COLOR, INF
-from .cluster import create_clusters
+from agent.game import Board, PLAYER_COLOR, INF, create_clusters
 
 # weighting factors
 NUM_PIECE_FACTOR     : float = 1.8

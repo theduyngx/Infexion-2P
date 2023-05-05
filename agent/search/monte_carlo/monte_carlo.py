@@ -1,8 +1,8 @@
 from referee.game import Action, PlayerColor
-from ..game import Board
+from agent.game import Board
+from ..minimax import get_legal_moves, move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode
-from .search_utils import get_legal_moves, move_ordering
 
 # Constants
 LIMIT: int = 20

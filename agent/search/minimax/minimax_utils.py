@@ -1,8 +1,8 @@
 """
-    Module  : search_utils.py
-    Purpose : Utility functions for search algorithms, mainly for getting information of a specific
-              position as well as getting all legal moves for a specific agent and other search
-              optimization functionalities including move ordering and dynamic move reductions.
+    Module  : minimax_utils.py
+    Purpose : Utility functions for minimax algorithm, which includes optimization for getting all
+              legal moves for a specific agent and other search optimization functionalities such
+              as move ordering and dynamic move reductions.
 
 Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
 would like to get every possible legal move that's available for it, or reduced, if agent would like
@@ -10,40 +10,16 @@ to ignore specific actions that are considered 'quiet', viz. not having signific
 reduction also entails endgame detection, where the desirable moves become more apparent; hence any
 moves that may not seem desirable can simply be filtered out.
 """
+
 from collections import defaultdict
 
-from agent.game import Board, MIN_TOTAL_POWER, EMPTY_POWER
+from agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
 from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
                          MAX_TOTAL_POWER, BOARD_N
 
 # Constant
 MAX_ENDGAME_NUM_OPPONENT: int = 2
-
-
-def assert_action(action):
-    """
-    Asserting that a given object is indeed a proper Action.
-    @param action : the given supposed action
-    """
-    match action:
-        case SpawnAction(_):
-            pass
-        case SpreadAction(_, _):
-            pass
-        case _:
-            print(type(action))
-            print(action)
-            raise "Action not matched with any pattern"
-
-
-def adjacent_positions(pos: HexPos) -> list[HexPos]:
-    """
-    Get all adjacent positions to the specified one.
-    @param pos : the specified position
-    @return    : list of 6 of its adjacent positions
-    """
-    return [pos + dir for dir in HexDir]
 
 
 def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
