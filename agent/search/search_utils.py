@@ -4,7 +4,7 @@
               legal moves for a given player.
 """
 
-from agent.game import Board
+from ..game import Board
 from referee.game import HexDir, PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
 
 

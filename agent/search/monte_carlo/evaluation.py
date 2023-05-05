@@ -9,7 +9,7 @@ evaluation function is also not zero-sum, unlike Minimax's. Instead, it is norma
 that 0 means definite loss, and 1 means definite win.
 """
 
-from agent.search.evaluation_data import *
+from ...search.evaluation_data import *
 
 
 def mc_evaluate(board: Board) -> float:

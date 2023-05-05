@@ -7,7 +7,7 @@ results by improving accuracy. So far, it is only using Minimax.
 """
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
-from agent.game import Board, DEPTH
+from ..game import Board, DEPTH
 from .minimax import minimax
 
 

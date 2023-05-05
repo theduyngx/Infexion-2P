@@ -5,9 +5,9 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from agent.search import search
-from agent.search.agent_test import *
-from agent.game import Board
+from .search import search
+from .search.agent_test import *
+from .game import Board
 from .utils import *
 
 
@@ -47,14 +47,15 @@ class Agent:
         color = self._color
         color_print = ansi_color(color)
         print(f"{color_print} TURN:")
+        # return search(board, color)
         match color:
             case PlayerColor.RED:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                # return minimax_shallow(board, color)
+                return minimax_shallow(board, color)
                 # return random_move(board, color)
-                return greedy_move(board, color)
+                # return greedy_move(board, color)
                 # return mcts_move(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):

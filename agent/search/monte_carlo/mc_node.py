@@ -3,10 +3,10 @@ import time
 from math import sqrt, log
 
 from referee.game import PlayerColor, Action
-from agent.game import Board
-from .evaluation import mc_evaluate
+from ...game import Board
 from ..minimax import minimax
 from ..agent_test import random_move
+from .evaluation import mc_evaluate
 
 # Constants
 UCT_CONSTANT     : float = sqrt(2)
