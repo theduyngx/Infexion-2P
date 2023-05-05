@@ -8,9 +8,10 @@ to more complex agents that are capable of making more complex moves.
 
 from random import randint
 
-from ..game import Board
-from ..search import get_legal_moves
 from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
+from ..search import get_legal_moves
+from ..game import Board
+from . import minimax, monte_carlo
 
 
 def random_move(board: Board, color: PlayerColor) -> Action:
@@ -58,3 +59,23 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     if greedy_action is None:
         return spawns[randint(0, len(spawns)-1)] if spawns else actions[randint(0, len(actions)-1)]
     return greedy_action
+
+
+def minimax_shallow(board: Board, color: PlayerColor) -> Action:
+    """
+    Depth of 2, full evaluation minimax agent.
+    @param board : given board
+    @param color : player's color
+    @return      : the action to be taken
+    """
+    return minimax(board, 2, color, True)
+
+
+def mcts_move(board: Board, color: PlayerColor) -> Action:
+    """
+    Monte Carlo Tree search agent move approach.
+    @param board : given board
+    @param color : player's color
+    @return      : the action to be taken
+    """
+    return monte_carlo(board, color)

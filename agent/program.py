@@ -5,11 +5,10 @@
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from referee.game import Action, SpawnAction, SpreadAction
-from .utils import *
-
-from agent.search import search, greedy_move, random_move, monte_carlo
+from agent.search import search
+from agent.search.agent_test import *
 from agent.game import Board
+from .utils import *
 
 
 class Agent:
@@ -53,10 +52,10 @@ class Agent:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                # return search(board, color, 3, full=False)
+                # return minimax_shallow(board, color)
                 # return random_move(board, color)
-                # return greedy_move(board, color)
-                return monte_carlo(board, color)
+                return greedy_move(board, color)
+                # return mcts_move(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
