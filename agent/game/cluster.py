@@ -1,11 +1,15 @@
 """
-    Module  : cluster.py
-    Purpose : Including the classes representing a single cluster, a collection of clusters, and a
-              function to create said collection from a given state of the board.
+Module:
+    cluster.py
 
-Note: A cluster is simply a region of adjacent pieces of the same color. This is an important piece
-of information because it is believed that cluster formation is a good strategy to build defense
-and offense within the game.
+Purpose:
+    Including the classes representing a single cluster, a collection of clusters, and a function
+    to create said collection from a given state of the board.
+
+Notes:
+    A cluster is simply a region of adjacent pieces of the same color. This is an important piece
+    of information because it is believed that cluster formation is a good strategy to build defense
+    and offense within the game.
 """
 
 from collections import defaultdict

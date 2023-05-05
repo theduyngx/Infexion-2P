@@ -1,7 +1,11 @@
 """
-    Module  : search.py
-    Purpose : Search algorithm to find the next best move for agent.
+Module:
+    search.py
 
+Purpose:
+    Search algorithm to find the next best move for agent.
+
+Notes:
 This may use a hybrid of Minimax and Monte Carlo tree search algorithms to produce more quality
 results by improving accuracy. So far, it is only using Minimax.
 """

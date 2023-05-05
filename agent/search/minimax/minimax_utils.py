@@ -1,14 +1,18 @@
 """
-    Module  : minimax_utils.py
-    Purpose : Utility functions for minimax algorithm, which includes optimization for getting all
-              legal moves for a specific agent and other search optimization functionalities such
-              as move ordering and dynamic move reductions.
+Module:
+    minimax_utils.py
 
-Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
-would like to get every possible legal move that's available for it, or reduced, if agent would like
-to ignore specific actions that are considered 'quiet', viz. not having significant effects. Move
-reduction also entails endgame detection, where the desirable moves become more apparent; hence any
-moves that may not seem desirable can simply be filtered out.
+Purpose:
+    Utility functions for minimax algorithm, which includes optimization for getting all
+    legal moves for a specific agent and other search optimization functionalities such
+    as move ordering and dynamic move reductions.
+
+Notes:
+    Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if
+    agent would like to get every possible legal move that's available for it, or reduced, if agent
+    would like to ignore specific actions that are considered 'quiet', viz. not having significant
+    effects. Move reduction also entails endgame detection, where the desirable moves become more
+    apparent; hence any moves that may not seem desirable can simply be filtered out.
 """
 
 from collections import defaultdict

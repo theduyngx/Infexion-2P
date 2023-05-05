@@ -1,7 +1,12 @@
 """
-    Module  : search_utils.py
-    Purpose : Utility functions for search algorithms. For now, it only includes getting all
-              legal moves for a given player.
+Module:
+    search_utils.py
+
+Purpose:
+    Utility functions for search algorithms. For now, it only includes getting all
+    legal moves for a given player.
+
+Notes:
 """
 
 from ..game import Board

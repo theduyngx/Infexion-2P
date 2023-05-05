@@ -1,7 +1,11 @@
 """
-    Module  : program.py
-    Purpose : The agent program for the game.
+Module:
+    program.py
 
+Purpose:
+    The agent program for the game.
+
+Notes:
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 

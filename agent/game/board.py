@@ -1,12 +1,16 @@
 """
-    Module  : board.py
-    Purpose : Includes the representation of the board, and deals with anything 'statically'
-              and directly related to the board.
+Module:
+    board.py
 
-Based on The University of Melbourne COMP30024 Project B skeleton code. The board uses a single
-dense board representation, and makes use of action application and action undo from the skeleton
-code in order to be as space efficient as possible. The time performance tradeoff is on average
-quite reasonable, hence the decision.
+Purpose:
+    Includes the representation of the board, and deals with anything 'statically' and directly
+    related to the board.
+
+Notes:
+    Based on The University of Melbourne COMP30024 Project B skeleton code. The board uses a single
+    dense board representation, and makes use of action apply and action undo from skeleton code in
+    order to be as space efficient as possible. The time performance tradeoff is minuscule, and in
+    fact does provide benefits for the majority of cases.
 """
 
 from collections import defaultdict

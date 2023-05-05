@@ -1,8 +1,13 @@
 """
-    Module  : game_utils.py
-    Purpose : Utility functions for the game, which is directly related to the game's board.
-              This includes asserting an action to be applied to board, and getting adjacent
-              positions from a given specified position on the board.
+Module:
+    game_utils.py
+
+Purpose:
+    Utility functions for the game, which is directly related to the game's board.
+    This includes asserting an action to be applied to board, and getting adjacent
+    positions from a given specified position on the board.
+
+Notes:
 """
 
 from referee.game import HexPos, HexDir, SpawnAction, SpreadAction

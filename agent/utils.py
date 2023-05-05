@@ -1,6 +1,14 @@
 """
-    Module  : utils.py
-    Purpose : Utility functions for program.
+Module:
+    utils.py
+
+Purpose:
+    Utility functions for program.
+
+Note:
+Utility functions include printing the referee data, including time and space remaining available
+for a specific game-playing agent (in which it cannot exceed), and applying ansi color to text for
+beautifying printing.
 """
 
 from referee.game import PlayerColor

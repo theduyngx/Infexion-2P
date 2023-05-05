@@ -1,7 +1,11 @@
 """
-    Module  : agent_test.py
-    Purpose : Includes all testing agent for the current agent to play against.
+Module:
+    agent_test.py
 
+Purpose:
+    Includes all testing agent for the current agent to play against.
+
+Notes:
 These agents range from simply picking a move randomly that's legal for them, to a greedy approach,
 to more complex agents that are capable of making more complex moves.
 """
