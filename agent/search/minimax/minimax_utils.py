@@ -3,7 +3,6 @@
     Purpose : Utility functions for minimax algorithm, which includes optimization for getting all
               legal moves for a specific agent and other search optimization functionalities such
               as move ordering and dynamic move reductions.
-
 Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
 would like to get every possible legal move that's available for it, or reduced, if agent would like
 to ignore specific actions that are considered 'quiet', viz. not having significant effects. Move
@@ -13,9 +12,9 @@ moves that may not seem desirable can simply be filtered out.
 
 from collections import defaultdict
 
-from ...agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
+from ...game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
 from ..search_utils import get_legal_moves
-from ....referee.game import HexPos, HexDir, PlayerColor, \
+from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
                          MAX_TOTAL_POWER, BOARD_N
 
@@ -27,12 +26,6 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
-
-    Another possible improvement: Endgame detection can also depend on the number of opponent's
-    clusters compared to their number of pieces. If it's the same, then it is highly clustered,
-    and it is most definitely endgame as well.
-
-    Robustness: make sure it is the player who is dominating that gets to decide endgame.
     @param board : the board
     @param color : player's color
     @return      : the list of actions for endgame (if list is empty then not endgame),
@@ -153,7 +146,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     # for every possible move from a given board state, including SPAWN and SPREAD
     for cell in board.get_cells():
 
-        # append spawn actions - always add when full, otherwise add on condition
+        # append spawn actions on condition
         pos = cell.pos
         if not board.pos_occupied(pos):
             if board.total_power() < MAX_TOTAL_POWER:
@@ -165,11 +158,11 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
                     if any([board[adj].color == color for adj in adj_list]):
                         actions.append(SpawnAction(pos))
 
-        # append spread actions for every direction
+        # append spread actions for specific direction
         elif board[pos].color == color:
 
             # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-            if board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
+            if board[pos].power == 1:
                 for dir in HexDir:
                     adj = pos + dir
                     if board[adj].color == color.opponent:
@@ -180,7 +173,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> map:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]):
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -190,49 +183,38 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> ma
     @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
     """
     # for each action of the player's list of legal moves
-    # FORMAT: (Action, red_power, total power of captured blues, total num pieces of blues)
+    # FORMAT: (Action, total power of captured blues, total num pieces of blues, red_power)
     action_values: list[tuple[Action, int, int, int]] = [(None, 0, 0, 0)] * len(actions)
     index = 0
     for action in actions:
         match action:
             # spawn means adding their power by 1
             case SpawnAction(_):
-                action_values[index] = (action, 1, 0, 0)
+                action_values[index] = (action, 0, 0, 1)
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
-                # RAJA: We additionally want to check for:
-                #       - Total Power of Blue Cells touched
-                #       - Number of Blue Cells touched by action
-                # NOTE: Don't know if same logic is applied to pieces
-                #       of 1's
                 power = board[action.cell].power
                 total_blue_pieces = 0
-                total_blue_power = 0
-                curr_pos = pos
-                for _ in range(power):
-                    curr_pos = curr_pos + dir
+                total_blue_power  = 0
+                for s in range(power):
+                    curr_pos = pos + dir * s
                     if curr_pos in board and board[curr_pos].color == color.opponent:
                         total_blue_pieces += 1
-                        total_blue_power += board[curr_pos].power
+                        total_blue_power  += board[curr_pos].power
                 # Now add these values into the tuple to sort
-                action_values[index] = (action, power, total_blue_power, (-1)*total_blue_pieces)
-
-                # # DUY'S ORIGINAL IMPLEMENTATION
-                # if power > 1:
-                #     action_values[index] = (action, power)
-                # else:
-                #     adj = pos + dir
-                #     adj_cell = board[adj]
-                #     if adj_cell.color == color.opponent:
-                #         action_values[index] = (action, adj_cell.power + 1)
-                #     else:
-                #         action_values[index] = (action, 0)
+                action_values[index] = (action, total_blue_power, total_blue_pieces, power)
             # error case
             case _:
                 raise "move_ordering: Action not of any type"
         index += 1
 
-    # sort the actions by their desirability, in decreasing order
-    # action_values.sort(key=lambda tup: tup[1], reverse=True)
-    action_values.sort(key=lambda tup: (tup[2], tup[3], tup[1]), reverse=True)
-    return map(lambda tup: tup[0], action_values)
+    # sort the actions by their desirability, in decreasing order, in following priorities
+    action_values.sort(
+        key=lambda tup: (
+            tup[1],     # 1. total power captured
+            -tup[2],    # 2. reverse number of pieces captured (viz. more stacked captures)
+            tup[3]      # 3. player's piece power
+        ),
+        reverse=True
+    )
+    return list(map(lambda tup: tup[0], action_values))

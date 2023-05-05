@@ -6,8 +6,8 @@ This may use a hybrid of Minimax and Monte Carlo tree search algorithms to produ
 results by improving accuracy. So far, it is only using Minimax.
 """
 
-from ....referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
-from ...agent.game import Board, DEPTH
+from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
+from ..game import Board, DEPTH
 from .minimax import minimax
 
 

@@ -9,8 +9,8 @@ is especially significant since much of Infexion is about dominating the opponen
 """
 from dataclasses import dataclass
 
-from ....referee.game import PlayerColor
-from ...agent.game import Board, PLAYER_COLOR, INF, create_clusters
+from referee.game import PlayerColor
+from ..game import Board, PLAYER_COLOR, INF, create_clusters
 
 # weighting factors
 NUM_PIECE_FACTOR     : float = 1.8

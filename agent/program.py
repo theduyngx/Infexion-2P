@@ -47,13 +47,13 @@ class Agent:
         color = self._color
         color_print = ansi_color(color)
         print(f"{color_print} TURN:")
+        # return search(board, color)
         match color:
             case PlayerColor.RED:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                # return search(board, color)
-                return search(board, color)
+                return minimax_shallow(board, color)
                 # return random_move(board, color)
                 # return greedy_move(board, color)
                 # return mcts_move(board, color)

@@ -4,8 +4,8 @@
               legal moves for a given player.
 """
 
-from ...agent.game import Board
-from ....referee.game import HexDir, PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
+from ..game import Board
+from referee.game import HexDir, PlayerColor, Action, SpawnAction, SpreadAction, MAX_TOTAL_POWER
 
 
 def get_legal_moves(board: Board, color: PlayerColor) -> list[Action]:

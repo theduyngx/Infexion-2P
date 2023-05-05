@@ -4,8 +4,8 @@
               with alpha-beta pruning to improve performance.
 """
 
-from ....referee.game import PlayerColor, Action
-from ...agent.game import Board, assert_action, INF, DEPTH
+from referee.game import PlayerColor, Action
+from ...game import Board, assert_action, INF, DEPTH
 from .evaluation import evaluate
 from .minimax_utils import get_optimized_legal_moves, move_ordering
 
@@ -62,9 +62,13 @@ def alphabeta(board  : Board,
     # maximize
     if color == PlayerColor.RED:
         legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-        ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+        ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+        if depth == DEPTH:
+            for action in ordered_moves:
+                print(action)
+
         # for each child node of board
-        for possible_action in ordered_map:
+        for possible_action in ordered_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
@@ -84,9 +88,9 @@ def alphabeta(board  : Board,
     # minimize
     else:
         legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-        ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+        ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
         # for each child node of board
-        for possible_action in ordered_map:
+        for possible_action in ordered_moves:
 
             # apply action
             board.apply_action(possible_action, concrete=False)
