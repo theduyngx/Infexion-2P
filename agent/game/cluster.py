@@ -1,19 +1,24 @@
 """
-    Module  : cluster.py
-    Purpose : Including the classes representing a single cluster, a collection of clusters, and a
-              function to create said collection from a given state of the board.
+Module:
+    ``cluster.py``
 
-Note: A cluster is simply a region of adjacent pieces of the same color. This is an important piece
-of information because it is believed that cluster formation is a good strategy to build defense
-and offense within the game.
+Purpose:
+    Including the classes representing a single cluster, a collection of clusters, and a function
+    to create said collection from a given state of the board.
+
+Notes:
+    A cluster is simply a region of adjacent pieces of the same color. This is an important piece
+    of information because it is believed that cluster formation is a good strategy to build defense
+    and offense within the game.
 """
 
 from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, PlayerColor
-from agent.game import Board, CellState, PLAYER_COLOR, OPPONENT_COLOR
-from .search_utils import adjacent_positions
+from .constants import PLAYER_COLOR, OPPONENT_COLOR
+from .board import Board, CellState
+from .game_utils import adjacent_positions
 
 
 @dataclass(slots=True)

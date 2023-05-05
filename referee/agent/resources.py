@@ -1,5 +1,14 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``resources.py``
+
+Purpose:
+    Checking the resource used by agent, whether it has exceeded its given resources or not.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package.
+"""
 
 import gc
 import time
@@ -7,7 +16,9 @@ from pathlib import Path
 
 
 class ResourceLimitException(Exception):
-    """For when agents exceed specified time / space limits."""
+    """
+    For when agents exceed specified time / space limits.
+    """
 
 
 class CountdownTimer:
@@ -105,8 +116,7 @@ class MemoryWatcher:
 
 def _get_space_usage():
     """
-    Find the current and peak Virtual Memory usage of the current process,
-    in MB
+    Find the current and peak Virtual Memory usage of the current process, in MB
     """
     # on linux, we can find the memory usage of our program we seek
     # inside /proc/self/status (specifically, fields VmSize and VmPeak)
@@ -126,7 +136,7 @@ _SPACE_ENABLED = False
 
 def set_space_line():
     """
-    by default, the python interpreter uses a significant amount of space
+    By default, the python interpreter uses a significant amount of space
     measure this first to later subtract from all measurements
     """
     global _SPACE_ENABLED, _DEFAULT_MEM_USAGE

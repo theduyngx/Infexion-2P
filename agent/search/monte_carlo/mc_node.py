@@ -1,19 +1,27 @@
+"""
+Module:
+    ``mc_node.py``
+
+Purpose:
+    Monte Carlo Tree's node representation.
+
+Notes:
+"""
+
 import copy
 import time
 from math import sqrt, log
 
-from agent.game import Board, DEPTH
-from .evaluation import mc_evaluate
-from .minimax import minimax
-from .agent_test import random_move
 from referee.game import PlayerColor, Action
+from ...game import Board
+from ..minimax import minimax
+from ..agent_test import random_move
+from .evaluation import mc_evaluate
 
 # Constants
 UCT_CONSTANT     : float = sqrt(2)
 RED_VICTORY      : int = 1
 BLUE_VICTORY     : int = -1
-LOWER_BOUND      : int = -49
-UPPER_BOUND      : int = 49
 SIMULATION_LIMIT : int = 4
 
 
@@ -71,9 +79,8 @@ class MonteCarloNode:
 
     # Modified uct_value that does not need to simulate?
     def calculate_new_uct(self):
-        # Normalize the value first; should be [0, 1]
-        std_eval = (self.evaluation-LOWER_BOUND)/(UPPER_BOUND-LOWER_BOUND)
-        self.uct = std_eval + \
+        # mcts evaluation value is already normalized
+        self.uct = self.evaluation + \
             UCT_CONSTANT*sqrt((log(self.visited)/log(self.parent.visited)))
         return
 
@@ -82,8 +89,7 @@ class MonteCarloNode:
         curr_node: MonteCarloNode = self
         added_value: int = self.victory
         while curr_node is not None:
-            # Since we're only referring to one board,
-            # need to undo the action of the board each time
+            # undo action after applied
             board.undo_action()
             curr_node.value += added_value
             # Need to update the UCTs of the children
@@ -113,12 +119,12 @@ class MonteCarloNode:
             new_action = random_move(test_board, test_board.turn_color)
             test_board.apply_action(new_action)
         # Now you have to check which player won
-        if test_board.winner_color is None:
-            return
-        elif test_board.winner_color == PlayerColor.RED:
+        if test_board.player_wins(PlayerColor.RED):
             self.victory = RED_VICTORY
-        else:
+        elif test_board.player_wins(PlayerColor.BLUE):
             self.victory = BLUE_VICTORY
+        else:
+            return
 
     # HARD-SIMULATION: Use heuristics instead to keep implementing moves until a goal state is reached
     def hard_simulate(self, board: Board):
@@ -127,7 +133,7 @@ class MonteCarloNode:
         num_moves: int = 0
         st = time.time()
         while not board.game_over:
-            new_action: Action = minimax(board, DEPTH, board.turn_color)
+            new_action: Action = minimax(board, 2, board.turn_color)
             board.apply_action(new_action, concrete=False)
             num_moves += 1
             et = time.time()
@@ -137,23 +143,20 @@ class MonteCarloNode:
         for i in range(num_moves, 1, -1):
             board.undo_action()
 
-        if board.winner_color is None:
-            return
-        elif board.winner_color == PlayerColor.RED:
+        if board.player_wins(PlayerColor.RED):
             self.victory = RED_VICTORY
-        else:
+        elif board.player_wins(PlayerColor.BLUE):
             self.victory = BLUE_VICTORY
+        else:
+            return
 
     # This simulation really only returns the new value, although normalized to be in range [0, 1]
     def quick_simulate(self, board: Board, turn_color: PlayerColor):
         num_moves: int = 0
-        st = time.time()
         while num_moves < SIMULATION_LIMIT and not board.game_over:
             new_action: Action = random_move(board, turn_color)
-            # new_action: Action = minimax(board, DEPTH, board.turn_color)
             board.apply_action(new_action, concrete=False)
             num_moves += 1
-            et = time.time()
 
         # Evaluate the simulation
         self.evaluate_simulation(board)

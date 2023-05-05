@@ -1,8 +1,17 @@
-from .search_utils import get_legal_moves
+"""
+Package:
+    ``agent.search``
+
+Purpose:
+    Search package providing algorithms to find the next best move for agent.
+
+Notes:
+    Search is bundled with a variety of testing agents, as well as a main agent utilizing the Minimax
+    and alpha-beta pruning algorithms. There are also various important evaluation aspects of the board
+    that the package also provides.
+"""
+
 from .search import search
-from .minimax import minimax
-from .monte_carlo import monte_carlo
-from .mc_node import MonteCarloNode
-from .evaluation import evaluate, mc_evaluate
-from .cluster import create_clusters
-from .agent_test import greedy_move, random_move
+from .search_utils import get_legal_moves
+from .evaluation_data import *
+from .agent_test import *

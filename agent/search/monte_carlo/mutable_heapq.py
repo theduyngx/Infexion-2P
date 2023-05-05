@@ -1,3 +1,16 @@
+"""
+Module:
+    ``mutable_heapq.py``
+
+Purpose:
+    Max heap (priority queue) that can have its node data mutated, used specifically
+    for the MCTS nodes.
+
+Notes:
+This is a max heap structure which sorts list of nodes with priority being the best UCT score.
+Since these scores are constantly being mutated, a mutable heap structure is therefore needed.
+"""
+
 import heapq
 import itertools
 from .mc_node import MonteCarloNode

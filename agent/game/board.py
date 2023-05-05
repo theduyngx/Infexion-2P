@@ -1,26 +1,30 @@
 """
-    Module  : board.py
-    Purpose : Includes the representation of the board, and deals with anything 'statically'
-              and directly related to the board.
+Module:
+    ``board.py``
 
-Based on The University of Melbourne COMP30024 Project B skeleton code. The board uses a single
-dense board representation, and makes use of action application and action undo from the skeleton
-code in order to be as space efficient as possible. The time performance tradeoff is on average
-quite reasonable, hence the decision.
+Purpose:
+    Includes the representation of the board, and deals with anything 'statically' and directly
+    related to the board.
+
+Notes:
+    Based on The University of Melbourne COMP30024 Project B skeleton code. The board uses a single
+    dense board representation, and makes use of action apply and action undo from skeleton code in
+    order to be as space efficient as possible. The time performance tradeoff is minuscule, and in
+    fact does provide benefits for the majority of cases.
 """
 
 from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
-                         MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER
+    MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER, WIN_POWER_DIFF
 from .constants import *
 
 
 @dataclass(frozen=True, slots=True)
 class CellState:
     """
-    The CellState class is used to represent the state of a single cell on the game board.
+    The ``CellState`` class is used to represent the state of a single cell on the game board.
     Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
     Attributes:
         pos   : the position of the cell
@@ -47,7 +51,7 @@ class CellState:
 @dataclass(frozen=True, slots=True)
 class CellMutation:
     """
-    Class CellMutation represents the mutated state (before and after) of the cell.
+    Class ``CellMutation`` represents the mutated state (before and after) of the cell.
     Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
     Attributes:
         pos  : the position of the cell
@@ -62,8 +66,8 @@ class CellMutation:
 @dataclass(frozen=True, slots=True)
 class BoardMutation:
     """
-    The BoardMutation class is used to represent the *minimal* set of changes in the state of the
-    board as a result of an action. In other words, it is designed to be well-optimized.
+    The ``BoardMutation`` class is used to represent the *minimal* set of changes in the state
+    of the board as a result of an action. In other words, it is designed to be well-optimized.
     Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
     Attributes:
         action         : the action applied onto board
@@ -75,13 +79,10 @@ class BoardMutation:
 
 class Board:
     """
-    The Board class encapsulates the state of the game board, and provides methods for applying actions
-    to the board and querying/inspecting the state of the game (i.e. which player has won, if any).
-    <p></p>
-    NOTE: This board representation is designed to be used internally by the referee, as stated in the
-    skeleton code. It might not be ideal, so we probably have to think of something better. For now,
-    this is very space efficient. It is however not the most time-efficient board representation.
-    <p></p>
+    The ``Board`` class encapsulates the state of the game board, and provides methods for applying
+    actions and querying/inspecting the state of the game (i.e. which player has won, if any).
+
+    Note:
     Based on The University of Melbourne COMP30024 Project B skeleton code for class CellState.
     """
     __slots__ = [
@@ -205,8 +206,9 @@ class Board:
         Check if the game is over or not, meaning if a player has won the game.
         @return: true if game is over
         """
-        return self.turn_count >= MIN_MOVE_WIN and \
-            (self.turn_count >= MAX_TURNS or self.player_wins(PLAYER_COLOR) or self.player_wins(OPPONENT_COLOR))
+        return self.turn_count >= MIN_MOVE_WIN and (self.turn_count >= MAX_TURNS or
+                                                    self.color_power(PLAYER_COLOR) == EMPTY_POWER or
+                                                    self.color_power(OPPONENT_COLOR) == EMPTY_POWER)
 
     def player_wins(self, player: PlayerColor) -> bool:
         """
@@ -214,7 +216,8 @@ class Board:
         @param player : specified player
         @return       : true if won, false if not
         """
-        return self.color_power(player) == EMPTY_POWER
+        return self.game_over and (self.color_power(player.opponent) == EMPTY_POWER or
+                                   self.color_power(player) - self.color_power(player.opponent) > WIN_POWER_DIFF)
 
     def total_power(self) -> int:
         """

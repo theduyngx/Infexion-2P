@@ -1,5 +1,14 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``subprocess.py``
+
+Purpose:
+    Multithreading subprocesses.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package.
+"""
 
 import sys
 from contextlib import contextmanager
@@ -17,6 +26,9 @@ _STDIN_OVERRIDE_MESSAGE  = "stdin usage is not allowed in agent"
 
 # Wrapper subprocess entry point
 def main():
+    """
+    A subprocess.
+    """
     in_stream = sys.stdin
     out_stream = sys.stdout
 

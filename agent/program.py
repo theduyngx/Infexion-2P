@@ -1,15 +1,18 @@
 """
-    Module  : program.py
-    Purpose : The agent program for the game.
+Module:
+    ``program.py``
 
+Purpose:
+    The agent program for the game.
+
+Notes:
 COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
 """
 
-from referee.game import Action, SpawnAction, SpreadAction
+from .search import search
+from .search.agent_test import *
+from .game import Board
 from .utils import *
-
-from agent.search import search, greedy_move, random_move
-from agent.game import Board
 
 
 class Agent:
@@ -48,14 +51,18 @@ class Agent:
         color = self._color
         color_print = ansi_color(color)
         print(f"{color_print} TURN:")
+        # return search(board, color)
         match color:
             case PlayerColor.RED:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                # return search(board, color, 3, full=False)
+                # return mcts_move(board, color)
+                # return minimax_shallow(board, color)
                 # return random_move(board, color)
                 return greedy_move(board, color)
+            case _:
+                raise Exception(f"{color} is not of proper PlayerColor type")
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

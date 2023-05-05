@@ -1,15 +1,22 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``actions.py``
+
+Purpose:
+    The valid actions that a player could make in Infexion.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. The actions include spawn in unoccupied cells and spread from
+    an already occupied by player position. Original documentation:
+
+    Here we define dataclasses for the two possible actions that a player can make. See the
+    ``hex.py`` file for the definition of the ``HexPos`` and ``HexDir``. If you are unfamiliar with
+    dataclasses, see the relevant Python docs here: https://docs.python.org/3/library/dataclasses.html
+"""
 
 from dataclasses import dataclass
-
 from .hex import HexPos, HexDir
-
-
-# Here we define dataclasses for the two possible actions that a player can
-# make. See the `hex.py` file for the definition of the `HexPos` and `HexDir`.
-# If you are unfamiliar with dataclasses, see the relevant Python docs here:
-# https://docs.python.org/3/library/dataclasses.html 
 
 
 @dataclass(frozen=True, slots=True)

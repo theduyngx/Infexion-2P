@@ -1,8 +1,19 @@
+"""
+Module:
+    ``monte_carlo.py``
+
+Purpose:
+    The Monte Carlo Tree search algorithm to find the next move for agent.
+
+Notes:
+"""
+
 from referee.game import Action, PlayerColor
-from ..game import Board
+from agent.game import Board
+from agent.search import get_legal_moves
+from ..minimax import move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode
-from .search_utils import get_legal_moves, move_ordering
 
 # Constants
 LIMIT: int = 20
@@ -10,16 +21,11 @@ LIMIT: int = 20
 
 def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     operation = 0
-
-    if turn_color == PlayerColor.RED:
-        multiplier = -1
-    else:
-        multiplier = 1
+    multiplier = 1 if turn_color == PlayerColor.RED else -1
 
     # open_min = queue.PriorityQueue()
     open_min = MutableHeap()
     discovered = {}
-
     initial_node = MonteCarloNode(None, board)
     discovered[initial_node.hash_val] = 1
     open_min.add_task(initial_node)
@@ -28,11 +34,9 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
         curr_state = open_min.pop_task()
         del discovered[curr_state.hash_val]
 
-        # No need to explore the node if the game
-        # is already over
+        # No need to explore the node if game is already over
         if board.game_over:
-            pass
-
+            continue
         num_moves = 0
         all_moves = []
 
@@ -46,7 +50,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
             board.apply_action(all_moves[i], concrete=False)
 
         # Then get all the neighbors associated with the current node
-        legal_moves = get_legal_moves(board, board.turn_color, turn_color)
+        legal_moves = get_legal_moves(board, board.turn_color)
         ordered_map = move_ordering(board, board.turn_color, legal_moves)
         for neighbor in ordered_map:
             board.apply_action(neighbor, concrete=False)
@@ -59,21 +63,15 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
                 discovered[curr_neighbor.hash_val] = 1
             board.undo_action()
 
-        # Now we do the simulations and the backpropagation,
-        # but only if this is not the first node
+        # simulations and backpropagation (only when this isn't the first node)
         if operation > 0:
-            # Now you want to do the SIMULATION
-            curr_state.quick_simulate(board, turn_color)
-
-            # Then we do BACKPROPAGATION
+            curr_state.quick_simulate(board, board.turn_color)
             curr_state.back_propagate(board)
 
         # Undo the actions for the board
         for i in range(num_moves):
             board.undo_action()
-
         operation += 1
 
-    # Idea is that we go back to the initial node
-    # and get the child node with the highest UCT
+    # go back to the initial node and get the child node with the highest UCT
     return sorted(initial_node.children, key=lambda x: x.uct, reverse=True)[0]

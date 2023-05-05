@@ -1,5 +1,14 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``io.py``
+
+Purpose:
+    IO handler, for printing logs (perhaps)
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package.
+"""
 
 import binascii
 from contextlib import contextmanager

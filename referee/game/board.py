@@ -1,5 +1,22 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``board.py``
+
+Purpose:
+    The `Infexion` board representation, and mutation applied to board.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. The actions include spawn in unoccupied cells and spread from
+    an already occupied by player position. Original documentation:
+
+    The Board class encapsulates the state of the game board, and provides methods for applying
+    actions to the board and querying/inspecting the state of the game (i.e. which player has won,
+    if any).
+
+    This board representation is designed to be used internally by the referee for the purposes of
+    validating actions and determining the result of the game.
+"""
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -11,10 +28,14 @@ from .exceptions import IllegalActionException
 from .constants import *
 
 
-# The CellState class is used to represent the state of a single cell on the game board.
-
 @dataclass(frozen=True, slots=True)
 class CellState:
+    """
+    The CellState class is used to represent the state of a single cell on the game board.
+    Attributes:
+        player: the player's color occupying the cell, if any
+        power : the player's power occupying the cell, if any
+    """
     player: PlayerColor | None = None
     power: int = 0
 
@@ -33,6 +54,13 @@ class CellState:
 
 @dataclass(frozen=True, slots=True)
 class CellMutation:
+    """
+    Class representing a single cell mutation.
+    Attributes:
+        cell: the mutated cell
+        prev: the previous state of the cell
+        next: the to-be-mutated state of the cell
+    """
     cell: HexPos
     prev: CellState
     next: CellState
@@ -41,11 +69,15 @@ class CellMutation:
         return f"CellMutation({self.cell}, {self.prev}, {self.next})"
 
 
-# The BoardMutation class is used to represent the *minimal* set of changes in
-# the state of the board as a result of an action. 
-
 @dataclass(frozen=True, slots=True)
 class BoardMutation:
+    """
+    The BoardMutation class is used to represent the *minimal* set of changes in
+    the state of the board as a result of an action.
+    Attributes:
+        action: action which leads to board mutation
+        cell_mutations: list of cell mutations as a result of action
+    """
     action: Action
     cell_mutations: set[CellMutation]
 
@@ -53,17 +85,10 @@ class BoardMutation:
         return f"BoardMutation({self.cell_mutations})"
 
 
-# The Board class encapsulates the state of the game board, and provides
-# methods for applying actions to the board and querying/inspecting the state
-# of the game (i.e. which player has won, if any).
-#
-# NOTE: This board representation is designed to be used internally by the
-# referee for the purposes of validating actions and determining the result of
-# the game. Don't assume this class is an "ideal" board representation for your
-# own agent; you should think carefully about how to design data structures for
-# representing the state of a game with respect to your chosen strategy. 
-
 class Board:
+    """
+    Game's board representation. This is the board used by referee.
+    """
     __slots__ = [
         "_mutable",
         "_state",
@@ -126,7 +151,6 @@ class Board:
         layout corresponds to the axial coordinate system as described in the
         game specification document.
         """
-
         def apply_ansi(string, bold=True, ansi_color=None, mutated=False):
             # Helper function to apply ANSI color codes
             bold_code = "\033[1m" if bold else ""
