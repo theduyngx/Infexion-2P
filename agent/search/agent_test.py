@@ -9,9 +9,7 @@ to more complex agents that are capable of making more complex moves.
 from random import randint
 
 from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
-from ..search import get_legal_moves
 from ..game import Board
-from . import minimax, monte_carlo
 
 
 def random_move(board: Board, color: PlayerColor) -> Action:
@@ -21,6 +19,7 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color (it is its turn)
     @return      : the random action to be taken by agent
     """
+    from .minimax import get_legal_moves
     actions, _ = get_legal_moves(board, color, full=True)
     random_index: int = randint(0, len(actions)-1)
     return actions[random_index]
@@ -35,6 +34,7 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color turn
     @return      : the action to be taken by agent
     """
+    from .minimax import get_legal_moves
     actions, _ = get_legal_moves(board, color, full=True)
     spawns: list[Action] = []
     min_opponent_power = board.color_power(color.opponent)
@@ -68,6 +68,7 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     @param color : player's color
     @return      : the action to be taken
     """
+    from agent.search.minimax import minimax
     return minimax(board, 2, color, True)
 
 
@@ -78,4 +79,5 @@ def mcts_move(board: Board, color: PlayerColor) -> Action:
     @param color : player's color
     @return      : the action to be taken
     """
+    from agent.search.monte_carlo import monte_carlo
     return monte_carlo(board, color)
