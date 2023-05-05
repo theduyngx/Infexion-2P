@@ -55,8 +55,8 @@ class Agent:
             case PlayerColor.BLUE:
                 # return search(board, color, 3, full=False)
                 # return random_move(board, color)
-                return greedy_move(board, color)
-                # return monte_carlo(board, color)
+                # return greedy_move(board, color)
+                return monte_carlo(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

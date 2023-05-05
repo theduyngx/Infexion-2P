@@ -4,7 +4,7 @@ from math import sqrt, log
 
 from referee.game import PlayerColor, Action
 from agent.game import Board
-from ..evaluation import mc_evaluate
+from .evaluation import mc_evaluate
 from ..minimax import minimax
 from ..agent_test import random_move
 

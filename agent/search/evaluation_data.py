@@ -1,10 +1,11 @@
 """
-    Module  : evaluation.py
-    Purpose : Includes the evaluation function to evaluate the desirability of a given state of
-              the board.
+    Module  : evaluation_data.py
+    Purpose : Includes the representation and function to obtain all the information that is
+              required to evaluate the state of the board.
 
-The evaluation function will make use of information such as the number of pieces of a given side
-currently on the board, the total power, as well as their clusters.
+The evaluation information includes the number of pieces of a both sides, their total power,
+and their clusters. The information on clusters will be used for dominance factor data. This
+is especially significant since much of Infexion is about dominating the opponent.
 """
 from dataclasses import dataclass
 
@@ -115,50 +116,3 @@ def get_evaluate_data(board: Board) -> EvaluateData:
             data.num_opponent_clusters  += 1
             data.size_opponent_clusters += len(cluster)
     return data
-
-
-def evaluate(board: Board) -> float:
-    """
-    Evaluation function to evaluate the desirability of the board. It should be noted that the
-    more 'negative' the evaluated value, the worse it is for the RED player and, conversely,
-    the better it is for the BLUE player. In other words, it is a zero-sum evaluation function,
-    suitably applied to the zero-sum Infexion game.
-    @param board : current state of board
-    @return      : the evaluated value of the board
-    """
-    data: EvaluateData = get_evaluate_data(board)
-    if data.immediate:
-        return data.immediate_evaluation
-    value  = (data.num_player - data.num_opponent) * NUM_PIECE_FACTOR
-    value += (data.pow_player - data.pow_opponent) * POW_PIECE_FACTOR
-    value += (data.size_player_clusters - data.size_opponent_clusters) * SIZE_CLUSTER_FACTOR
-    value += (data.num_player_dominates - data.num_opponent_dominates) * NUM_DOMINANCE_FACTOR
-    value += (data.pow_player_dominates - data.pow_opponent_dominates) * POW_DOMINANCE_FACTOR
-    value += (data.num_player_clusters  - data.num_opponent_clusters ) * NUM_CLUSTER_FACTOR
-    value *= data.sign
-    return value
-
-
-def mc_evaluate(board: Board) -> float:
-    """
-    Evaluation function to evaluate the state of the board after a monte carlo simulation. This
-    is not a zero-sum evaluation function, but an evaluation function for the simulation. The
-    evaluation is normalized, meaning if it is a win for the player, it will be 1, and if it is
-    definite loss then it will be 0. Any value in between shows the desirability of the state.
-    @param board : current state of board
-    @return      : the evaluated value of the board
-    """
-    data: EvaluateData = get_evaluate_data(board)
-    if data.immediate:
-        return data.immediate_evaluation
-
-    # adding another return value specifically for ordering the heapq for MonteCarlo
-    player_val   = data.num_player_clusters    * NUM_CLUSTER_FACTOR   + \
-                   data.size_player_clusters   * SIZE_CLUSTER_FACTOR  + \
-                   data.num_player_dominates   * NUM_DOMINANCE_FACTOR + \
-                   data.pow_player_dominates   * POW_DOMINANCE_FACTOR
-    opponent_val = data.num_opponent_clusters  * NUM_CLUSTER_FACTOR   + \
-                   data.size_opponent_clusters * SIZE_CLUSTER_FACTOR  + \
-                   data.num_opponent_dominates * NUM_DOMINANCE_FACTOR + \
-                   data.pow_opponent_dominates * POW_DOMINANCE_FACTOR
-    return player_val / (player_val + opponent_val)
