@@ -14,6 +14,7 @@ moves that may not seem desirable can simply be filtered out.
 from collections import defaultdict
 
 from agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
+from ..search_utils import get_legal_moves
 from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
                          MAX_TOTAL_POWER, BOARD_N
@@ -116,24 +117,18 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     return actions
 
 
-def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
+def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
-    Get all possible legal moves of a specified player color from a specific state of the board.
-    There are several optimizations made for this function in order reduce the number of legal
-    moves had to be generated in the minimax tree. This includes endgame detection and ignoring
-    specific moves based on domain knowledge of the game.
-    However, in the case when player is overwhelmed, then full will be forcefully set to True.
-
-    ERROR: despite overwhelmed, for whatever reason, it seems like the player cannot spawn in
-    cells that are not adjacent to another piece. This is a severe flaw. Yes, this is even
-    despite setting full = True.
+    Get optimized legal moves of a specified player color from a specific state of the board.
+    Optimizations made are to reduce the number of legal moves had to be generated in minimax
+    tree. This includes endgame detection and ignoring specific moves based on domain knowledge.
+    However, in the case when player is overwhelmed, then no optimization is set.
     @param board  : specified board
     @param color  : specified player's color
     @param full   : to get the full list of legal moves if true, or reduced list if otherwise
     @return       : list of all actions that could be applied to board, and
                     boolean indicating whether endgame has been reached
     """
-
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
     actions: list[Action] = []
     player_power   = board.color_power(color)
@@ -151,6 +146,10 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
         if len(actions) > 0:
             return actions, True
 
+    # getting all legal moves
+    if full:
+        return get_legal_moves(board, color), False
+
     # for every possible move from a given board state, including SPAWN and SPREAD
     for cell in board.get_cells():
 
@@ -158,11 +157,9 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
         pos = cell.pos
         if not board.pos_occupied(pos):
             if board.total_power() < MAX_TOTAL_POWER:
-                if full:
-                    actions.append(SpawnAction(pos))
 
                 # append on condition: within an acceptable range, spawn can be skipped
-                elif player_power < MIN_TOTAL_POWER or player_power <= opponent_power:
+                if player_power < MIN_TOTAL_POWER or player_power <= opponent_power:
                     adj_list = adjacent_positions(pos)
                     # and the skipped ones are those not adjacent to player's pieces
                     if any([board[adj].color == color for adj in adj_list]):
@@ -172,7 +169,7 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
         elif board[pos].color == color:
 
             # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-            if not full and board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
+            if board[pos].power == 1 and board.total_power() > MIN_TOTAL_POWER:
                 for dir in HexDir:
                     adj = pos + dir
                     if board[adj].color == color.opponent:
@@ -180,8 +177,6 @@ def get_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
-    if full:
-        assert len(actions) > 0
     return actions, False
 
 
