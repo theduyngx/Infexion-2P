@@ -214,7 +214,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> ma
                 total_blue_pieces = 0
                 total_blue_power = 0
                 curr_pos = pos
-                for i in range(1, power+1):
+                for _ in range(power):
                     curr_pos = curr_pos + dir
                     if curr_pos in board and board[curr_pos].color == color.opponent:
                         total_blue_pieces += 1
