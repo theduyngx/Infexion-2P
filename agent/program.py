@@ -1,6 +1,6 @@
 """
 Module:
-    program.py
+    ``program.py``
 
 Purpose:
     The agent program for the game.
@@ -57,10 +57,12 @@ class Agent:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                return minimax_shallow(board, color)
-                # return random_move(board, color)
-                # return greedy_move(board, color)
                 # return mcts_move(board, color)
+                # return minimax_shallow(board, color)
+                # return random_move(board, color)
+                return greedy_move(board, color)
+            case _:
+                raise Exception(f"{color} is not of proper PlayerColor type")
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

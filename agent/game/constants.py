@@ -1,6 +1,6 @@
 """
 Module:
-    constants.py
+    ``constants.py``
 
 Purpose:
     Storing global constants.

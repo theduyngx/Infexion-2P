@@ -1,6 +1,6 @@
 """
 Package:
-    agent
+    ``agent``
 
 Purpose:
     The Infexion game-playing agent.

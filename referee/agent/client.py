@@ -1,5 +1,14 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``client.py``
+
+Purpose:
+    Context manager wrapping a class in a separate "sandbox" process.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package.
+"""
 
 import sys
 from asyncio import subprocess, wait_for
@@ -14,14 +23,18 @@ from .io import AsyncProcessStatus, m_pickle, m_unpickle, _SUBPROC_MODULE, _ACK,
 
 
 class WrappedProcessException(Exception):
+    """
+    Wrapper class for process exception. Used when a process fails execution.
+    """
     pass
 
 
-# Context manager that wraps a class in a separate "sandbox" process. The class
-# is instantiated in the subprocess, and all calls to methods are forwarded to
-# the subprocess. Exceptions are also forwarded back to the parent process. 
-
 class RemoteProcessClassClient:
+    """
+    Context manager that wraps a class in a separate "sandbox" process. The class is
+    instantiated in the subprocess, and all calls to methods are forwarded to the subprocess.
+    Exceptions are also forwarded back to the parent process.
+    """
     def __init__(self,
                  pkg          : str,
                  cls          : str,

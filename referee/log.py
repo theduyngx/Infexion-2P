@@ -1,5 +1,14 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``log.py``
+
+Purpose:
+    Logs to keep track of activities from players by the referee.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. This includes log coloring on console, log stream, etc.
+"""
 
 from enum import Enum
 from time import time
@@ -9,6 +18,9 @@ from typing import Any, Callable
 # Define simple logging utility/helpers for the referee.
 
 class LogColor(Enum):
+    """
+    Enumerated class representing the color of log string.
+    """
     RED       = "\033[31m"
     GREEN     = "\033[32m"
     YELLOW    = "\033[33m"
@@ -26,6 +38,14 @@ class LogColor(Enum):
 
 
 class LogLevel(Enum):
+    """
+    Log level class representing the type of log. The log can either be:
+        <li>DEBUG   : debug mode log
+        <li>INFO    : helper
+        <li>WARNING : warning log
+        <li>ERROR   : error log (which stops the program)
+        <li>CRITICAL: fatal error (thread errors, etc.)
+    """
     DEBUG    = 0
     INFO     = 1
     WARNING  = 2
@@ -49,6 +69,10 @@ class LogLevel(Enum):
 
 
 class LogStream:
+    """
+    Log stream which represents a stream of actual log. It is the class responsible for
+    displaying and handling log's logic.
+    """
     _start_time = None
     _max_namespace_length = 0
     _global_settings = {
@@ -62,19 +86,29 @@ class LogStream:
         "output_level"     : True,
     }
 
-    def __init__(
-            self,
-            namespace        : str,
-            color            : LogColor | None = None,
-            level            : LogLevel | None = None,
-            handlers         : list[Callable] | None = None,
-            unicode          : bool | None = None,
-            ansi             : bool | None = None,
-            output_time      : bool | None = None,
-            output_namespace : bool | None = None,
-            output_level     : bool | None = None,
-    ):
-
+    def __init__(self,
+                 namespace        : str,
+                 color            : LogColor | None = None,
+                 level            : LogLevel | None = None,
+                 handlers         : list[Callable] | None = None,
+                 unicode          : bool | None = None,
+                 ansi             : bool | None = None,
+                 output_time      : bool | None = None,
+                 output_namespace : bool | None = None,
+                 output_level     : bool | None = None,
+                 ):
+        """
+        Log stream constructor.
+        @param namespace        : log scope identifier
+        @param color            : log's color
+        @param level            : type of log
+        @param handlers         :
+        @param unicode          : enabling unicode characters for log
+        @param ansi             : enabling ansi color for log
+        @param output_time      :
+        @param output_namespace :
+        @param output_level     :
+        """
         self._namespace = namespace
         if color is not None:
             self._color = color
@@ -111,6 +145,11 @@ class LogStream:
         return getattr(self, f"_{key}", LogStream._global_settings[key])
 
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
+        """
+        Write the log.
+        @param message : specified log message
+        @param level   : log's type
+        """
         message_lines = message.splitlines()
         for line in message_lines:
             self._out(
@@ -123,6 +162,10 @@ class LogStream:
             )
 
     def _out(self, message: str):
+        """
+        Output log.
+        @param message: specified message
+        """
         # Optionally strip unicode symbols
         if not self.setting("unicode"):
             message = message.encode("ascii", "ignore").decode()
@@ -183,6 +226,9 @@ class LogStream:
 
 
 class NullLogger(LogStream):
+    """
+    Null logger class represents a log that does not do anything.
+    """
     def __init__(self):
         super().__init__("null", None, LogLevel.ERROR)
 

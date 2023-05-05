@@ -1,6 +1,6 @@
 """
 Package:
-    monte_carlo
+    ``monte_carlo``
 
 Purpose:
     Provide the Monte Carlo Tree search algorithm function to find the next move for agent.

@@ -1,12 +1,12 @@
 """
 Module:
-    evaluation.py
+    ``evaluation.py``
 
 Purpose:
     Minimax search algorithm evaluation function.
 
 Notes:
-    The evaluation function for Minimax is a zero-sum evaluation function. We make RED as the
+    The evaluation function for Minimax is a **zero-sum** evaluation function. We make RED as the
     maximizing side, and BLUE as the minimizing side. It should be noted that the evaluation
     is dynamic, meaning if the player is BLUE, it will know to minimize the score.
 """

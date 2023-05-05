@@ -1,6 +1,6 @@
 """
 Module:
-    cluster.py
+    ``cluster.py``
 
 Purpose:
     Including the classes representing a single cluster, a collection of clusters, and a function

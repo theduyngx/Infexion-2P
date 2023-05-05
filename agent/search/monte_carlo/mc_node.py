@@ -1,6 +1,6 @@
 """
 Module:
-    mc_node.py
+    ``mc_node.py``
 
 Purpose:
     Monte Carlo Tree's node representation.

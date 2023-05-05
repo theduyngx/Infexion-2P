@@ -1,6 +1,6 @@
 """
 Module:
-    mutable_heapq.py
+    ``mutable_heapq.py``
 
 Purpose:
     Max heap (priority queue) that can have its node data mutated, used specifically

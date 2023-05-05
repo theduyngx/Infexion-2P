@@ -1,6 +1,6 @@
 """
 Package:
-    game
+    ``agent.game``
 
 Purpose:
     Providing objects and functionalities directly related to the game, namely including board
@@ -11,7 +11,7 @@ Notes:
     based onn COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B referee's board
     representation.
 
-    The clusters are another important aspect of the game, where it determines the the dominance
+    The clusters are another important aspect of the game, where it determines the dominance
     factor of a specific agent.
 """
 

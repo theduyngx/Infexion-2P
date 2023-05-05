@@ -1,6 +1,6 @@
 """
 Module:
-    monte_carlo.py
+    ``monte_carlo.py``
 
 Purpose:
     The Monte Carlo Tree search algorithm to find the next move for agent.

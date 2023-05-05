@@ -1,6 +1,6 @@
 """
 Module:
-    game_utils.py
+    ``game_utils.py``
 
 Purpose:
     Utility functions for the game, which is directly related to the game's board.

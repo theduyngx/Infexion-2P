@@ -1,6 +1,6 @@
 """
 Module:
-    search_utils.py
+    ``search_utils.py``
 
 Purpose:
     Utility functions for search algorithms. For now, it only includes getting all

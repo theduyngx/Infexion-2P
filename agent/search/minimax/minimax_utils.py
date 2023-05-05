@@ -1,6 +1,6 @@
 """
 Module:
-    minimax_utils.py
+    ``minimax_utils.py``
 
 Purpose:
     Utility functions for minimax algorithm, which includes optimization for getting all
@@ -10,7 +10,7 @@ Purpose:
 Notes:
     Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if
     agent would like to get every possible legal move that's available for it, or reduced, if agent
-    would like to ignore specific actions that are considered 'quiet', viz. not having significant
+    would like to ignore specific actions that are considered `quiet`, viz. not having significant
     effects. Move reduction also entails endgame detection, where the desirable moves become more
     apparent; hence any moves that may not seem desirable can simply be filtered out.
 """
@@ -76,7 +76,7 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
                                 continue
                             # append to actions if cell can reach the opponent
                             if cell.power >= abs(s):
-                                cleared  = True
+                                cleared = True
                                 key = (curr_pos, dir)
                                 if key in action_capture:
                                     action_capture[key] += 1

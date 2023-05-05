@@ -1,6 +1,6 @@
 """
 Module:
-    evaluation.py
+    ``evaluation.py``
 
 Purpose:
     Monte Carlo Tree search evaluation function.
@@ -9,7 +9,7 @@ Notes:
     The evaluation function for MCTS will partially act as the simulation function, where play-outs
     will not go to terminal node, and instead for a fixed number of moves before it evaluates. This
     evaluation function is also not zero-sum, unlike Minimax's. Instead, it is normalized in range
-    [0, 1] such that any value in between represents the desirability for a specific player, and
+    ``[0, 1]`` such that any value in between represents the desirability for a specific player, and
     that 0 means definite loss, and 1 means definite win.
 """
 

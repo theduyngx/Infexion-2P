@@ -1,14 +1,21 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``main.py``
 
-# This is the main entry point for the referee module. For detailed guidance on
-# referee usage/command line options, run:
-#
-#   python -m referee --help
-#
-# NOTE: For the purposes of the project you do not need to understand all
-# the inner workings of this module. The only relevant parts are in the `game`
-# module, as described in the project specification.
+Purpose:
+    The main function to the main program called in ``__main__.py``.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. Original documentation:
+
+    This is the main entry point for the referee module. For detailed guidance on referee
+    usage/command line options, run:
+
+    .. warning:: ``python -m referee --help``
+
+    The only relevant parts are in the `game` module, as described in the project specification.
+"""
 
 import os
 import asyncio
@@ -24,6 +31,10 @@ from .options import get_options
 
 
 def main(options: Namespace | None = None):
+    """
+    Main function of the game program, handled by referee. It runs the game.
+    @param options : options upon running the game
+    """
     if options is None:
         options = get_options()
     assert options is not None
@@ -51,7 +62,6 @@ def main(options: Namespace | None = None):
     gl_path: Path | None = None
 
     if options.logfile is not None:
-
         if options.logfile == 'stdout':
             # Standard stdout game log stream
             gl = LogStream(

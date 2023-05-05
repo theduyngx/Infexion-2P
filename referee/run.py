@@ -1,12 +1,15 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``run.py``
 
-# Most logic pertaining to the referee's running and logging of a game is
-# contained in this file. We define a function `run_game` which takes a list of
-# players and a list of event handlers, then runs the game asynchronously,
-# yielding the game updates to the given event handlers. Event handlers can be
-# used to implement different types of referee behaviour (e.g. logging,
-# visualisation, pausing, etc.)
+Purpose:
+    Run the game asynchronously.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. As expected, if the limit is exceeded, the agent will have
+    lost the game.
+"""
 
 import asyncio
 from time import time
@@ -23,10 +26,17 @@ async def run_game(players: list[Player],
                    ) -> Player | None:
     """
     Run a game, yielding event handler generators over the game updates.
-    Return the winning player (interface) or 'None' if drawn.
+    @param players        : the players list
+    @param event_handlers : event handler to handle the event-driven game
+    @return               : the winning player (interface) or 'None' if drawn.
     """
 
     async def _update_handlers(handlers: list[AsyncGenerator | None], update: GameUpdate | None):
+        """
+        Helper function to handle the update.
+        @param handlers : the handlers
+        @param update   : specified update
+        """
         for handler in handlers:
             try:
                 if handler is not None:
@@ -45,6 +55,8 @@ async def run_game(players: list[Player],
 async def game_commentator(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts game updates and provides some simple commentary.
+    @param stream : the log stream
+    @return       : asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -70,17 +82,18 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
 async def game_event_logger(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts all game events and logs them in a parseable format.
-    
     Game events are logged as TSVs (tab-separated values), one per line, with
     the following format:
-    
-        <time>\t<actor>\t<event>[\t<param_k>]*
-        
-    Where:
-      <time>     is the wall clock time since the game started (seconds).
-      <actor>    is either "referee" or the player colour.
-      <event>    is the event name.
-      <param_k>  k'th event argument (if applicable).
+
+    <time>\t<actor>\t<event>[\t<param_k>]*
+
+    Where: <time>     is the wall clock time since the game started (seconds).
+           <actor>    is either "referee" or the player colour.
+           <event>    is the event name.
+           <param_k>  k'th event argument (if applicable).
+
+    @param stream : log stream
+    @return       : asynchronous interception
     """
     start_time = time()
 
@@ -121,6 +134,8 @@ async def game_event_logger(stream: LogStream) -> AsyncGenerator:
 async def game_delay(delay: float) -> AsyncGenerator:
     """
     Intercepts board updates and delays the game for a given amount of time.
+    @param delay : delay time
+    @return      : asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -132,6 +147,8 @@ async def game_delay(delay: float) -> AsyncGenerator:
 async def game_user_wait(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts board updates and waits for user input before continuing.
+    @param stream : log stream
+    @return       : asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -149,6 +166,11 @@ async def output_board_updates(stream      : LogStream,
     """
     Intercepts board updates and prints the new board state in the output
     stream. The board is formatted using the given options.
+    @param stream      : log stream
+    @param use_color   : whether ansi color is applied
+    @param use_unicode : whether unicode is used
+    @param width       : the width of log printing
+    @return            : asynchronous interception
     """
     while True:
         update: GameUpdate = yield
