@@ -8,7 +8,7 @@ COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playin
 from referee.game import Action, SpawnAction, SpreadAction
 from .utils import *
 
-from agent.search import search, greedy_move, random_move
+from agent.search import search, greedy_move, random_move, monte_carlo
 from agent.game import Board
 
 
@@ -55,7 +55,8 @@ class Agent:
             case PlayerColor.BLUE:
                 # return search(board, color, 3, full=False)
                 # return random_move(board, color)
-                return greedy_move(board, color)
+                # return greedy_move(board, color)
+                return monte_carlo(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """

@@ -6,7 +6,7 @@
 
 from referee.game import PlayerColor, Action
 from agent.game import Board, assert_action, INF, DEPTH
-from ..evaluation import evaluate
+from .evaluation import evaluate
 from .minimax_utils import get_legal_moves, move_ordering
 
 
