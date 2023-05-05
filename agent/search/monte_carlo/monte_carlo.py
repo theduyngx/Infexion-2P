@@ -54,7 +54,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
 
         # simulations and backpropagation (only when this isn't the first node)
         if operation > 0:
-            curr_state.quick_simulate(board, turn_color)
+            curr_state.quick_simulate(board, board.turn_color)
             curr_state.back_propagate(board)
 
         # Undo the actions for the board
