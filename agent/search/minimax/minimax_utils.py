@@ -13,9 +13,9 @@ moves that may not seem desirable can simply be filtered out.
 
 from collections import defaultdict
 
-from agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
+from ...agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
 from ..search_utils import get_legal_moves
-from referee.game import HexPos, HexDir, PlayerColor, \
+from ....referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
                          MAX_TOTAL_POWER, BOARD_N
 

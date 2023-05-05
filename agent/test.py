@@ -5,8 +5,8 @@
 
 from collections import defaultdict
 
-from referee.game import HexPos, HexDir, SpreadAction
-from agent.game import Board, CellState, PLAYER_COLOR
+from .referee.game import HexPos, HexDir, SpreadAction
+from .game import Board, CellState, PLAYER_COLOR
 
 pos1  = HexPos(1, 1)
 pos2  = HexPos(1, 2)

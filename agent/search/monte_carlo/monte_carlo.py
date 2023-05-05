@@ -1,6 +1,6 @@
 from referee.game import Action, PlayerColor
-from agent.game import Board
-from agent.search import get_legal_moves
+from .agent.game import Board
+from .agent.search import get_legal_moves
 from ..minimax import move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode

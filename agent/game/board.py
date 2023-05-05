@@ -11,8 +11,7 @@ quite reasonable, hence the decision.
 
 from collections import defaultdict
 from dataclasses import dataclass
-
-from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
+from ..referee.game import HexPos, Action, SpawnAction, SpreadAction, \
     MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER, WIN_POWER_DIFF
 from .constants import *
 

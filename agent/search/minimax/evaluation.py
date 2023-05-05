@@ -7,7 +7,7 @@ maximizing side, and BLUE as the minimizing side. It should be noted that the ev
 is dynamic, meaning if the player is BLUE, it will know to minimize the score.
 """
 
-from agent.search.evaluation_data import *
+from ...agent.search.evaluation_data import *
 
 
 def evaluate(board: Board) -> float:

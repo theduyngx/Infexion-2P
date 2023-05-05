@@ -8,7 +8,7 @@ to more complex agents that are capable of making more complex moves.
 
 from random import randint
 
-from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
+from ....referee.game import Action, PlayerColor, SpawnAction, SpreadAction
 from ..game import Board
 from .search_utils import get_legal_moves
 
@@ -67,7 +67,7 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     @param color : player's color
     @return      : the action to be taken
     """
-    from agent.search.minimax import minimax
+    from .agent.search.minimax import minimax
     return minimax(board, 2, color, True)
 
 
@@ -78,5 +78,5 @@ def mcts_move(board: Board, color: PlayerColor) -> Action:
     @param color : player's color
     @return      : the action to be taken
     """
-    from agent.search.monte_carlo import monte_carlo
+    from .agent.search.monte_carlo import monte_carlo
     return monte_carlo(board, color)

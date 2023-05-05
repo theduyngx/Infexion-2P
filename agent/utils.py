@@ -3,7 +3,7 @@
     Purpose : Utility functions for program.
 """
 
-from referee.game import PlayerColor
+from .referee.game import PlayerColor
 
 
 def print_referee(referee: dict):

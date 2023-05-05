@@ -11,7 +11,7 @@ and offense within the game.
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, PlayerColor
+from ..referee.game import HexPos, PlayerColor
 from .constants import PLAYER_COLOR, OPPONENT_COLOR
 from .board import Board, CellState
 from .game_utils import adjacent_positions

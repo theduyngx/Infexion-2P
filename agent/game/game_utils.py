@@ -5,7 +5,7 @@
               positions from a given specified position on the board.
 """
 
-from referee.game import HexPos, HexDir, SpawnAction, SpreadAction
+from ..referee.game import HexPos, HexDir, SpawnAction, SpreadAction
 
 
 def assert_action(action):

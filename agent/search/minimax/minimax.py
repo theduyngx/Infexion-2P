@@ -4,8 +4,8 @@
               with alpha-beta pruning to improve performance.
 """
 
-from referee.game import PlayerColor, Action
-from agent.game import Board, assert_action, INF, DEPTH
+from ....referee.game import PlayerColor, Action
+from ...agent.game import Board, assert_action, INF, DEPTH
 from .evaluation import evaluate
 from .minimax_utils import get_optimized_legal_moves, move_ordering
 
