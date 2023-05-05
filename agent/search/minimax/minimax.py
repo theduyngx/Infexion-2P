@@ -61,11 +61,11 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
+        ###
+        # show = depth == DEPTH and not full and False
+        ###
         legal_moves, endgame = get_optimized_legal_moves(board, color, full)
         ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
-        if depth == DEPTH:
-            for action in ordered_moves:
-                print(action)
 
         # for each child node of board
         for possible_action in ordered_moves:

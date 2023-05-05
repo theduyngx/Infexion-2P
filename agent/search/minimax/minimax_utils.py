@@ -3,6 +3,7 @@
     Purpose : Utility functions for minimax algorithm, which includes optimization for getting all
               legal moves for a specific agent and other search optimization functionalities such
               as move ordering and dynamic move reductions.
+
 Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if agent
 would like to get every possible legal move that's available for it, or reduced, if agent would like
 to ignore specific actions that are considered 'quiet', viz. not having significant effects. Move
@@ -60,10 +61,11 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
                 for dir in HexDir:
                     ranges = [range(1, BOARD_N//2 + 1), range(-1, -BOARD_N//2 - 1, -1)]
                     for r in ranges:
+                        curr_pos = opponent.pos
 
                         # for each cell in said direction
                         for s in r:
-                            curr_pos = opponent.pos - (dir * s)
+                            curr_pos -= dir
                             cell = board[curr_pos]
                             # make sure that it is not an empty cell or opponent's cell
                             if cell.power == EMPTY_POWER or cell.color == color.opponent:
@@ -196,8 +198,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]):
                 power = board[action.cell].power
                 total_blue_pieces = 0
                 total_blue_power  = 0
-                for s in range(power):
-                    curr_pos = pos + dir * s
+                curr_pos = pos
+                for _ in range(power):
+                    curr_pos += dir
                     if curr_pos in board and board[curr_pos].color == color.opponent:
                         total_blue_pieces += 1
                         total_blue_power  += board[curr_pos].power
@@ -211,9 +214,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]):
     # sort the actions by their desirability, in decreasing order, in following priorities
     action_values.sort(
         key=lambda tup: (
-            tup[1],     # 1. total power captured
-            -tup[2],    # 2. reverse number of pieces captured (viz. more stacked captures)
-            tup[3]      # 3. player's piece power
+            tup[1],    # 1. total power captured
+            -tup[2],   # 2. reverse number of pieces captured (viz. more stacked captures)
+            tup[3]     # 3. player's piece power
         ),
         reverse=True
     )
