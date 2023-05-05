@@ -11,9 +11,9 @@ reduction also entails endgame detection, where the desirable moves become more 
 moves that may not seem desirable can simply be filtered out.
 """
 
-from collections import defaultdict
+from collections import defaultdict, deque
 
-from agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
+from agent.game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER, assert_action
 from ..search_utils import get_legal_moves
 from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
@@ -113,18 +113,16 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
 
 def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
-    Get all possible legal moves of a specified player color from a specific state of the board.
-    There are several optimizations made for this function in order reduce the number of legal
-    moves had to be generated in the minimax tree. This includes endgame detection and ignoring
-    specific moves based on domain knowledge of the game.
-    However, in the case when player is overwhelmed, then full will be forcefully set to True.
+    Get optimized legal moves of a specified player color from a specific state of the board.
+    Optimizations made are to reduce the number of legal moves had to be generated in minimax
+    tree. This includes endgame detection and ignoring specific moves based on domain knowledge.
+    However, in the case when player is overwhelmed, then no optimization is set.
     @param board  : specified board
     @param color  : specified player's color
     @param full   : to get the full list of legal moves if true, or reduced list if otherwise
     @return       : list of all actions that could be applied to board, and
                     boolean indicating whether endgame has been reached
     """
-
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
     actions: list[Action] = []
     player_power   = board.color_power(color)
@@ -176,40 +174,130 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> map:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
+
+    Another possible optimization: return a heap queue for move ordering instead. This will make
+    it only logarithmic in complexity at any given point.
     @param board   : the board
     @param color   : player's color to have their legal moves ordered by probabilistic desirability
     @param actions : the list of legal actions for player
     @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
     """
-    # for each action of the player's list of legal moves
-    action_values: list[tuple[Action, int]] = [(None, 0)] * len(actions)
-    index = 0
+    # action_num: number of captures ; action_pow: total power captured
+    # the first will be reversed ordered, the latter will be orderly sorted
+    action_num : dict[(HexPos, HexDir), float] = defaultdict()
+    action_pow : dict[(HexPos, HexDir), float] = defaultdict()
+    spread_all : dict[(HexPos, HexDir), float] = defaultdict()  # number value represents piece's power
+    spawn_all  : deque[(Action, float)] = deque()
+    capture_sorted: list[((HexPos, HexDir), float)] = []
     for action in actions:
         match action:
-            # spawn means adding their power by 1
-            case SpawnAction(_):
-                action_values[index] = (action, 1)
-            # spread can either be a power-1 spread, or higher, which is possibly more desirable
-            case SpreadAction(pos, dir):
-                power = board[action.cell].power
-                if power > 1:
-                    action_values[index] = (action, power)
+            case SpawnAction(pos):
+                # spawn add 1.5 points if next to another of its own kind
+                if any([board[pos + dir].color == color for dir in HexDir]):
+                    spawn_all.appendleft((action, 1.5))
+                # note that left is higher score, and right is lower
                 else:
-                    adj = pos + dir
-                    adj_cell = board[adj]
-                    if adj_cell.color == color.opponent:
-                        action_values[index] = (action, adj_cell.power + 1)
-                    else:
-                        action_values[index] = (action, 0)
-            # error case
+                    spawn_all.append((action, 1))
+            case SpreadAction(pos, dir):
+                spread_all[(pos, dir)] = board[pos].power - 1
             case _:
                 raise "move_ordering: Action not of any type"
-        index += 1
 
-    # sort the actions by their desirability, in decreasing order
-    action_values.sort(key=lambda tup: tup[1], reverse=True)
-    return map(lambda tup: tup[0], action_values)
+    ###
+    # for action, _ in spawn_all:
+    #     assert_action(action)
+    ###
+
+    if spread_all:
+        opponents = board.player_cells(color.opponent)
+        for opponent in opponents:
+            # for each direction, get the same direction ranges
+            for dir in HexDir:
+                ranges = [range(1, BOARD_N // 2 + 1), range(-1, -BOARD_N // 2 - 1, -1)]
+                for r in ranges:
+
+                    # for each cell in said direction
+                    for s in r:
+                        curr_pos = opponent.pos - (dir * s)
+                        cell = board[curr_pos]
+                        # make sure that it is not an empty cell or opponent's cell
+                        if cell.power == EMPTY_POWER or cell.color == color.opponent:
+                            continue
+                        # append to actions if cell can reach the opponent
+                        if cell.power >= abs(s):
+                            key = (curr_pos, dir)
+                            if key in spread_all:
+                                del spread_all[key]
+                            if key in action_num:
+                                action_num[key] += 1
+                            else:
+                                action_num[key] = 1
+                            if key in action_pow:
+                                action_pow[key] += opponent.power
+                            else:
+                                action_pow[key] = opponent.power
+
+        # sorting the actions (in decreasing order) by the following 3 priorities
+        capture_sorted = sorted(
+            action_pow.items(),
+            key=lambda item: (
+                item[1],                 # 1. total power that was captured
+                -action_num[item[0]],    # 2. least number of captured (viz. more stacked captures)
+                board[item[0][0]].power  # 3. higher power of player's piece
+            ),
+            reverse=True
+        )
+
+    # for each action of the player's list of legal moves
+    first = 0
+    last  = len(spread_all) + len(spawn_all) - 1
+
+    ###
+    if len(actions) - len(capture_sorted) != len(spread_all) + len(spawn_all):
+        print(last+1)                            # length of uncaptured list
+        print(len(spread_all) + len(spawn_all))  # supposed length of uncaptured list
+        print(len(actions), len(capture_sorted)) # length of total number of actions and captured list
+    ###
+
+    captured_actions  : list[Action] = list(map(lambda tup: SpreadAction(tup[0][0], tup[0][1]), capture_sorted))
+    uncaptured_actions: list[Action] = [None] * (last + 1)
+    # sort spread_all by the piece's power
+    spread_remaining = list(spread_all.items())
+    spread_remaining.sort(key=lambda tup: tup[1], reverse=True)
+
+    if last >= 0:
+        for entry in spread_remaining:
+            (pos, dir), val = entry
+            if val < 1:
+                uncaptured_actions[last] = SpreadAction(pos, dir)
+                if spawn_all:
+                    action, _ = spawn_all.popleft()
+                    uncaptured_actions[first] = action
+                    first += 1
+                last -= 1
+            else:
+                uncaptured_actions[first] = SpreadAction(pos, dir)
+                first += 1
+        for action, val in spawn_all:
+            if val > 1:
+                uncaptured_actions[first] = action
+                first += 1
+            else:
+                uncaptured_actions[last] = action
+                last -= 1
+    ###
+    for action in uncaptured_actions:
+        assert_action(action)
+    for action in captured_actions:
+        assert_action(action)
+    ###
+
+    # add it all up
+    captured_actions.extend(uncaptured_actions)
+    actions_sorted = captured_actions
+    assert len(actions_sorted) == len(actions)
+    return actions_sorted
