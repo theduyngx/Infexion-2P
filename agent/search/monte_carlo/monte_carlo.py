@@ -1,6 +1,7 @@
 from referee.game import Action, PlayerColor
 from agent.game import Board
-from ..minimax import get_legal_moves, move_ordering
+from agent.search import get_legal_moves
+from ..minimax import move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode
 
@@ -39,7 +40,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
             board.apply_action(all_moves[i], concrete=False)
 
         # Then get all the neighbors associated with the current node
-        legal_moves, _ = get_legal_moves(board, board.turn_color, full=True)
+        legal_moves = get_legal_moves(board, board.turn_color)
         ordered_map = move_ordering(board, board.turn_color, legal_moves)
         for neighbor in ordered_map:
             board.apply_action(neighbor, concrete=False)

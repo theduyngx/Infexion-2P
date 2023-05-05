@@ -32,32 +32,36 @@ class EvaluateData:
         num_player_dominates   : the number of clusters where player dominates opponent
         pow_player_dominates   : the power of clusters where player dominates opponent
         size_player_clusters   : the size of player's clusters
+
         num_opponent           : the number of opponent pieces on the board
         pow_opponent           : the opponent's total power
         num_opponent_clusters  : the number of opponent's clusters
         num_opponent_dominates : the number of clusters where opponent dominates player
         pow_opponent_dominates : the power of clusters where opponent dominates player
         size_opponent_clusters : the size of player's clusters
-        sign                   : multiplier sign, if player is red then maximize by multiplying 1,
-                                 otherwise minimize by multiplying -1; only applicable for zero-sum
+
         immediate_evaluation   : immediate evaluation value where the game is already over
         immediate              : whether value is immediately evaluated or not
+        sign                   : multiplier sign, if player is red then maximize by multiplying 1,
+                                 otherwise minimize by multiplying -1; only applicable for zero-sum
     """
     num_player             : int = 0
-    num_opponent           : int = 0
     pow_player             : int = 0
-    pow_opponent           : int = 0
     num_player_clusters    : int = 0
     num_player_dominates   : int = 0
     pow_player_dominates   : int = 0
     size_player_clusters   : int = 0
+
+    num_opponent           : int = 0
+    pow_opponent           : int = 0
     num_opponent_clusters  : int = 0
     num_opponent_dominates : int = 0
     pow_opponent_dominates : int = 0
     size_opponent_clusters : int = 0
-    sign                   : int = 1
+
     immediate_evaluation   : int = 0
     immediate              : bool = False
+    sign                   : int = 1
 
 
 def get_evaluate_data(board: Board) -> EvaluateData:

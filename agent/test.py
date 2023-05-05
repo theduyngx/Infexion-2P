@@ -51,3 +51,11 @@ for (pos, dir), value in action_sorted:
 # endgame filter works as expected
 for action in actions:
     print(action)
+
+spread_all = {}
+for i in range(7):
+    spread_all[(poses[i], dirs[i])] = 3
+
+spread_list = list(spread_all.items())
+for entry in spread_list:
+    print(entry)

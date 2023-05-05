@@ -7,7 +7,7 @@
 from referee.game import PlayerColor, Action
 from agent.game import Board, assert_action, INF, DEPTH
 from .evaluation import evaluate
-from .minimax_utils import get_legal_moves, move_ordering
+from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 
 def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
@@ -61,7 +61,7 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        legal_moves, endgame = get_legal_moves(board, color, full)
+        legal_moves, endgame = get_optimized_legal_moves(board, color, full)
         ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
         # for each child node of board
         for possible_action in ordered_map:
@@ -83,7 +83,7 @@ def alphabeta(board  : Board,
 
     # minimize
     else:
-        legal_moves, endgame = get_legal_moves(board, color, full)
+        legal_moves, endgame = get_optimized_legal_moves(board, color, full)
         ordered_map = move_ordering(board, color, legal_moves) if not endgame else legal_moves
         # for each child node of board
         for possible_action in ordered_map:
