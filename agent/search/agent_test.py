@@ -10,6 +10,7 @@ from random import randint
 
 from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
 from ..game import Board
+from .search_utils import get_legal_moves
 
 
 def random_move(board: Board, color: PlayerColor) -> Action:
@@ -19,8 +20,7 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color (it is its turn)
     @return      : the random action to be taken by agent
     """
-    from .minimax import get_legal_moves
-    actions, _ = get_legal_moves(board, color, full=True)
+    actions = get_legal_moves(board, color)
     random_index: int = randint(0, len(actions)-1)
     return actions[random_index]
 
@@ -34,8 +34,7 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     @param color : the agent's color turn
     @return      : the action to be taken by agent
     """
-    from .minimax import get_legal_moves
-    actions, _ = get_legal_moves(board, color, full=True)
+    actions = get_legal_moves(board, color)
     spawns: list[Action] = []
     min_opponent_power = board.color_power(color.opponent)
     greedy_action = None

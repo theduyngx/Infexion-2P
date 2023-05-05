@@ -54,8 +54,8 @@ class Agent:
             case PlayerColor.BLUE:
                 # return minimax_shallow(board, color)
                 # return random_move(board, color)
-                return greedy_move(board, color)
-                # return mcts_move(board, color)
+                # return greedy_move(board, color)
+                return mcts_move(board, color)
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
