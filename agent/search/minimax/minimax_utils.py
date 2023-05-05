@@ -195,30 +195,49 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> ma
     @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
     """
     # for each action of the player's list of legal moves
-    action_values: list[tuple[Action, int]] = [(None, 0)] * len(actions)
+    # FORMAT: (Action, red_power, total power of captured blues, total num pieces of blues)
+    action_values: list[tuple[Action, int, int, int]] = [(None, 0, 0, 0)] * len(actions)
     index = 0
     for action in actions:
         match action:
             # spawn means adding their power by 1
             case SpawnAction(_):
-                action_values[index] = (action, 1)
+                action_values[index] = (action, 1, 0, 0)
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
+                # RAJA: We additionally want to check for:
+                #       - Total Power of Blue Cells touched
+                #       - Number of Blue Cells touched by action
+                # NOTE: Don't know if same logic is applied to pieces
+                #       of 1's
                 power = board[action.cell].power
-                if power > 1:
-                    action_values[index] = (action, power)
-                else:
-                    adj = pos + dir
-                    adj_cell = board[adj]
-                    if adj_cell.color == color.opponent:
-                        action_values[index] = (action, adj_cell.power + 1)
-                    else:
-                        action_values[index] = (action, 0)
+                total_blue_pieces = 0
+                total_blue_power = 0
+                curr_pos = pos
+                for i in range(1, power+1):
+                    curr_pos = curr_pos + dir
+                    if curr_pos in board and board[curr_pos].color == color.opponent:
+                        total_blue_pieces += 1
+                        total_blue_power += board[curr_pos].power
+                # Now add these values into the tuple to sort
+                action_values[index] = (action, power, total_blue_power, (-1)*total_blue_pieces)
+
+                # # DUY'S ORIGINAL IMPLEMENTATION
+                # if power > 1:
+                #     action_values[index] = (action, power)
+                # else:
+                #     adj = pos + dir
+                #     adj_cell = board[adj]
+                #     if adj_cell.color == color.opponent:
+                #         action_values[index] = (action, adj_cell.power + 1)
+                #     else:
+                #         action_values[index] = (action, 0)
             # error case
             case _:
                 raise "move_ordering: Action not of any type"
         index += 1
 
     # sort the actions by their desirability, in decreasing order
-    action_values.sort(key=lambda tup: tup[1], reverse=True)
+    # action_values.sort(key=lambda tup: tup[1], reverse=True)
+    action_values.sort(key=lambda tup: (tup[2], tup[3], tup[1]), reverse=True)
     return map(lambda tup: tup[0], action_values)
