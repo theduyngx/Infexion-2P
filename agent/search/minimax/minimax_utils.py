@@ -210,6 +210,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
     ###
     # for action, _ in spawn_all:
     #     assert_action(action)
+    init_spread_len = len(spread_all)
     ###
 
     if spread_all:
@@ -232,14 +233,12 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
                             key = (curr_pos, dir)
                             if key in spread_all:
                                 del spread_all[key]
+                                action_num[key] = 1
+                                action_pow[key] = opponent.power
                             if key in action_num:
                                 action_num[key] += 1
-                            else:
-                                action_num[key] = 1
                             if key in action_pow:
                                 action_pow[key] += opponent.power
-                            else:
-                                action_pow[key] = opponent.power
 
         # sorting the actions (in decreasing order) by the following 3 priorities
         capture_sorted = sorted(
@@ -251,6 +250,14 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
             ),
             reverse=True
         )
+        ###
+        assert len(action_pow) == len(action_num)
+        if init_spread_len != len(capture_sorted) + len(spread_all):
+            print(init_spread_len)
+            print(len(capture_sorted))
+            print(len(spread_all))
+            assert init_spread_len == len(capture_sorted) + len(spread_all)
+        ###
 
     # for each action of the player's list of legal moves
     first = 0
@@ -258,9 +265,11 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
 
     ###
     if len(actions) - len(capture_sorted) != len(spread_all) + len(spawn_all):
-        print(last+1)                            # length of uncaptured list
-        print(len(spread_all) + len(spawn_all))  # supposed length of uncaptured list
-        print(len(actions), len(capture_sorted)) # length of total number of actions and captured list
+        print(len(spread_all), len(spawn_all))    # length of spread remaining and spawn all
+        print(len(actions), len(capture_sorted))  # length of total number of actions and captured list
+
+        print(len(spread_all) + len(spawn_all))   # supposed length of uncaptured list
+        print(len(actions) - len(capture_sorted)) # true length of uncaptured list
     ###
 
     captured_actions  : list[Action] = list(map(lambda tup: SpreadAction(tup[0][0], tup[0][1]), capture_sorted))
@@ -290,10 +299,10 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
                 uncaptured_actions[last] = action
                 last -= 1
     ###
-    for action in uncaptured_actions:
-        assert_action(action)
-    for action in captured_actions:
-        assert_action(action)
+    # for action in uncaptured_actions:
+    #     assert_action(action)
+    # for action in captured_actions:
+    #     assert_action(action)
     ###
 
     # add it all up
