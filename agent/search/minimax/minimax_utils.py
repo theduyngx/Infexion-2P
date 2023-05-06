@@ -17,11 +17,13 @@ Notes:
 
 from collections import defaultdict
 
-from ...game import Board, adjacent_positions, MIN_TOTAL_POWER, EMPTY_POWER
-from ..search_utils import get_legal_moves
 from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
                          MAX_TOTAL_POWER, BOARD_N
+from ...game import Board, adjacent_positions, \
+                    Clusters, create_clusters_color, \
+                    MIN_TOTAL_POWER, EMPTY_POWER
+from ..search_utils import get_legal_moves
 
 # Constant
 MAX_ENDGAME_NUM_OPPONENT: int = 2
@@ -32,16 +34,11 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
 
-    Parameters
-    ----------
-    board: Board
-        the board
-    color: PlayerColor
-        player's color
+    Args:
+        board: the board
+        color: player's color
 
-    Returns
-    -------
-    list[Action]
+    Returns:
         the list of actions for endgame (if list is empty then not endgame)
     """
     # list of actions on the condition that it has reached endgame
@@ -63,37 +60,44 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
         # endgame: if number of opponents less than a third of player's with mostly single-power
         endgame = opponent_num <= player_num // 3 and len(single_power) >= len(bool_single_power)-1
         if endgame:
-            for opponent in opponents:
-                # if piece is stacked, then it must be cleared out, otherwise this isn't endgame
-                stacked = opponent.power > 1
-                cleared = not stacked
 
-                # for each direction, get the same direction ranges
-                for dir in HexDir:
-                    ranges = [range(1, BOARD_N//2 + 1), range(-1, -BOARD_N//2 - 1, -1)]
-                    for r in ranges:
-                        curr_pos = opponent.pos
-
-                        # for each cell in said direction
-                        for s in r:
-                            curr_pos -= dir
-                            cell = board[curr_pos]
-                            # make sure that it is not an empty cell or opponent's cell
-                            if cell.power == EMPTY_POWER or cell.color == color.opponent:
-                                continue
-                            # append to actions if cell can reach the opponent
-                            if cell.power >= abs(s):
-                                cleared = True
-                                key = (curr_pos, dir)
-                                if key in action_capture:
-                                    action_capture[key] += 1
-                                else:
-                                    action_capture[key] = 1
-                                if stacked:
-                                    stacked_capture[key] = 1
-                # if stacked opponent cannot be cleared, then it isn't endgame
-                if not cleared:
+            # make sure that all clusters of opponent must be of size 2 or lower
+            opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
+            for cluster in opponent_clusters:
+                if len(cluster) > 2:
                     return []
+                for opponent in cluster:
+                    # if piece is stacked, then it must be cleared out, otherwise this isn't endgame
+                    stacked = opponent.power > 1
+                    cleared = not stacked
+
+                    # for each direction, get the same direction ranges
+                    for dir in HexDir:
+                        ranges = [range(1, BOARD_N//2 + 1), range(-1, -BOARD_N//2 - 1, -1)]
+                        for r in ranges:
+                            curr_pos = opponent.pos
+
+                            # for each cell in said direction
+                            for s in r:
+                                curr_pos -= dir
+                                cell = board[curr_pos]
+                                # make sure that it is not an empty cell or opponent's cell
+                                if cell.power == EMPTY_POWER or cell.color == color.opponent:
+                                    continue
+                                # append to actions if cell can reach the opponent and its power at least
+                                # is equal to the opponent's cluster size
+                                if cell.power >= abs(s) and cell.power >= len(cluster):
+                                    cleared = True
+                                    key = (curr_pos, dir)
+                                    if key in action_capture:
+                                        action_capture[key] += 1
+                                    else:
+                                        action_capture[key] = 1
+                                    if stacked:
+                                        stacked_capture[key] = 1
+                    # if stacked opponent cannot be cleared, then it isn't endgame
+                    if not cleared:
+                        return []
 
         # if there is a stacked opponent, then we update number of captures in captured dict
         if stacked_capture:
@@ -129,24 +133,15 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     Optimizations made are to reduce the number of legal moves had to be generated in minimax
     tree.
 
-    This includes endgame detection and ignoring specific moves based on domain knowledge.
-    However, in the case when player is overwhelmed, then no optimization is set.
+    Args:
+        board : specified board
+        color : specified player's color
+        full  : `True` to get the full list of legal moves, or `False` to get the reduced list
+                of all possible legal actions
 
-    Parameters
-    ----------
-    board: Board
-        specified board
-    color: PlayerColor
-        specified player's color
-    full: bool
-        `True` to get the full list of legal moves, or `False` to get the reduced list
-        of all possible legal actions
-
-    Returns
-    -------
-    list[Action]
-        list of all actions that could be applied to board, and
-        boolean indicating whether endgame has been reached
+    Returns:
+        * list of all actions that could be applied to board,
+        * boolean indicating whether endgame has been reached
     """
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
     actions: list[Action] = []
@@ -199,29 +194,26 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]):
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
 
-    Parameters
-    ----------
-    board: Board
-        the board
-    color: PlayerColor
-        player's color to have their legal moves ordered by probabilistic desirability
-    actions: list[Action]
-        the list of legal actions for player
+    Args:
+        board   : the board
+        color   : player's color to have their legal moves ordered by probabilistic desirability
+        actions : the list of legal actions for player
 
-    Returns
-    -------
-    list[Action]
+    Returns:
         the ordered list of actions
     """
     # for each action of the player's list of legal moves
-    # FORMAT: (Action, total power of captured blues, total num pieces of blues, red_power)
-    action_values: list[tuple[Action, int, int, int]] = [(None, 0, 0, 0)] * len(actions)
     index = 0
+    action_values: list[tuple[Action, int, int, int]] = [(None, # Action
+                                                          0,    # total power captured
+                                                          0,    # total number of captured
+                                                          0     # player's piece power
+                                                          )] * len(actions)
     for action in actions:
         match action:
             # spawn means adding their power by 1

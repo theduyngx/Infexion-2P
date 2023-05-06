@@ -21,14 +21,10 @@ def evaluate(board: Board) -> float:
     the better it is for the BLUE player. In other words, it is a zero-sum evaluation function,
     suitably applied to the zero-sum Infexion game.
 
-    Parameters
-    ----------
-    board: Board
-        current state of board
+    Args:
+        board: current state of board
 
-    Returns
-    -------
-    float
+    Returns:
         the evaluated value of the board
     """
     data: EvaluateData = get_evaluate_data(board)
