@@ -20,8 +20,16 @@ def evaluate(board: Board) -> float:
     more 'negative' the evaluated value, the worse it is for the RED player and, conversely,
     the better it is for the BLUE player. In other words, it is a zero-sum evaluation function,
     suitably applied to the zero-sum Infexion game.
-    @param board : current state of board
-    @return      : the evaluated value of the board
+
+    Parameters
+    ----------
+    board: Board
+        current state of board
+
+    Returns
+    -------
+    float
+        the evaluated value of the board
     """
     data: EvaluateData = get_evaluate_data(board)
     if data.immediate:

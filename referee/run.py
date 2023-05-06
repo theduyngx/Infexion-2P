@@ -26,9 +26,18 @@ async def run_game(players: list[Player],
                    ) -> Player | None:
     """
     Run a game, yielding event handler generators over the game updates.
-    @param players        : the players list
-    @param event_handlers : event handler to handle the event-driven game
-    @return               : the winning player (interface) or 'None' if drawn.
+
+    Parameters
+    ----------
+    players:
+        the players list
+    event_handlers:
+        event handler to handle the event-driven game
+
+    Returns
+    -------
+    Player | None
+        the winning player (interface) or 'None' if drawn.
     """
 
     async def _update_handlers(handlers: list[AsyncGenerator | None], update: GameUpdate | None):
@@ -55,8 +64,16 @@ async def run_game(players: list[Player],
 async def game_commentator(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts game updates and provides some simple commentary.
-    @param stream : the log stream
-    @return       : asynchronous interception
+
+    Parameters
+    ----------
+    stream: str
+        the log stream
+
+    Returns
+    -------
+    AsyncGenerator
+        asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -85,15 +102,23 @@ async def game_event_logger(stream: LogStream) -> AsyncGenerator:
     Game events are logged as TSVs (tab-separated values), one per line, with
     the following format:
 
-    <time>\t<actor>\t<event>[\t<param_k>]*
+    .. math:: <time>\t<actor>\t<event>[\t<param_k>]*
 
-    Where: <time>     is the wall clock time since the game started (seconds).
-           <actor>    is either "referee" or the player colour.
-           <event>    is the event name.
-           <param_k>  k'th event argument (if applicable).
+    Where:
+        - <time>     is the wall clock time since the game started (seconds).
+        - <actor>    is either "referee" or the player colour.
+        - <event>    is the event name.
+        - <param_k>  k'th event argument (if applicable).
 
-    @param stream : log stream
-    @return       : asynchronous interception
+    Parameters
+    ----------
+    stream: LogStream
+        log stream
+
+    Returns
+    -------
+    AsyncGenerator
+        asynchronous interception
     """
     start_time = time()
 
@@ -134,8 +159,16 @@ async def game_event_logger(stream: LogStream) -> AsyncGenerator:
 async def game_delay(delay: float) -> AsyncGenerator:
     """
     Intercepts board updates and delays the game for a given amount of time.
-    @param delay : delay time
-    @return      : asynchronous interception
+
+    Parameters
+    ----------
+    delay: float
+        delay time
+
+    Returns
+    -------
+    AsyncGenerator
+        asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -147,8 +180,16 @@ async def game_delay(delay: float) -> AsyncGenerator:
 async def game_user_wait(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts board updates and waits for user input before continuing.
-    @param stream : log stream
-    @return       : asynchronous interception
+
+    Parameters
+    ----------
+    stream: str
+        log stream
+
+    Returns
+    -------
+    AsyncGenerator
+        asynchronous interception
     """
     while True:
         update: GameUpdate = yield
@@ -166,11 +207,22 @@ async def output_board_updates(stream      : LogStream,
     """
     Intercepts board updates and prints the new board state in the output
     stream. The board is formatted using the given options.
-    @param stream      : log stream
-    @param use_color   : whether ansi color is applied
-    @param use_unicode : whether unicode is used
-    @param width       : the width of log printing
-    @return            : asynchronous interception
+
+    Parameters
+    ----------
+    stream: LogStream
+        log stream
+    use_color: bool
+        whether ansi color is applied
+    use_unicode: bool
+         whether unicode is used
+    width: int
+        the width of log printing
+
+    Returns
+    -------
+    AsyncGenerator
+        asynchronous interception
     """
     while True:
         update: GameUpdate = yield

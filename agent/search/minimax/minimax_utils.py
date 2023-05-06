@@ -31,11 +31,18 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
-    @param board : the board
-    @param color : player's color
-    @return      : the list of actions for endgame (if list is empty then not endgame),
-                   the player's total power (for reusing),
-                   the opponent's total power (for reusing)
+
+    Parameters
+    ----------
+    board: Board
+        the board
+    color: PlayerColor
+        player's color
+
+    Returns
+    -------
+    list[Action]
+        the list of actions for endgame (if list is empty then not endgame)
     """
     # list of actions on the condition that it has reached endgame
     actions: list[Action] = []
@@ -120,13 +127,26 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
     Optimizations made are to reduce the number of legal moves had to be generated in minimax
-    tree. This includes endgame detection and ignoring specific moves based on domain knowledge.
+    tree.
+
+    This includes endgame detection and ignoring specific moves based on domain knowledge.
     However, in the case when player is overwhelmed, then no optimization is set.
-    @param board  : specified board
-    @param color  : specified player's color
-    @param full   : to get the full list of legal moves if true, or reduced list if otherwise
-    @return       : list of all actions that could be applied to board, and
-                    boolean indicating whether endgame has been reached
+
+    Parameters
+    ----------
+    board: Board
+        specified board
+    color: PlayerColor
+        specified player's color
+    full: bool
+        `True` to get the full list of legal moves, or `False` to get the reduced list
+        of all possible legal actions
+
+    Returns
+    -------
+    list[Action]
+        list of all actions that could be applied to board, and
+        boolean indicating whether endgame has been reached
     """
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible
     actions: list[Action] = []
@@ -183,10 +203,20 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]):
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
-    @param board   : the board
-    @param color   : player's color to have their legal moves ordered by probabilistic desirability
-    @param actions : the list of legal actions for player
-    @return        : the ordered list of actions, in map format (to reduce list conversion overhead)
+
+    Parameters
+    ----------
+    board: Board
+        the board
+    color: PlayerColor
+        player's color to have their legal moves ordered by probabilistic desirability
+    actions: list[Action]
+        the list of legal actions for player
+
+    Returns
+    -------
+    list[Action]
+        the ordered list of actions
     """
     # for each action of the player's list of legal moves
     # FORMAT: (Action, total power of captured blues, total num pieces of blues, red_power)

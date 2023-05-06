@@ -20,10 +20,13 @@ def get_legal_moves(board: Board, color: PlayerColor) -> list[Action]:
     moves had to be generated in the minimax tree. This includes endgame detection and ignoring
     specific moves based on domain knowledge of the game.
     However, in the case when player is overwhelmed, then full will be forcefully set to True.
-    @param board  : specified board
-    @param color  : specified player's color
-    @return       : list of all actions that could be applied to board, and
-                    boolean indicating whether endgame has been reached
+
+    Parameters:
+        board : specified board
+        color : specified player's color
+    Returns:
+        list of all actions that could be applied to board,
+        and boolean indicating whether endgame has been reached
     """
 
     # if the actual player side is being overwhelmed, forcefully get all legal moves possible

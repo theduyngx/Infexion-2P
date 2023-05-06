@@ -7,8 +7,8 @@ Purpose:
     for the MCTS nodes.
 
 Notes:
-This is a max heap structure which sorts list of nodes with priority being the best UCT score.
-Since these scores are constantly being mutated, a mutable heap structure is therefore needed.
+    This is a max heap structure which sorts list of nodes with priority being the best UCT score.
+    Since these scores are constantly being mutated, a mutable heap structure is therefore needed.
 """
 
 import heapq
@@ -20,6 +20,11 @@ NEW     = 'new'
 
 
 class MutableHeap:
+    """
+    Mutable heap object representing a max-heap with values of its entries mutable.
+    The entries of the mutable heap is the node of the Monte Carlo tree.
+    """
+
     def __init__(self):
         self.entry_finder = {}
         self.pq = []

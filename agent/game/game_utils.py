@@ -16,7 +16,11 @@ from referee.game import HexPos, HexDir, SpawnAction, SpreadAction
 def assert_action(action):
     """
     Asserting that a given object is indeed a proper Action.
-    @param action : the given supposed action
+
+    Parameters
+    ----------
+    action: Action
+        the given supposed action
     """
     match action:
         case SpawnAction(_):
@@ -32,7 +36,15 @@ def assert_action(action):
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
     """
     Get all adjacent positions to the specified one.
-    @param pos : the specified position
-    @return    : list of 6 of its adjacent positions
+
+    Parameters
+    ----------
+    pos: HexPos
+        the specified position
+
+    Returns
+    -------
+    list[HexPos]
+        list of 6 of its adjacent positions
     """
     return [pos + dir for dir in HexDir]

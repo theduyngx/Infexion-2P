@@ -71,8 +71,16 @@ class EvaluateData:
 def get_evaluate_data(board: Board) -> EvaluateData:
     """
     Get the data required for board evaluation.
-    @param board : current state of board
-    @return      : the evaluated value of the board
+
+    Parameters
+    ----------
+    board: Board
+        current state of board
+
+    Returns
+    -------
+    EvaluateData
+        the object containing all data relevant to evaluating a board's state
     """
     # number of pieces and total power evaluation data
     sign      = 1 if PLAYER_COLOR == PlayerColor.RED else -1

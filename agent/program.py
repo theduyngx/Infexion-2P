@@ -6,7 +6,10 @@ Purpose:
     The agent program for the game.
 
 Notes:
-COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
+    COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent. When
+    mentioning the rules by referee, it is important to note the following functions:
+    ``action`` to return an action that the agent decides to perform, and
+    ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
 from .search import search
@@ -18,6 +21,9 @@ from .utils import *
 class Agent:
     """
     Agent class representing the agent player.
+    Attributes:
+        _color: agent's color, indicating their side
+        _board: the board representation that agent uses to keep track of game's state
     """
     __slots__ = [
         "_color",
@@ -27,8 +33,13 @@ class Agent:
     def __init__(self, color: PlayerColor, **referee: dict):
         """
         Initialise the agent.
-        @param color   : the player's color
-        @param referee : the referee
+
+        Parameters
+        ----------
+        color: PlayerColor
+            the player's color
+        referee: dict
+            the referee containing specific important information of the game
         """
         print_referee(referee)
         self._color = color
@@ -36,16 +47,29 @@ class Agent:
 
     def get_color(self) -> PlayerColor:
         """
-        Non-property getter to keep the color of the Agent final.
-        @return: player's color
+        Non-property getter to keep the color of the ``Agent`` final.
+
+        Returns
+        -------
+        PlayerColor
+            player's color
         """
         return self._color
 
     def action(self, **referee: dict) -> Action:
         """
-        Return the next action to take by the agent.
-        @param referee : the referee
-        @return        : the action to be taken next
+        Return the next action to take by the agent. Used by referee to apply the action to
+        the game's board.
+
+        Parameters
+        ----------
+        referee: dict
+            the referee
+
+        Returns
+        -------
+        Action
+            the action to be taken next
         """
         board = self._board
         color = self._color
@@ -66,10 +90,17 @@ class Agent:
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
-        Update the agent with the last player's action.
-        @param color   : the player's color
-        @param action  : action taken by agent
-        @param referee : the referee
+        Update the agent with the last player's action. Called by referee to signal the
+        turn of an agent (both when it is not, and it is their turn).
+
+        Parameters
+        ----------
+        color: PlayerColor
+            the player's color
+        action: Action
+            the action taken by agent
+        referee: dict
+            the referee
         """
         assert referee
         self._board.apply_action(action)

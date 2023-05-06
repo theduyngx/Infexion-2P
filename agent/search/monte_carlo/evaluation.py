@@ -22,8 +22,16 @@ def mc_evaluate(board: Board) -> float:
     is not a zero-sum evaluation function, but an evaluation function for the simulation. The
     evaluation is normalized, meaning if it is a win for the player, it will be 1, and if it is
     definite loss then it will be 0. Any value in between shows the desirability of the state.
-    @param board : current state of board
-    @return      : the evaluated value of the board
+
+    Parameters
+    ----------
+    board: Board
+        current state of board
+
+    Returns
+    -------
+    float
+        the evaluated value of the board
     """
     data: EvaluateData = get_evaluate_data(board)
     if data.immediate:

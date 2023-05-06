@@ -6,9 +6,9 @@ Purpose:
     Utility functions for program.
 
 Notes:
-Utility functions include printing the referee data, including time and space remaining available
-for a specific game-playing agent (in which it cannot exceed), and applying ansi color to text for
-beautifying printing.
+    Utility functions include printing the referee data, including time and space remaining available
+    for a specific game-playing agent (in which it cannot exceed), and applying ansi color to text for
+    beautifying printing.
 """
 
 from referee.game import PlayerColor
@@ -16,9 +16,12 @@ from referee.game import PlayerColor
 
 def print_referee(referee: dict):
     """
-    Print referee data. Space remaining sometimes works, sometimes doesn't. Though most of the time
-    it does work, so I suppose it's fine.
-    @param referee : the referee
+    Print referee data.
+
+    Parameters
+    ----------
+    referee: dict
+        the referee
     """
     print("--------------------------------------")
     print("Time remaining  :", referee["time_remaining"])
@@ -29,9 +32,18 @@ def print_referee(referee: dict):
 def ansi_color(color: PlayerColor, ansi=True) -> str:
     """
     Apply ansi formatting to player's color.
-    @param color : player's color
-    @param ansi  : whether to apply ansi
-    @return      : formatted string
+
+    Parameters
+    ----------
+    color: PlayerColor
+        player's color
+    ansi: bool
+        whether to apply ansi
+
+    Returns
+    -------
+    str
+        formatted string
     """
     color_print = color
     if ansi:

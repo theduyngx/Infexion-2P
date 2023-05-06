@@ -6,8 +6,8 @@ Purpose:
     Includes all testing agent for the current agent to play against.
 
 Notes:
-These agents range from simply picking a move randomly that's legal for them, to a greedy approach,
-to more complex agents that are capable of making more complex moves.
+    These agents range from simply picking a move randomly that's legal for them, to a greedy
+    approach, to more complex agents that are capable of making more complex moves.
 """
 
 from random import randint
@@ -20,9 +20,18 @@ from .search_utils import get_legal_moves
 def random_move(board: Board, color: PlayerColor) -> Action:
     """
     Agent's move approach where it picks any random move from all of its possible move set.
-    @param board : the current state of the board
-    @param color : the agent's color (it is its turn)
-    @return      : the random action to be taken by agent
+
+    Parameters
+    ----------
+    board: Board
+        the current state of the board
+    color: PlayerColor
+        the agent's color (it is its turn)
+
+    Returns
+    -------
+    Action
+        the random action to be taken by agent
     """
     actions = get_legal_moves(board, color)
     random_index: int = randint(0, len(actions)-1)
@@ -34,9 +43,18 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     Agent's move approach using greedy algorithm. The agent will look for which spread move gives
     it the most power, and if all spread moves lead to no power decrease of opponent, it will
     randomly spawn if possible, otherwise randomly spread.
-    @param board : the board
-    @param color : the agent's color turn
-    @return      : the action to be taken by agent
+
+    Parameters
+    ----------
+    board: Board
+        the board
+    color: PlayerColor
+        the agent's color turn
+
+    Returns
+    -------
+    Action
+        the action to be taken by agent
     """
     actions = get_legal_moves(board, color)
     spawns: list[Action] = []
@@ -67,9 +85,18 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
 def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     """
     Depth of 2, full evaluation minimax agent.
-    @param board : given board
-    @param color : player's color
-    @return      : the action to be taken
+
+    Parameters
+    ----------
+    board: Board
+        given board
+    color: PlayerColor
+        player's color
+
+    Returns
+    -------
+    Action
+        the action to be taken
     """
     from agent.search.minimax import minimax
     return minimax(board, 2, color, True)
@@ -78,9 +105,18 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
 def mcts_move(board: Board, color: PlayerColor) -> Action:
     """
     Monte Carlo Tree search agent move approach.
-    @param board : given board
-    @param color : player's color
-    @return      : the action to be taken
+
+    Parameters
+    ----------
+    board: Board
+        given board
+    color: PlayerColor
+        player's color
+
+    Returns
+    -------
+    Action
+        the action to be taken
     """
     from agent.search.monte_carlo import monte_carlo
     return monte_carlo(board, color)
