@@ -3,7 +3,8 @@ Module:
     ``program.py``
 
 Purpose:
-    The agent program for the game.
+    The agent program for the game. This will be used by the ``referee`` and will act under
+    the rules exacted by referee.
 
 Notes:
     COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent. When
@@ -60,6 +61,7 @@ class Agent:
         """
         Return the next action to take by the agent. Used by referee to apply the action to
         the game's board.
+<<<<<<< HEAD
 
         Parameters
         ----------
@@ -82,9 +84,10 @@ class Agent:
                 return search(board, color)
             case PlayerColor.BLUE:
                 # return mcts_move(board, color)
-                # return minimax_shallow(board, color)
+                # return search(board, color)
+                return minimax_shallow(board, color)
                 # return random_move(board, color)
-                return greedy_move(board, color)
+                # return greedy_move(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
 

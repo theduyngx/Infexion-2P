@@ -8,15 +8,19 @@ Purpose:
 Notes:
 """
 
+import time
+
 from referee.game import Action, PlayerColor
-from agent.game import Board
-from agent.search import get_legal_moves
+from ...game import Board
+from ...search import get_legal_moves
 from ..minimax import move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode
 
 # Constants
-LIMIT: int = 20
+LIMIT       : int = 60
+TIME_LIMIT  : float = 4
+CHILD_LIMIT : int = 20
 
 
 def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
@@ -30,7 +34,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     turn_color: PlayerColor
         the agent's color
     limit: int
-        the limit to stop the search
+        the number of operations limit to stop the search
 
     Returns
     -------
@@ -46,8 +50,10 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     initial_node = MonteCarloNode(None, board)
     discovered[initial_node.hash_val] = 1
     open_min.add_task(initial_node)
+    st = time.time()
+    et = time.time()
 
-    while operation < limit and open_min.pq:
+    while et-st <= TIME_LIMIT and operation < limit and open_min.pq:
         curr_state = open_min.pop_task()
         del discovered[curr_state.hash_val]
 
@@ -69,26 +75,28 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
         # Then get all the neighbors associated with the current node
         legal_moves = get_legal_moves(board, board.turn_color)
         ordered_map = move_ordering(board, board.turn_color, legal_moves)
-        for neighbor in ordered_map:
-            board.apply_action(neighbor, concrete=False)
+        for i in range(len(ordered_map)):
+            neighbor: Action = ordered_map[i]
             curr_neighbor: MonteCarloNode = MonteCarloNode(neighbor, board, curr_state)
             # Only add to the node if the board has not yet been discovered
             if curr_neighbor.hash_val not in discovered:
                 curr_neighbor.evaluate_node(board)
                 new_evaluation = curr_neighbor.evaluation
-                open_min.add_task(curr_neighbor, new_evaluation*multiplier)
+                open_min.add_task(curr_neighbor, new_evaluation * multiplier)
                 discovered[curr_neighbor.hash_val] = 1
             board.undo_action()
 
         # simulations and backpropagation (only when this isn't the first node)
         if operation > 0:
-            curr_state.quick_simulate(board, board.turn_color)
+            curr_state.quick_simulate(board)
             curr_state.back_propagate(board)
 
         # Undo the actions for the board
         for i in range(num_moves):
             board.undo_action()
         operation += 1
+        et = time.time()
 
     # go back to the initial node and get the child node with the highest UCT
-    return sorted(initial_node.children, key=lambda x: x.uct, reverse=True)[0]
+    picked_action = sorted(initial_node.children, key=lambda x: x.uct, reverse=True)[0].action
+    return picked_action

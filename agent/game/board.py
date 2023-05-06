@@ -183,7 +183,7 @@ class Board:
         int
             hashed value of state
         """
-        return hash(self._state)
+        return hash(frozenset(self.get_cells()))
 
     def __str__(self) -> str:
         """

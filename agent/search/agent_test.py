@@ -11,8 +11,8 @@ Notes:
 """
 
 from random import randint
-
-from referee.game import Action, PlayerColor, SpawnAction, SpreadAction
+# ....
+from referee.game import Action, PlayerColor, SpawnAction, SpreadAction, HexPos
 from ..game import Board
 from .search_utils import get_legal_moves
 
@@ -119,4 +119,6 @@ def mcts_move(board: Board, color: PlayerColor) -> Action:
         the action to be taken
     """
     from agent.search.monte_carlo import monte_carlo
-    return monte_carlo(board, color)
+    if board.turn_count > 0:
+        return monte_carlo(board, color)
+    return SpawnAction(HexPos(3, 3))
