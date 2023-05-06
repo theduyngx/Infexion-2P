@@ -73,14 +73,9 @@ def get_evaluate_data(board: Board) -> EvaluateData:
     """
     Get the data required for board evaluation.
 
-    Parameters
-    ----------
-    board: Board
-        current state of board
-
-    Returns
-    -------
-    EvaluateData
+    Args:
+        board: current state of board
+    Returns:
         the object containing all data relevant to evaluating a board's state
     """
     # number of pieces and total power evaluation data
@@ -106,7 +101,7 @@ def get_evaluate_data(board: Board) -> EvaluateData:
 
     # clusters and dominance evaluation data
     clusters = create_clusters(board)
-    for cluster in clusters.values():
+    for cluster in clusters:
 
         # player's cluster
         if cluster.color == PLAYER_COLOR:

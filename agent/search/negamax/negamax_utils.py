@@ -1,14 +1,14 @@
 """
 Module:
-    ``minimax_utils.py``
+    ``negamax_utils.py``
 
 Purpose:
-    Utility functions for minimax algorithm, which includes optimization for getting all
+    Utility functions for Negamax algorithm, which includes optimization for getting all
     legal moves for a specific agent and other search optimization functionalities such
     as move ordering and dynamic move reductions.
 
 Notes:
-    Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if
+    Get all legal moves is optimized for the Negamax algorithm. It allows agent to choose full, if
     agent would like to get every possible legal move that's available for it, or reduced, if agent
     would like to ignore specific actions that are considered `quiet`, viz. not having significant
     effects. Move reduction also entails endgame detection, where the desirable moves become more
@@ -29,7 +29,7 @@ from ..search_utils import get_legal_moves
 MAX_ENDGAME_NUM_OPPONENT: int = 2
 
 
-def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
+def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
@@ -64,28 +64,31 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
             # make sure that all clusters of opponent must be of size 2 or lower
             opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
             for cluster in opponent_clusters:
+                ###
+                # if debug:
+                #     print(len(cluster))
+                ###
                 if len(cluster) > 2:
                     return []
                 for opponent in cluster:
-                    # if piece is stacked, then it must be cleared out, otherwise this isn't endgame
+                    # if piece is stacked, then it must be cleared out, otherwise not endgame
                     stacked = opponent.power > 1
                     cleared = not stacked
 
                     # for each direction, get the same direction ranges
                     for dir in HexDir:
-                        ranges = [range(1, BOARD_N//2 + 1), range(-1, -BOARD_N//2 - 1, -1)]
+                        ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
                         for r in ranges:
-                            curr_pos = opponent.pos
 
                             # for each cell in said direction
                             for s in r:
-                                curr_pos -= dir
+                                curr_pos = opponent.pos - dir * s
                                 cell = board[curr_pos]
-                                # make sure that it is not an empty cell or opponent's cell
-                                if cell.power == EMPTY_POWER or cell.color == color.opponent:
+                                # make sure that it has to be the player's cell
+                                if cell.color != color:
                                     continue
-                                # append to actions if cell can reach the opponent and its power at least
-                                # is equal to the opponent's cluster size
+                                # append to actions if cell can reach the opponent and its power
+                                # at least is equal to the opponent's cluster size
                                 if cell.power >= abs(s) and cell.power >= len(cluster):
                                     cleared = True
                                     key = (curr_pos, dir)
@@ -110,6 +113,18 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
         else:
             return []
 
+        ###
+        if debug:
+            if action_capture:
+                print("ACTION CAPTURE:")
+                for (pos, dir), val in action_capture.items():
+                    print(pos, dir, val)
+            if stacked_capture:
+                print("STACKED CAPTURE:")
+                for (pos, dir), val in stacked_capture.items():
+                    print(pos, dir, val)
+        ###
+
         # sort the actions by priority 1 - number of captures, and 2 - piece power
         action_sorted = sorted(final.items(),
                                key=lambda item: (item[1], board[item[0][0]].power),
@@ -117,20 +132,27 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
         (pos, dir), max_capture = action_sorted[0]
         max_power = board[pos].power
 
-        # return only the list of actions that are most desirable (equal highest number of
-        # captures and equal highest power given the number of captures)
-        for (pos, dir), value in action_sorted:
-            if value < max_capture or board[pos].power < max_power:
-                break
-            actions.append(SpreadAction(pos, dir))
-        assert actions
+        ###
+        if debug:
+            print("SORTED ACTIONS:")
+            for (pos, dir), val in action_sorted:
+                print(pos, dir, val)
+        ###
+
+        # # return only the list of actions that are most desirable (equal highest number of
+        # # captures and equal highest power given the number of captures)
+        # for (pos, dir), value in action_sorted:
+        #     if value < max_capture or board[pos].power < max_power:
+        #         break
+        #     actions.append(SpreadAction(pos, dir))
+        # assert actions
     return actions
 
 
-def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
+def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug=False) -> (list[Action], bool):
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
-    Optimizations made are to reduce the number of legal moves had to be generated in minimax
+    Optimizations made are to reduce the number of legal moves had to be generated in Negamax
     tree.
 
     Args:
@@ -149,14 +171,16 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     opponent_power = board.color_power(color.opponent)
     total_power    = player_power + opponent_power
     if not full:
-        if color == board.true_turn:
+        if player_power == EMPTY_POWER:
+            full = True
+        elif color == board.true_turn:
             player_overwhelmed = player_power <= opponent_power // 3 and \
                                  total_power >= MIN_TOTAL_POWER
             full = player_overwhelmed
 
     # endgame check
     if not full:
-        actions = check_endgame(board, color)
+        actions = check_endgame(board, color, debug)
         if len(actions) > 0:
             return actions, True
 
@@ -207,13 +231,13 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
     Returns:
         the ordered list of actions
     """
-    # for each action of the player's list of legal moves
-    index = 0
     action_values: list[tuple[Action, int, int, int]] = [(None, # Action
                                                           0,    # total power captured
                                                           0,    # total number of captured
                                                           0     # player's piece power
                                                           )] * len(actions)
+    # for each action of the player's list of legal moves
+    index = 0
     for action in actions:
         match action:
             # spawn means adding their power by 1
@@ -224,9 +248,8 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
                 power = board[action.cell].power
                 total_blue_pieces = 0
                 total_blue_power  = 0
-                curr_pos = pos
-                for _ in range(power):
-                    curr_pos += dir
+                for s in range(power):
+                    curr_pos = pos + dir * s
                     if curr_pos in board and board[curr_pos].color == color.opponent:
                         total_blue_pieces += 1
                         total_blue_power  += board[curr_pos].power

@@ -97,7 +97,7 @@ class Board:
         "_turn_count"
     ]
 
-    def __init__(self, initial_state: dict[int, CellState] = None):
+    def __init__(self, initial_state: dict[HexPos, CellState] = None):
         """
         Board constructor. The attribute state has key being the hashed value of the hex position of
         the cell, and the value being the cell and its state.
@@ -109,17 +109,16 @@ class Board:
                 * the value is the state of the cell at specified position
         """
         # the state uses dense representation, which also stores the empty cells
-        self._state: dict[int, CellState] = defaultdict()
+        self._state: dict[HexPos, CellState] = defaultdict()
         if initial_state is None:
             initial_state = {}
         for r in range(BOARD_N):
             for q in range(BOARD_N):
                 pos = HexPos(r, q)
-                hash_pos = pos.__hash__()
-                if hash_pos not in initial_state:
-                    initial_state[hash_pos] = CellState(pos)
+                if pos not in initial_state:
+                    initial_state[pos] = CellState(pos)
                 else:
-                    assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
+                    assert initial_state[pos].power > EMPTY_POWER and initial_state[pos].color
 
         # other properties initialized
         self._state.update(initial_state)
@@ -137,17 +136,17 @@ class Board:
         Returns:
             cell's state
         """
-        return self._state[pos.__hash__()]
+        return self._state[pos]
 
-    def __setitem__(self, pos: HexPos, state: CellState):
+    def __setitem__(self, pos: HexPos, cell: CellState):
         """
         Add a new entry to state.
 
         Args:
-            pos   : the cell position
-            state : the state of the cell
+            pos  : the cell position
+            cell : the state of the cell
         """
-        self._state[pos.__hash__()] = state
+        self._state[pos] = cell
 
     def __contains__(self, pos: HexPos) -> bool:
         """
@@ -157,7 +156,7 @@ class Board:
         Returns:
             boolean indicating whether the position is occupied or not
         """
-        return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
+        return pos in self._state and self[pos].power > EMPTY_POWER
 
     def __hash__(self) -> int:
         """

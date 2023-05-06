@@ -12,11 +12,29 @@ Notes:
     ``action`` to return an action that the agent decides to perform, and
     ``turn`` which will be called as a signal for agent that it is their turn.
 """
-
+from referee.game import HexDir
 from .search import search
 from .search.agent_test import *
 from .game import Board
 from .utils import *
+
+
+actions = [SpawnAction(HexPos(3, 0)),
+           SpawnAction(HexPos(4, 5)),
+           SpawnAction(HexPos(6, 3)),
+           SpawnAction(HexPos(2, 0)),
+           SpreadAction(HexPos(4, 5), HexDir.UpLeft),
+           SpawnAction(HexPos(2, 2)),
+           SpawnAction(HexPos(4, 2)),
+           SpawnAction(HexPos(6, 6)),
+           SpreadAction(HexPos(3, 0), HexDir.DownLeft),
+           SpawnAction(HexPos(5, 3)),
+           SpreadAction(HexPos(5, 3), HexDir.UpRight),
+           SpawnAction(HexPos(2, 3)),
+           SpreadAction(HexPos(2, 3), HexDir.DownLeft),
+           SpreadAction(HexPos(1, 3), HexDir.UpLeft),
+           SpreadAction(HexPos(1, 1), HexDir.DownRight),
+           ]
 
 
 class Agent:
@@ -35,12 +53,9 @@ class Agent:
         """
         Initialise the agent.
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-        referee: dict
-            the referee containing specific important information of the game
+        Args:
+            color     : the player's color
+            **referee : the referee containing specific important information of the game
         """
         print_referee(referee)
         self._color = color
@@ -49,10 +64,7 @@ class Agent:
     def get_color(self) -> PlayerColor:
         """
         Non-property getter to keep the color of the ``Agent`` final.
-
-        Returns
-        -------
-        PlayerColor
+        Returns:
             player's color
         """
         return self._color
@@ -61,32 +73,33 @@ class Agent:
         """
         Return the next action to take by the agent. Used by referee to apply the action to
         the game's board.
-
-        Parameters
-        ----------
-        referee: dict
-            the referee
-
-        Returns
-        -------
-        Action
+        Args:
+            referee: the referee
+        Returns:
             the action to be taken next
         """
         board = self._board
         color = self._color
         color_print = ansi_color(color)
         print(f"{color_print} TURN:")
+
         # return search(board, color)
+        # print_referee(referee)
+        # return search(board, color)
+
         match color:
             case PlayerColor.RED:
                 print_referee(referee)
                 return search(board, color)
+
             case PlayerColor.BLUE:
                 # return mcts_move(board, color)
                 # return search(board, color)
-                return minimax_shallow(board, color)
+                # return minimax_shallow(board, color)
                 # return random_move(board, color)
-                # return greedy_move(board, color)
+                if actions:
+                    return actions.pop(0)
+                return greedy_move(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
 
@@ -95,14 +108,10 @@ class Agent:
         Update the agent with the last player's action. Called by referee to signal the
         turn of an agent (both when it is not, and it is their turn).
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-        action: Action
-            the action taken by agent
-        referee: dict
-            the referee
+        Args:
+            color   : the player's color
+            action  : the action taken by agent
+            referee : the referee
         """
         assert referee
         self._board.apply_action(action)

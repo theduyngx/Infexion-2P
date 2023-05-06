@@ -32,28 +32,22 @@ Said context of the state:
             always assured that a specific aspect being changed will necessarily always lead to a better
             result, but the general score deduced from all these factors will be the end-of-all.
 
-    -   IMPORTANT ADDITION:
-        There is indeed piece importance. Which is based on end-game detection: the less the number of
-        pieces of a specific player on the board, the more important their pieces become. However, it should
-        be noted that this only applies to the other side. As in, the other side now would want to focus on
-        capturing the pieces. For your side, you would perhaps want to populate the pieces instead.
-
 
 ---------------------------------------------------------------------------------------
 
 
 OPTIMIZATION FOR MINIMAX:
 
-1.  IMPORTANT: Endgame (✓)
+1.  Endgame quick play (✓)
     Speed up end game, probably will require a different evaluation function where it significantly emphasizes
     on the piece power that we can capture.
 
-2.  IMPORTANT: Weed out redundant moves (✓)
+2.  Weed out redundant moves (✓)
     There are lots of moves that can be considered equivalent as per domain knowledge (like spawning in the
     middle of nowhere here is the same as there). If we can, somehow in some way, weed these moves out of
     the picture, we can significantly speed up the process.
 
-3.  IMPORTANT: Instant win (✓)
+3.  Instant win (✓)
     Implement instant win (our real turn and we win immediately).
 
 4.  Correct over-reduced spawn actions (✓)
@@ -67,37 +61,26 @@ OPTIMIZATION FOR MINIMAX:
     ii.  Reverse number of captured pieces (meaning the less, the better)
     iii. The player's piece power
 
-6.  TRIVIAL: Reusing spawn-able cells:
-    When obtaining the list of possible actions, we're iterating through the entire board every single
-    time. However, on average, most cells remain spawn-able throughout. We can reuse by via apply_action
-    and undo_action, and by storing the spawn-able cells as a dictionary:
-
-    apply_action:
-        // note: action.cell is cell where action occurs (SpawnAction(cell, dir) kind of)
-        // mutation.cell is all the cells were the mutation spreads to
-        if action is spawn:
-            del spawns[action.cell]
-        else:
-            for mutation in action:
-                cell = mutation.cell
-                if cell in spawns:
-                    del spawns[cell]
-            add spawns[action.cell]
-
-    undo_action:
-        if action is spawn:
-            add spawns[action.cell]
-        else:
-            for mutation in action:
-                rollback to prev for each cell
-                if mutation.cell is empty cell:
-                    add spawns[cell]
-            del spawns[action.cell]
-
-7.  Reusing expanded / generated branches (hard)
+6.  Reusing expanded / generated branches (hard)
     We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
     the opponent makes said move and continue with the minimax search.
     Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
     On a likely chance that the branch is not yet pruned, we will be able to reuse an entire depth = 2 tree.
 
-8.  Transposition Tables and Board Symmetries (hard)
+7.  Transposition Tables and Board Symmetries (hard)
+
+8.  IMPORTANT: so far our endgame greedy approach is not yet perfected
+    What we need is to ensure that the cluster size that our player is attacking is smaller than the power
+    of our red piece. Otherwise, the greedy approach simply won't work.
+
+    Here is the requirement:
+    As like before, the player must be able to capture the stacked piece. That is the pre-requirement.
+    However, before even checking this, we can also check for the cluster size surrounding this stacked
+    opponent. The requirement is that for every adjacent position surrounding the stacked piece, there must
+    not be more than 1 adjacent ally:
+        num_adj = [pos + dir for dir in HexDir if board[pos + dir].color == color.opponent]
+        if num_adj > 1:
+            stop function
+
+    For even higher accuracy (but admittedly a lot more conservative), create the clusters and ensure that
+    all enemy clusters are of size 2 and cannot exceed this number.
