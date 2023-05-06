@@ -44,7 +44,30 @@ Said context of the state:
 
 OPTIMIZATION FOR MINIMAX:
 
-1.  Reusing spawn-able cells:
+1.  IMPORTANT: Endgame (✓)
+    Speed up end game, probably will require a different evaluation function where it significantly emphasizes
+    on the piece power that we can capture.
+
+2.  IMPORTANT: Weed out redundant moves (✓)
+    There are lots of moves that can be considered equivalent as per domain knowledge (like spawning in the
+    middle of nowhere here is the same as there). If we can, somehow in some way, weed these moves out of
+    the picture, we can significantly speed up the process.
+
+3.  IMPORTANT: Instant win (✓)
+    Implement instant win (our real turn and we win immediately).
+
+4.  Correct over-reduced spawn actions (✓)
+    Specifically, in the case where all player pieces are of power 1, then player-adjacent spawn should be
+    allowed.
+
+5.  Enhanced move ordering (✓)
+    In current state, move ordering should be smarter - The best moves are supposed to be ones that capture
+    the most stacked opponents. The ordering should be sorted in this order:
+    i.   Total power captured
+    ii.  Reverse number of captured pieces (meaning the less, the better)
+    iii. The player's piece power
+
+6.  TRIVIAL: Reusing spawn-able cells:
     When obtaining the list of possible actions, we're iterating through the entire board every single
     time. However, on average, most cells remain spawn-able throughout. We can reuse by via apply_action
     and undo_action, and by storing the spawn-able cells as a dictionary:
@@ -71,35 +94,10 @@ OPTIMIZATION FOR MINIMAX:
                     add spawns[cell]
             del spawns[action.cell]
 
-2.  Reusing expanded / generated branches (hard)
+7.  Reusing expanded / generated branches (hard)
     We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
     the opponent makes said move and continue with the minimax search.
     Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
     On a likely chance that the branch is not yet pruned, we will be able to reuse an entire depth = 2 tree.
 
-3.  Transposition Tables and Board Symmetries (hard)
-
-4.  IMPORTANT: Endgame (✓)
-    Speed up end game, probably will require a different evaluation function where it significantly emphasizes
-    on the piece power that we can capture.
-
-5.  IMPORTANT: Weed out redundant moves (✓)
-    There are lots of moves that can be considered equivalent as per domain knowledge (like spawning in the
-    middle of nowhere here is the same as there). If we can, somehow in some way, weed these moves out of
-    the picture, we can significantly speed up the process.
-
-6.  IMPORTANT: Instant win (✓)
-    Implement instant win (our real turn and we win immediately).
-
-7.  IMPORTANT: The spawn actions should not be reduced that much
-    Specifically, in the case where all player pieces are of power 1, then player-adjacent spawn should be
-    allowed.
-
-8.  IMPORTANT: Enhanced move ordering
-    In current state, move ordering should be smarter - The best moves are supposed to be ones that capture
-    the most stacked opponents. The ordering should be sorted in this order:
-    i.   Total power captured
-    ii.  Reverse number of captured pieces (meaning the less, the better)
-    iii. The player's piece power
-
-9.  NOTE: Be careful of new behaviors in Infexion V1.1
+8.  Transposition Tables and Board Symmetries (hard)

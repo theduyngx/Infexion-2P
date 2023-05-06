@@ -11,6 +11,7 @@ Notes:
     and their clusters. The information on clusters will be used for dominance factor data. This
     is especially significant since much of Infexion is about dominating the opponent.
 """
+
 from dataclasses import dataclass
 
 from referee.game import PlayerColor

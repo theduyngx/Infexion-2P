@@ -61,7 +61,6 @@ class Agent:
         """
         Return the next action to take by the agent. Used by referee to apply the action to
         the game's board.
-<<<<<<< HEAD
 
         Parameters
         ----------

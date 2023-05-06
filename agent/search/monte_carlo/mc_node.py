@@ -72,12 +72,15 @@ class MonteCarloNode:
         self.uct: float = 0
         self.visited: int = 0
         self.action: Action = action
+
         # Need to evaluate the board first so that it can be pushed into priority queue
         self.evaluation: int = 0
         self.parent: MonteCarloNode = parent
+
         # Make sure to add a child to children list of the parent
         if parent is not None:
             self.parent.children.append(self)
+
         # Need this when recalculating UCT
         self.children: list[MonteCarloNode] = []
         self.hash_val = board.__hash__()
