@@ -64,8 +64,8 @@ class Agent:
                 return mcts_move(board, color)
             case PlayerColor.BLUE:
                 # return mcts_move(board, color)
-                return search(board, color)
-                # return minimax_shallow(board, color)
+                # return search(board, color)
+                return minimax_shallow(board, color)
                 # return random_move(board, color)
                 # return greedy_move(board, color)
             case _:

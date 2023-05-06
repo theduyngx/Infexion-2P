@@ -17,9 +17,9 @@ from .mc_node import MonteCarloNode
 import time
 
 # Constants
-LIMIT: int = 30
+LIMIT: int = 60
 TIME_LIMIT: float = 4
-CHILD_LIMIT: int = 10
+CHILD_LIMIT: int = 20
 
 
 def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
@@ -35,7 +35,7 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     st = time.time()
     et = time.time()
 
-    while et-st <= TIME_LIMIT and open_min.pq:
+    while et-st <= TIME_LIMIT and operation < LIMIT and open_min.pq:
     # while operation < limit and open_min.pq:
         curr_state = open_min.pop_task()
         del discovered[curr_state.hash_val]
@@ -59,7 +59,8 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
         # Then get all the neighbors associated with the current node
         legal_moves = get_legal_moves(board, board.turn_color)
         ordered_map = move_ordering(board, board.turn_color, legal_moves)
-        for i in range(CHILD_LIMIT):
+        for i in range(len(ordered_map)):
+        # for i in range(CHILD_LIMIT):
             neighbor: Action = ordered_map[i]
             curr_neighbor: MonteCarloNode = MonteCarloNode(neighbor, board, curr_state)
             # Only add to the node if the board has not yet been discovered

@@ -22,8 +22,8 @@ from .evaluation import mc_evaluate
 UCT_CONSTANT     : float = sqrt(2)
 RED_VICTORY      : int = 1
 BLUE_VICTORY     : int = -1
-SIMULATION_LIMIT : int = 4
-CHILD_LIMIT      : int = 10
+SIMULATION_LIMIT : int = 1000
+CHILD_LIMIT      : int = 20
 
 
 class MonteCarloNode:
@@ -158,9 +158,9 @@ class MonteCarloNode:
         num_moves: int = 0
         curr_color: PlayerColor = board.turn_color
         while num_moves < SIMULATION_LIMIT and not board.game_over:
-            new_action: Action = minimax(board, 2, curr_color, full=True)
+            # new_action: Action = minimax(board, 2, curr_color, full=True)
             # new_action: Action = random_move(board, curr_color)
-            # new_action: Action = greedy_move(board, curr_color)
+            new_action: Action = greedy_move(board, curr_color)
             board.apply_action(new_action, concrete=False)
             curr_color = board.turn_color
             num_moves += 1
