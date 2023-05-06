@@ -8,14 +8,14 @@ Purpose:
 
 Notes:
     Minimax algorithm, to reach further depth requires a variety of different optimization methods
-    introduced in ``minimax_utils.py``. There's also a Negamax search algorith implemented here,
-    although Negamax and Minimax do not have any performance difference.
+    introduced in ``minimax_utils.py``. There's also a Negamax search algorith implemented (see
+    ``negamax.py``), although Negamax and Minimax do not have any performance difference.
 """
 
 from referee.game import PlayerColor, Action
 from ...game import Board, assert_action, INF, DEPTH
 from .evaluation import evaluate
-from .negamax_utils import get_optimized_legal_moves, move_ordering
+from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 
 def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
@@ -75,11 +75,8 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        debug = depth >= DEPTH - 1
+        debug = depth >= DEPTH - 1 and False  # comment out "and False" to allow debug mode
         legal_moves, endgame = get_optimized_legal_moves(board, color, full, debug)
-        # if debug:
-        #     for move in legal_moves:
-        #         print(move)
         ordered_moves = move_ordering(board, color, legal_moves, debug) if not endgame else legal_moves
 
         # for each child node of board
