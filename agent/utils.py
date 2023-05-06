@@ -11,7 +11,7 @@ for a specific game-playing agent (in which it cannot exceed), and applying ansi
 beautifying printing.
 """
 
-from .referee.game import PlayerColor
+from referee.game import PlayerColor
 
 
 def print_referee(referee: dict):

@@ -10,7 +10,7 @@ Purpose:
 Notes:
 """
 
-from ..referee.game import HexPos, HexDir, SpawnAction, SpreadAction
+from referee.game import HexPos, HexDir, SpawnAction, SpreadAction
 
 
 def assert_action(action):

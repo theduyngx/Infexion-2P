@@ -8,7 +8,7 @@ Purpose:
 Notes:
 """
 
-from ..referee.game import PlayerColor
+from referee.game import PlayerColor
 
 INF             : float = float("inf")
 DEPTH           : int = 4
