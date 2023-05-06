@@ -58,14 +58,10 @@ class MonteCarloNode:
         """
         Monte Carlo Tree node constructor.
 
-        Parameters
-        ----------
-        action: Action
-            the action that initiates the node
-        board: Board
-            the given state of board
-        parent: MonteCarloNode
-            the parent node, default being None
+        Args:
+            action : the action that initiates the node
+            board  : the given state of board
+            parent : the parent node, default being None
         """
         self.value: int = 0
         self.victory: int = 0
@@ -92,10 +88,8 @@ class MonteCarloNode:
         """
         Method to evaluate the board at the node
 
-        Parameters
-        ----------
-        board: Board
-            the given board at the node
+        Args:
+            board: the given board at the node
         """
         self.evaluation = mc_evaluate(board)
         return
@@ -104,10 +98,8 @@ class MonteCarloNode:
         """
         Method to evaluate the simulation at the node.
 
-        Parameters
-        ----------
-        board: Board
-            the given board
+        Args:
+            board: the given board
         """
         self.sim_score = mc_evaluate(board)
         return
@@ -137,10 +129,8 @@ class MonteCarloNode:
         """
         Each node should have a back propagation function that updates the value of each parent.
 
-        Parameters
-        ----------
-        board: Board
-            the state of board at the node
+        Args:
+            board: the state of board at the node
         """
         curr_node: MonteCarloNode = self
         added_value: int = self.victory
@@ -170,11 +160,8 @@ class MonteCarloNode:
     def light_simulate(self, board: Board):
         """
         Light simulation - randomly pick moves until a goal state is reached
-
-        Parameters
-        ----------
-        board: Board
-            the state of the board at the node
+        Args:
+            board: the state of the board at the node
         """
         test_board: Board = copy.deepcopy(board)
         while not test_board.game_over:
@@ -192,11 +179,8 @@ class MonteCarloNode:
         """
         Hard simulation - use heuristics instead to keep implementing moves until a goal state is
         reached.
-
-        Parameters
-        ----------
-        board: Board
-            the board
+        Args:
+            board: the board
         """
         num_moves: int = 0
         st = time.time()
@@ -223,10 +207,8 @@ class MonteCarloNode:
         This simulation really only returns the new value, although normalized to be in
         range ``[0, 1]``
 
-        Parameters
-        ----------
-        board: Board
-            the board
+        Args:
+            board: the board
         """
         num_moves: int = 0
         curr_color: PlayerColor = board.turn_color

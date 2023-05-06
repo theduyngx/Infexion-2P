@@ -13,6 +13,9 @@ Notes:
 
 from ...search.evaluation_data import *
 
+# Constants
+MAXIMIZE_PLAYER : PlayerColor = PlayerColor.RED
+
 
 def evaluate(board: Board) -> float:
     """
@@ -30,15 +33,16 @@ def evaluate(board: Board) -> float:
         the evaluated value of the board
     """
     data: EvaluateData = get_evaluate_data(board)
+    # sign = 1 if board.turn_color == MAXIMIZE_PLAYER else -1
     if data.immediate:
-        return data.immediate_evaluation
-    value  = (data.num_player - data.num_opponent) * NUM_PIECE_FACTOR
-    value += (data.pow_player - data.pow_opponent) * POW_PIECE_FACTOR
-    value += (data.size_player_clusters - data.size_opponent_clusters) * SIZE_CLUSTER_FACTOR
-    value += (data.num_player_dominates - data.num_opponent_dominates) * NUM_DOMINANCE_FACTOR
-    value += (data.pow_player_dominates - data.pow_opponent_dominates) * POW_DOMINANCE_FACTOR
-    value += (data.num_player_clusters  - data.num_opponent_clusters ) * NUM_CLUSTER_FACTOR
-    value *= data.sign
+        return data.immediate_eval
+    value  = (data.num_red - data.num_blue) * NUM_PIECE_FACTOR
+    value += (data.pow_red - data.pow_blue) * POW_PIECE_FACTOR
+    value += (data.size_red_clusters - data.size_blue_clusters) * SIZE_CLUSTER_FACTOR
+    value += (data.num_red_dominates - data.num_blue_dominates) * NUM_DOMINANCE_FACTOR
+    value += (data.pow_red_dominates - data.pow_blue_dominates) * POW_DOMINANCE_FACTOR
+    value += (data.num_red_clusters  - data.num_blue_clusters ) * NUM_CLUSTER_FACTOR
+    # value *= sign
     return value
 
 
@@ -59,11 +63,11 @@ def negamax_evaluate(board: Board) -> float:
     """
     data: EvaluateData = get_evaluate_data(board)
     if data.immediate:
-        return data.immediate_evaluation
-    value  = (data.num_player - data.num_opponent) * NUM_PIECE_FACTOR
-    value += (data.pow_player - data.pow_opponent) * POW_PIECE_FACTOR
-    value += (data.size_player_clusters - data.size_opponent_clusters) * SIZE_CLUSTER_FACTOR
-    value += (data.num_player_dominates - data.num_opponent_dominates) * NUM_DOMINANCE_FACTOR
-    value += (data.pow_player_dominates - data.pow_opponent_dominates) * POW_DOMINANCE_FACTOR
-    value += (data.num_player_clusters  - data.num_opponent_clusters ) * NUM_CLUSTER_FACTOR
+        return data.immediate_eval
+    value  = (data.num_red - data.num_blue) * NUM_PIECE_FACTOR
+    value += (data.pow_red - data.pow_blue) * POW_PIECE_FACTOR
+    value += (data.size_red_clusters - data.size_blue_clusters) * SIZE_CLUSTER_FACTOR
+    value += (data.num_red_dominates - data.num_blue_dominates) * NUM_DOMINANCE_FACTOR
+    value += (data.pow_red_dominates - data.pow_blue_dominates) * POW_DOMINANCE_FACTOR
+    value += (data.num_red_clusters  - data.num_blue_clusters ) * NUM_CLUSTER_FACTOR
     return value

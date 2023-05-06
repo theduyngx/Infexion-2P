@@ -9,9 +9,9 @@ Notes:
     These agents range from simply picking a move randomly that's legal for them, to a greedy
     approach, to more complex agents that are capable of making more complex moves.
 
-    Specifically, we've included a Minimax (though we actually used Negamax) agent at a shallower
-    depth to minimax optimization and maximize accuracy for its allowed depth, as well as a
-    Monte Carlo Tree search agent which uses 3 different play-out approaches.
+    Specifically, we've included a Minimax agent at a shallower depth to minimax optimization
+    and maximize accuracy for its allowed depth, as well as a Monte Carlo Tree search agent
+    which uses 3 different play-out approaches.
 """
 
 from random import randint
@@ -86,8 +86,8 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     Returns:
         the action to be taken
     """
-    from agent.search.negamax import negamax
-    return negamax(board, 2, color, True)
+    from ..search.minimax import minimax
+    return minimax(board, 2, color, True)
 
 
 def mcts_move(board: Board, color: PlayerColor) -> Action:
@@ -101,7 +101,7 @@ def mcts_move(board: Board, color: PlayerColor) -> Action:
     Returns:
         the action to be taken
     """
-    from agent.search.monte_carlo import monte_carlo
+    from ..search.monte_carlo import monte_carlo
     if board.turn_count > 0:
         return monte_carlo(board, color)
     return SpawnAction(HexPos(3, 3))

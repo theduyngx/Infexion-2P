@@ -16,7 +16,6 @@ from collections import defaultdict
 from dataclasses import dataclass
 
 from referee.game import HexPos, PlayerColor
-from .constants import PLAYER_COLOR, OPPONENT_COLOR
 from .board import Board, CellState
 from .game_utils import adjacent_positions
 
@@ -258,7 +257,7 @@ class Clusters:
         del self.clusters[cluster.__hash__()]
 
 
-def create_clusters(board: Board) -> Clusters:
+def create_clusters(board: Board, color: PlayerColor) -> Clusters:
     """
     Create a dictionary of clusters currently on the board, where the key is each cluster's hash.
     We loop through the opponent pieces first, and then the player pieces. This is because the
@@ -267,14 +266,15 @@ def create_clusters(board: Board) -> Clusters:
 
     Args:
         board: the given board
+        color: player's color
 
     Returns:
         collection of all clusters currently on the board
     """
-    clusters = create_clusters_color(board, OPPONENT_COLOR)
+    clusters = create_clusters_color(board, color.opponent)
 
     # for each player cell in state
-    for cell in board.player_cells(PLAYER_COLOR):
+    for cell in board.player_cells(color):
         in_cluster = Cluster(cell)
 
         # for each adjacent cell

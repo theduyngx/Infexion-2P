@@ -16,7 +16,7 @@ Notes:
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
+from referee.game import HexPos, Action, SpawnAction, SpreadAction, PlayerColor, \
     MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER, WIN_POWER_DIFF
 from .constants import *
 
@@ -123,8 +123,8 @@ class Board:
         # other properties initialized
         self._state.update(initial_state)
         self._turn_count: int = 0
-        self._turn_color: PlayerColor = PLAYER_COLOR
-        self._true_turn : PlayerColor = PLAYER_COLOR
+        self._turn_color: PlayerColor = PlayerColor.RED
+        self._true_turn : PlayerColor = PlayerColor.RED
         self._non_concrete_history: list[BoardMutation] = []
 
     def __getitem__(self, pos: HexPos) -> CellState:
@@ -219,8 +219,8 @@ class Board:
             true if game is over
         """
         return self.turn_count >= MIN_MOVE_WIN and (self.turn_count >= MAX_TURNS or
-                                                    self.color_power(PLAYER_COLOR) == EMPTY_POWER or
-                                                    self.color_power(OPPONENT_COLOR) == EMPTY_POWER)
+                                                    self.color_power(PlayerColor.RED)  == EMPTY_POWER or
+                                                    self.color_power(PlayerColor.BLUE) == EMPTY_POWER)
 
     def player_wins(self, player: PlayerColor) -> bool:
         """
@@ -278,7 +278,8 @@ class Board:
         Args:
             color: the player's color
         Returns:
-            their number of pieces on board and power
+            * player's number of pieces on board
+            * player's total power
         """
         color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
         return len(color_cells), sum(color_cells)

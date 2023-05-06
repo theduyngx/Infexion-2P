@@ -27,24 +27,20 @@ async def run_game(players: list[Player],
     """
     Run a game, yielding event handler generators over the game updates.
 
-    Parameters
-    ----------
-    players:
-        the players list
-    event_handlers:
-        event handler to handle the event-driven game
+    Args:
+        players: the players list
+        event_handlers: event handler to handle the event-driven game
 
-    Returns
-    -------
-    Player | None
+    Returns:
         the winning player (interface) or 'None' if drawn.
     """
 
     async def _update_handlers(handlers: list[AsyncGenerator | None], update: GameUpdate | None):
         """
         Helper function to handle the update.
-        @param handlers : the handlers
-        @param update   : specified update
+        Args:
+            handlers : the handlers
+            update   : specified update
         """
         for handler in handlers:
             try:
@@ -65,14 +61,10 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts game updates and provides some simple commentary.
 
-    Parameters
-    ----------
-    stream: str
-        the log stream
+    Args:
+        stream: the log stream
 
-    Returns
-    -------
-    AsyncGenerator
+    Returns:
         asynchronous interception
     """
     while True:
@@ -110,14 +102,10 @@ async def game_event_logger(stream: LogStream) -> AsyncGenerator:
         - <event>    is the event name.
         - <param_k>  k'th event argument (if applicable).
 
-    Parameters
-    ----------
-    stream: LogStream
-        log stream
+    Args:
+        stream: log stream
 
-    Returns
-    -------
-    AsyncGenerator
+    Returns:
         asynchronous interception
     """
     start_time = time()
@@ -160,14 +148,9 @@ async def game_delay(delay: float) -> AsyncGenerator:
     """
     Intercepts board updates and delays the game for a given amount of time.
 
-    Parameters
-    ----------
-    delay: float
-        delay time
-
-    Returns
-    -------
-    AsyncGenerator
+    Args:
+        delay: delay time
+    Returns:
         asynchronous interception
     """
     while True:
@@ -181,14 +164,9 @@ async def game_user_wait(stream: LogStream) -> AsyncGenerator:
     """
     Intercepts board updates and waits for user input before continuing.
 
-    Parameters
-    ----------
-    stream: str
-        log stream
-
-    Returns
-    -------
-    AsyncGenerator
+    Args:
+        stream: log stream
+    Returns:
         asynchronous interception
     """
     while True:
@@ -205,23 +183,16 @@ async def output_board_updates(stream      : LogStream,
                                width       : int = 66
                                ) -> AsyncGenerator:
     """
-    Intercepts board updates and prints the new board state in the output
-    stream. The board is formatted using the given options.
+    Intercepts board updates and prints the new board state in the output stream.
+    The board is formatted using the given options.
 
-    Parameters
-    ----------
-    stream: LogStream
-        log stream
-    use_color: bool
-        whether ansi color is applied
-    use_unicode: bool
-         whether unicode is used
-    width: int
-        the width of log printing
+    Args:
+        stream      : log stream
+        use_color   : whether ansi color is applied
+        use_unicode : whether unicode is used
+        width       : the width of log printing
 
-    Returns
-    -------
-    AsyncGenerator
+    Returns:
         asynchronous interception
     """
     while True:

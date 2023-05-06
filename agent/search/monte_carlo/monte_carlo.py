@@ -27,18 +27,12 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
     """
     Monte Carlo Tree search algorithm returning the next action to be taken by agent.
 
-    Parameters
-    ----------
-    board: Board
-        the board
-    turn_color: PlayerColor
-        the agent's color
-    limit: int
-        the number of operations limit to stop the search
+    Args:
+        board      : the board
+        turn_color : the agent's color
+        limit      : the number of operations limit to stop the search
 
-    Returns
-    -------
-    Action
+    Returns:
         the action to be taken by agent
     """
     operation = 0
