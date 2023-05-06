@@ -13,7 +13,7 @@ Notes:
 
 from referee.game import PlayerColor, Action
 from ...game import Board, assert_action, INF, DEPTH
-from .evaluation import negamax_evaluate
+from .evaluation import evaluate
 from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 
@@ -72,7 +72,7 @@ def alphabeta_negamax(board  : Board,
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
         assert_action(action)
-        return negamax_evaluate(board), action, stop
+        return evaluate(board), action, stop
 
     # for each child node of board
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
