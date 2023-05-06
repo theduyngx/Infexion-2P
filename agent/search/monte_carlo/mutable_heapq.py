@@ -7,8 +7,8 @@ Purpose:
     for the MCTS nodes.
 
 Notes:
-This is a max heap structure which sorts list of nodes with priority being the best UCT score.
-Since these scores are constantly being mutated, a mutable heap structure is therefore needed.
+    This is a max heap structure which sorts list of nodes with priority being the best UCT score.
+    Since these scores are constantly being mutated, a mutable heap structure is therefore needed.
 """
 
 import heapq
@@ -20,6 +20,11 @@ NEW     = 'new'
 
 
 class MutableHeap:
+    """
+    Mutable heap object representing a max-heap with values of its entries mutable.
+    The entries of the mutable heap is the node of the Monte Carlo tree.
+    """
+
     def __init__(self):
         self.entry_finder = {}
         self.pq = []
@@ -33,7 +38,7 @@ class MutableHeap:
         if task.hash_val in self.entry_finder:
             self.remove_task(task.hash_val)
         count = next(self.counter)
-        entry = [priority, count, task]
+        entry = [task.depth, priority, count, task]
         self.entry_finder[task.hash_val] = entry
         heapq.heappush(self.pq, entry)
 
@@ -49,7 +54,7 @@ class MutableHeap:
         Remove and return the lowest priority task. Raise KeyError if empty.
         """
         while self.pq:
-            priority, count, task = heapq.heappop(self.pq)
+            depth, priority, count, task = heapq.heappop(self.pq)
             if task is not None:
                 del self.entry_finder[task.hash_val]
                 return task

@@ -48,7 +48,10 @@ class Cluster:
     def __init__(self, init_state: CellState):
         """
         Cluster constructor. Requires the information of the initial cell.
-        @param init_state : initial cell's state
+        Parameters
+        ----------
+        init_state: CellState
+            initial cell's state
         """
         self.init_state = init_state
         self.init_pos   = init_state.pos
@@ -59,16 +62,29 @@ class Cluster:
     def __getitem__(self, pos: HexPos) -> CellState:
         """
         Accessing a cell via its position quickly within a cluster.
-        @param pos : cell's position
-        @return    : cell's state
+
+        Parameters
+        ----------
+        pos: HexPos
+            cell's position
+
+        Returns
+        -------
+        CellState
+            cell's state
         """
         return self.cells[pos.__hash__()]
 
     def __setitem__(self, pos: HexPos, cell: CellState):
         """
         Setting an entry, with key being the position and value being cell at said position.
-        @param pos  : specified position
-        @param cell : the cell at position
+
+        Parameters
+        ----------
+        pos: HexPos
+            cell's position
+        cell: CellState
+            the cell's state
         """
         # assert cell and cell.color == self.color and cell.power > EMPTY_POWER
         self.cells[pos.__hash__()] = cell
@@ -76,37 +92,61 @@ class Cluster:
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check whether a cluster contains a cell with specified position or not.
-        @param pos : specified position
-        @return    : boolean denoting whether cluster contains cell with position
+
+        Parameters
+        ----------
+        pos: HexPos
+            specified position
+
+        Returns
+        -------
+        bool
+            `True` if cluster contains cell with position, `False` if otherwise
         """
         return pos.__hash__() in self.cells
 
     def __len__(self) -> int:
         """
         The length of the cluster is defined as the number of cells that it contains.
-        @return: the number of cells that cluster contains
+
+        Returns
+        -------
+        int
+            the number of cells that cluster contains
         """
         return len(self.cells)
 
     def get_power(self) -> int:
         """
         Get the total power of the cluster.
-        @return: the total power of cluster
+
+        Returns
+        -------
+        int
+            the total power of cluster
         """
         return sum(self.cells)
 
     def get_opponents(self):
         """
         Get the iterable list of hashed values of opponent clusters.
-        @return: iterable list of hashed opponent clusters
+
+        Returns
+        -------
+            iterable list of hashed opponent clusters
         """
         return self.opponents.keys()
 
     def append(self, pos: HexPos, cell: CellState):
         """
         Append a cell from the board to the cluster.
-        @param pos  : specified position
-        @param cell : the cell
+
+        Parameters
+        ----------
+        pos: HexPos
+            specified position
+        cell: CellState
+            the cell
         """
         if cell.color == self.color:
             self[pos] = cell
@@ -115,7 +155,11 @@ class Cluster:
         """
         Appending the cells of this object with another cluster's cells, via reference.
         This means the operation is in constant time in both time and space.
-        @param other : the other cluster
+
+        Parameters
+        ----------
+        other: Cluster
+            the adjacent opponent cluster
         """
         if type(other) == Cluster:
             if other.color == self.color:
@@ -125,7 +169,11 @@ class Cluster:
         """
         Update adjacent opponent cluster number of cells. If opponent cluster is not yet
         recorded, then a new entry for it will be added.
-        @param other : the adjacent opponent cluster
+
+        Parameters
+        ----------
+        other: Cluster
+            the adjacent opponent cluster
         """
         if type(other) == Cluster:
             if self.color == other.color.opponent:
@@ -134,14 +182,17 @@ class Cluster:
     def singular(self) -> bool:
         """
         Checks whether the cluster has only a single cell.
-        @return: true if cluster has only a single cell, and false if otherwise
+
+        Returns
+        -------
+        bool
+            `True` if cluster has only a single cell, `False` if otherwise
         """
         return len(self) <= 1
 
     def __hash__(self):
         """
         Special hash function where it uses its initial cell as the hash value.
-        @return: the hash value
         """
         return self.init_pos.__hash__()
 
@@ -160,7 +211,11 @@ class Clusters:
     def __init__(self, clusters: dict[int, Cluster] = None):
         """
         Clusters constructor.
-        @param clusters: the dictionary of clusters, default = None
+
+        Parameters
+        ----------
+        clusters:
+            the dictionary of clusters, default = None
         """
         if clusters:
             self.clusters = clusters
@@ -170,9 +225,17 @@ class Clusters:
     def __getitem__(self, key: Cluster | int) -> Cluster:
         """
         Get cluster from the list of clusters.
-        @param key : either the cluster (any mutation of itself as long as initial state remains)
-                     or the cluster's hashed value
-        @return    : the cluster from list
+
+        Parameters
+        ----------
+        key: Cluster | int
+            either the cluster (any mutation of itself as long as initial state remains)
+            or the cluster's hashed value
+
+        Returns
+        -------
+        Cluster
+            the cluster from list
         """
         if type(key) == Cluster:
             return self.clusters[key.__hash__()]
@@ -182,15 +245,22 @@ class Clusters:
     def __contains__(self, cluster: Cluster) -> bool:
         """
         Check whether Clusters contain a specified cluster or not.
-        @param cluster : specified cluster
-        @return        : true if contains, false if otherwise
+
+        Parameters
+        ----------
+        cluster: Cluster
+            specified cluster
+
+        Returns
+        -------
+        bool
+            `True` if contains, `False` if otherwise
         """
         return cluster.__hash__() in self.clusters
 
     def __len__(self) -> int:
         """
         The number of clusters stored within data class.
-        @return: number of clusters
         """
         return len(self.clusters)
 
@@ -204,29 +274,29 @@ class Clusters:
     def add(self, cluster: Cluster):
         """
         Add a cluster to the list of clusters.
-        @param cluster:
-        @return:
         """
         self.clusters[cluster.__hash__()] = cluster
 
     def copy(self) -> 'Clusters':
         """
         Creating a copy of itself.
-        @return: copy of itself
         """
         return Clusters(self.clusters.copy())
 
     def values(self):
         """
         Get an iterable list of clusters of the data class.
-        @return: the iterable list of clusters
         """
         return self.clusters.values()
 
     def remove(self, cluster: Cluster):
         """
         Remove a specified cluster from the list of clusters.
-        @param cluster: specified cluster
+
+        Parameters
+        ----------
+        cluster: Cluster
+            specified cluster
         """
         del self.clusters[cluster.__hash__()]
 
@@ -237,8 +307,16 @@ def create_clusters(board: Board) -> Clusters:
     We loop through the opponent pieces first, and then the player pieces. This is because the
     dominance factor determined by cluster evaluations compares the cluster size and their power
     of player against enemy.
-    @param board : the given board
-    @return      : dictionary of clusters
+
+    Parameters
+    ----------
+    board: Board
+        the given board
+
+    Returns
+    -------
+    Clusters
+        collection of all clusters currently on the board
     """
     clusters = Clusters()
 

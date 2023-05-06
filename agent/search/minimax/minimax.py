@@ -7,8 +7,8 @@ Purpose:
     pruning to improve performance.
 
 Notes:
-Minimax algorithm, to reach further depth requires a variety of different optimization methods
-introduced in ``minimax_utils.py``.
+    Minimax algorithm, to reach further depth requires a variety of different optimization methods
+    introduced in ``minimax_utils.py``.
 """
 
 from referee.game import PlayerColor, Action
@@ -21,13 +21,23 @@ def minimax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     """
     Minimax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn.
-
     NOTE: be mindful of the behavior specifically specified in Infexion ver 1.1
-    @param board : the board
-    @param depth : the depth
-    @param color : the agent's color
-    @param full  : whether agent uses reduced-moves minimax
-    @return      : the action to take for agent
+
+    Parameters
+    ----------
+    board: Board
+        the board
+    depth: int
+        the search depth limit
+    color: PlayerColor
+        the agent's color
+    full: bool
+        whether agent uses reduced-moves minimax
+
+    Returns
+    -------
+    Action
+        the action to take for agent
     """
     alpha = -INF
     beta  = INF
@@ -47,16 +57,30 @@ def alphabeta(board  : Board,
               ) -> (float, Action, bool):
     """
     Alpha-beta pruning for minimax search algorithm.
-    @param board  : the board
-    @param color  : the current turn of player, specified by player's color
-    @param depth  : the current depth in the search tree
-    @param action : deduced best action
-    @param alpha  : alpha - move that improves player's position
-    @param beta   : beta  - move that improves opponent's position
-    @param full   : whether agent uses reduced-moves minimax
-    @return       : evaluated score of the board and the action to be made
-    """
 
+    Parameters
+    ----------
+    board: Board
+        the board
+    color: PlayerColor
+        the current turn of player, specified by player's color
+    depth: int
+        the current depth in the search tree
+    action: Action
+        deduced best action
+    alpha: float
+        move that improves player's position
+    beta: float
+        move that improves opponent's position
+    full: bool
+        whether agent uses reduced-moves minimax,
+        `True` if in move reduction optimization mode, `False` if requiring all legal moves
+
+    Returns
+    -------
+    float
+        evaluated score of the board and the action to be made
+    """
     # reached depth limit, or terminal node
     stop  = False
     ret   = None
@@ -68,9 +92,6 @@ def alphabeta(board  : Board,
 
     # maximize
     if color == PlayerColor.RED:
-        ###
-        # show = depth == DEPTH and not full and False
-        ###
         legal_moves, endgame = get_optimized_legal_moves(board, color, full)
         ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 

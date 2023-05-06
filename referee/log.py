@@ -99,15 +99,6 @@ class LogStream:
                  ):
         """
         Log stream constructor.
-        @param namespace        : log scope identifier
-        @param color            : log's color
-        @param level            : type of log
-        @param handlers         :
-        @param unicode          : enabling unicode characters for log
-        @param ansi             : enabling ansi color for log
-        @param output_time      :
-        @param output_namespace :
-        @param output_level     :
         """
         self._namespace = namespace
         if color is not None:
@@ -147,8 +138,13 @@ class LogStream:
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
         """
         Write the log.
-        @param message : specified log message
-        @param level   : log's type
+
+        Parameters
+        ----------
+        message: str
+            specified log message
+        level: LogLevel
+            log's type
         """
         message_lines = message.splitlines()
         for line in message_lines:
@@ -164,7 +160,11 @@ class LogStream:
     def _out(self, message: str):
         """
         Output log.
-        @param message: specified message
+
+        Parameters
+        ----------
+        message: str
+            specified message
         """
         # Optionally strip unicode symbols
         if not self.setting("unicode"):

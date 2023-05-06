@@ -21,6 +21,11 @@ from .hex import HexPos, HexDir
 
 @dataclass(frozen=True, slots=True)
 class SpawnAction:
+    """
+    Spawn action. Only requires a position where player would spawn.
+    Attributes:
+        cell: the cell to spawn at
+    """
     cell: HexPos
 
     def __str__(self) -> str:
@@ -29,6 +34,13 @@ class SpawnAction:
 
 @dataclass(frozen=True, slots=True)
 class SpreadAction:
+    """
+    Spread action. Requires a position where player already occupied to spread, and the direction
+    that the piece would spread to.
+    Attributes:
+        cell: the cell to spread
+        direction: spread direction
+    """
     cell: HexPos
     direction: HexDir
 
