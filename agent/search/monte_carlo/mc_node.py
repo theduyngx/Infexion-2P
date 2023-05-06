@@ -15,7 +15,7 @@ from math import sqrt, log
 from referee.game import PlayerColor, Action
 from ...game import Board
 from ..minimax import minimax
-from ..agent_test import random_move
+from ..agent_test import random_move, greedy_move
 from .evaluation import mc_evaluate
 
 # Constants
@@ -23,6 +23,7 @@ UCT_CONSTANT     : float = sqrt(2)
 RED_VICTORY      : int = 1
 BLUE_VICTORY     : int = -1
 SIMULATION_LIMIT : int = 4
+CHILD_LIMIT      : int = 10
 
 
 class MonteCarloNode:
@@ -36,6 +37,7 @@ class MonteCarloNode:
         "parent",
         "children",
         "sim_score",
+        "depth",
         "hash_val",
     ]
 
@@ -55,6 +57,7 @@ class MonteCarloNode:
         # TODO: better data structure to store children (LinkedList?)
         self.children: list[MonteCarloNode] = []
         self.hash_val = self.__hash__(board)
+        self.depth = board.turn_count
         self.sim_score: float = 0
         return
 
@@ -151,11 +154,15 @@ class MonteCarloNode:
             return
 
     # This simulation really only returns the new value, although normalized to be in range [0, 1]
-    def quick_simulate(self, board: Board, turn_color: PlayerColor):
+    def quick_simulate(self, board: Board):
         num_moves: int = 0
+        curr_color: PlayerColor = board.turn_color
         while num_moves < SIMULATION_LIMIT and not board.game_over:
-            new_action: Action = random_move(board, turn_color)
+            new_action: Action = minimax(board, 2, curr_color, full=True)
+            # new_action: Action = random_move(board, curr_color)
+            # new_action: Action = greedy_move(board, curr_color)
             board.apply_action(new_action, concrete=False)
+            curr_color = board.turn_color
             num_moves += 1
 
         # Evaluate the simulation

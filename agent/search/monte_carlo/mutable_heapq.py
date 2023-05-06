@@ -33,7 +33,7 @@ class MutableHeap:
         if task.hash_val in self.entry_finder:
             self.remove_task(task.hash_val)
         count = next(self.counter)
-        entry = [priority, count, task]
+        entry = [task.depth, priority, count, task]
         self.entry_finder[task.hash_val] = entry
         heapq.heappush(self.pq, entry)
 
@@ -49,7 +49,7 @@ class MutableHeap:
         Remove and return the lowest priority task. Raise KeyError if empty.
         """
         while self.pq:
-            priority, count, task = heapq.heappop(self.pq)
+            depth, priority, count, task = heapq.heappop(self.pq)
             if task is not None:
                 del self.entry_finder[task.hash_val]
                 return task
