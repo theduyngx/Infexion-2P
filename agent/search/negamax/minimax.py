@@ -61,7 +61,6 @@ def alphabeta(board  : Board,
         full   : whether agent uses reduced-moves minimax,
                  `True` if in move reduction optimization mode,
                  `False` if requiring all legal moves
-
     Returns:
         evaluated score of the board and the action to be made
     """
@@ -78,10 +77,10 @@ def alphabeta(board  : Board,
     if color == PlayerColor.RED:
         debug = depth >= DEPTH - 1
         legal_moves, endgame = get_optimized_legal_moves(board, color, full, debug)
-        if debug:
-            for move in legal_moves:
-                print(move)
-        ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+        # if debug:
+        #     for move in legal_moves:
+        #         print(move)
+        ordered_moves = move_ordering(board, color, legal_moves, debug) if not endgame else legal_moves
 
         # for each child node of board
         for possible_action in ordered_moves:

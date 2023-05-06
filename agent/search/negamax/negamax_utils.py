@@ -59,48 +59,45 @@ def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]
 
         # endgame: if number of opponents less than a third of player's with mostly single-power
         endgame = opponent_num <= player_num // 3 and len(single_power) >= len(bool_single_power)-1
-        if endgame:
+        if not endgame:
+            return []
 
-            # make sure that all clusters of opponent must be of size 2 or lower
-            opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
-            for cluster in opponent_clusters:
-                ###
-                # if debug:
-                #     print(len(cluster))
-                ###
-                if len(cluster) > 2:
+        # make sure that all clusters of opponent must be of size 2 or lower
+        opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
+        for cluster in opponent_clusters:
+            if len(cluster) > 2:
+                return []
+            for opponent in cluster:
+                # if piece is stacked, then it must be cleared out, otherwise not endgame
+                stacked = opponent.power > 1
+                cleared = not stacked
+
+                # for each direction, get the same direction ranges
+                for dir in HexDir:
+                    ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
+                    for r in ranges:
+
+                        # for each cell in said direction
+                        for s in r:
+                            curr_pos = opponent.pos - dir * s
+                            cell = board[curr_pos]
+                            # make sure that it has to be the player's cell
+                            if cell.color != color:
+                                continue
+                            # append to actions if cell can reach the opponent and its power
+                            # at least is equal to the opponent's cluster size
+                            if cell.power >= abs(s) and cell.power >= len(cluster):
+                                cleared = True
+                                key = (curr_pos, dir)
+                                if key in action_capture:
+                                    action_capture[key] += 1
+                                else:
+                                    action_capture[key] = 1
+                                if stacked:
+                                    stacked_capture[key] = 1
+                # if stacked opponent cannot be cleared, then it isn't endgame
+                if not cleared:
                     return []
-                for opponent in cluster:
-                    # if piece is stacked, then it must be cleared out, otherwise not endgame
-                    stacked = opponent.power > 1
-                    cleared = not stacked
-
-                    # for each direction, get the same direction ranges
-                    for dir in HexDir:
-                        ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
-                        for r in ranges:
-
-                            # for each cell in said direction
-                            for s in r:
-                                curr_pos = opponent.pos - dir * s
-                                cell = board[curr_pos]
-                                # make sure that it has to be the player's cell
-                                if cell.color != color:
-                                    continue
-                                # append to actions if cell can reach the opponent and its power
-                                # at least is equal to the opponent's cluster size
-                                if cell.power >= abs(s) and cell.power >= len(cluster):
-                                    cleared = True
-                                    key = (curr_pos, dir)
-                                    if key in action_capture:
-                                        action_capture[key] += 1
-                                    else:
-                                        action_capture[key] = 1
-                                    if stacked:
-                                        stacked_capture[key] = 1
-                    # if stacked opponent cannot be cleared, then it isn't endgame
-                    if not cleared:
-                        return []
 
         # if there is a stacked opponent, then we update number of captures in captured dict
         if stacked_capture:
@@ -129,8 +126,6 @@ def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]
         action_sorted = sorted(final.items(),
                                key=lambda item: (item[1], board[item[0][0]].power),
                                reverse=True)
-        (pos, dir), max_capture = action_sorted[0]
-        max_power = board[pos].power
 
         ###
         if debug:
@@ -138,14 +133,6 @@ def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]
             for (pos, dir), val in action_sorted:
                 print(pos, dir, val)
         ###
-
-        # # return only the list of actions that are most desirable (equal highest number of
-        # # captures and equal highest power given the number of captures)
-        # for (pos, dir), value in action_sorted:
-        #     if value < max_capture or board[pos].power < max_power:
-        #         break
-        #     actions.append(SpreadAction(pos, dir))
-        # assert actions
     return actions
 
 
@@ -218,7 +205,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug=False) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -231,7 +218,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
     Returns:
         the ordered list of actions
     """
-    action_values: list[tuple[Action, int, int, int]] = [(None, # Action
+    action_values: list[tuple[Action, int, int, int]] = [(None, # action
                                                           0,    # total power captured
                                                           0,    # total number of captured
                                                           0     # player's piece power
@@ -246,19 +233,30 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
                 power = board[action.cell].power
-                total_blue_pieces = 0
                 total_blue_power  = 0
-                for s in range(power):
+                total_blue_pieces = 0
+                # if debug:
+                #     print("SPREAD ACTION in move_ordering:", pos, dir)
+                for s in range(1, power+1):
                     curr_pos = pos + dir * s
-                    if curr_pos in board and board[curr_pos].color == color.opponent:
-                        total_blue_pieces += 1
+                    # if debug:
+                    #     print("curr_pos = ", curr_pos)
+                    if board[curr_pos].color == color.opponent:
                         total_blue_power  += board[curr_pos].power
+                        total_blue_pieces += 1
                 # Now add these values into the tuple to sort
                 action_values[index] = (action, total_blue_power, total_blue_pieces, power)
             # error case
             case _:
                 raise "move_ordering: Action not of any type"
         index += 1
+
+    ###
+    if debug:
+        print("\nBEFORE ORDERING:")
+        for action, opponent_pow, opponent_num, player_pow in action_values:
+            print(action, opponent_pow, opponent_num, player_pow)
+    ###
 
     # sort the actions by their desirability, in decreasing order, in following priorities
     action_values.sort(
@@ -269,4 +267,12 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         ),
         reverse=True
     )
+
+    ###
+    if debug:
+        print("\nAFTER ORDERING:")
+        for action, opponent_pow, opponent_num, player_pow in action_values:
+            print(action, opponent_pow, opponent_num, player_pow)
+    ###
+
     return list(map(lambda tup: tup[0], action_values))

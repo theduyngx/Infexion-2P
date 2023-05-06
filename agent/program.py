@@ -31,9 +31,6 @@ actions = [SpawnAction(HexPos(3, 0)),
            SpawnAction(HexPos(5, 3)),
            SpreadAction(HexPos(5, 3), HexDir.UpRight),
            SpawnAction(HexPos(2, 3)),
-           SpreadAction(HexPos(2, 3), HexDir.DownLeft),
-           SpreadAction(HexPos(1, 3), HexDir.UpLeft),
-           SpreadAction(HexPos(1, 1), HexDir.DownRight),
            ]
 
 
