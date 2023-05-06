@@ -1,11 +1,15 @@
 """
-    Module  : evaluation_data.py
-    Purpose : Includes the representation and function to obtain all the information that is
-              required to evaluate the state of the board.
+Module:
+    ``evaluation_data.py``
 
-The evaluation information includes the number of pieces of a both sides, their total power,
-and their clusters. The information on clusters will be used for dominance factor data. This
-is especially significant since much of Infexion is about dominating the opponent.
+Purpose:
+    Includes the representation and function to obtain all the information that is required
+    to evaluate the state of the board.
+
+Notes:
+    The evaluation information includes the number of pieces of a both sides, their total power,
+    and their clusters. The information on clusters will be used for dominance factor data. This
+    is especially significant since much of Infexion is about dominating the opponent.
 """
 from dataclasses import dataclass
 

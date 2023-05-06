@@ -1,19 +1,34 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``player.py``
+
+Purpose:
+    Module related to representing player in the game.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package.
+"""
 
 from enum import Enum
 from abc import abstractmethod
 from .actions import Action
 
 
-# PlayerColor is an enum used by the referee to identify the two players on the
-# game board as per the game rules ("red" and "blue"). The referee will pass
-# this to your agent when it is initialised in order to tell it which player it
-# should be playing as, and is also used to distinguish between the two players
-# in the turn() method (i.e. whose action has been played).
-
 class PlayerColor(Enum):
-    RED = 0
+    """
+    ``PlayerColor`` is an enum used by the referee to identify the two players on the game board
+    as per the game rules (**red** and **blue**).
+
+    The referee will pass this to your agent when it
+    is initialized in order to signal which player it should be playing as, and is also used to
+    distinguish between the two players in the ``turn()`` method (i.e. whose action has been played).
+
+    Attributes:
+        RED  : player color **red**
+        BLUE : player color **blue**
+    """
+    RED  = 0
     BLUE = 1
 
     def __str__(self) -> str:
@@ -49,10 +64,11 @@ class PlayerColor(Enum):
                 return PlayerColor.RED
 
 
-# Player is an abstract base class for actual players of the game -- it's used
-# internally by the referee to wrap your agent and/or other virtual players.
-
 class Player:
+    """
+    Player is an abstract base class for actual players of the game.
+    It's used internally by the referee to wrap your agent and/or other virtual players.
+    """
     def __init__(self, color: PlayerColor):
         self._color = color
 

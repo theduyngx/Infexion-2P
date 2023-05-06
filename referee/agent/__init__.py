@@ -1,5 +1,15 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Package:
+    ``referee.agent``
+
+Purpose:
+    The agent managed by the referee, where each agent needs to take turn to play.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. The package uses multi-threading to optimize performance and
+    increase interactivity.
+"""
 
 from contextlib import contextmanager
 from typing import Type
@@ -13,14 +23,13 @@ from .resources import ResourceLimitException
 RECV_TIMEOUT = 60  # Max seconds for reply from agent (wall clock time)
 
 
-# Provide a wrapper for Agent classes to handle tedious details like timing,
-# measuring space usage, reporting which method is currently being executed,
-# etc. Note that Agents are run in a separate process to the referee, so that
-# they cannot interfere with the referee's execution. See the AgentProcess
-# (process.py) class for more details.
-
 class AgentProxyPlayer(Player):
-
+    """
+    Provide a wrapper for Agent classes to handle tedious details like timing, measuring
+    space usage, reporting which method is currently being executed, etc. Note that Agents
+    are run in a separate process to the referee, so that they cannot interfere with the
+    referee's execution. See the AgentProcess (process.py) class for more details.
+    """
     def __init__(self,
                  name               : str,
                  color              : PlayerColor,
@@ -30,6 +39,16 @@ class AgentProxyPlayer(Player):
                  log                : LogStream = NullLogger(),
                  intercept_exc_type : Type[Exception] = PlayerException
                  ):
+        """
+        Proxy agent constructor.
+        @param name               : agent's name
+        @param color              : agent's color
+        @param agent_loc          : agent's location (??)
+        @param time_limit         : agent's time limit
+        @param space_limit        : agent's space limit
+        @param log                : agent's log stream
+        @param intercept_exc_type : interception for something
+        """
         super().__init__(color)
         assert isinstance(agent_loc, tuple), "agent_loc must be a tuple"
         assert len(agent_loc) == 2, "agent_loc must be a tuple (pkg, cls)"
@@ -51,6 +70,9 @@ class AgentProxyPlayer(Player):
 
     @contextmanager
     def _intercept_exc(self):
+        """
+        Context manager to intercept agent's execution.
+        """
         try:
             yield
 
@@ -82,9 +104,11 @@ class AgentProxyPlayer(Player):
             )
 
     async def __aenter__(self) -> 'AgentProxyPlayer':
-        # Import the agent class (in a separate process). Note: We are wrapping
-        # another async context manager here, so need to use the __aenter__ and
-        # __aexit__ methods.
+        """
+        Import the agent class (in a separate process). Note: We are wrapping another async
+        context manager here, so need to use the __aenter__ and __aexit__ methods.
+        @return: the proxy agent
+        """
         self._log.debug(f"creating agent subprocess...")
         with self._intercept_exc():
             await self._agent.__aenter__()

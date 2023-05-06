@@ -1,5 +1,19 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``hex.py``
+
+Purpose:
+    Hexagonal representation of directions and positions, stemming from 2D hexagonal vectors.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. Original documentation:
+
+    For the purposes of the game, we usually work with ``HexPos`` objects, which are just ``HexVecs``
+    with additional bounds checking. ``HexVec`` instances are used for intermediate calculations,
+    e.g. multiplying a ``HexDir`` by an integer to get a ``HexVec`` ("offset"), then adding that to a
+    ``HexPos`` to get a new ``HexPos``.
+"""
 
 from dataclasses import dataclass
 from enum import Enum
@@ -11,14 +25,19 @@ from .constants import BOARD_N
 # HexVec represents a vector in the axial coordinate system used by the game.
 # Operator overloading is used to conveniently add/subtract/multiply vectors.
 # e.g. HexVec(1, 2) + HexVec(3, 4) == HexVec(4, 6)
-#
-# NOTE: For the purposes of the game, we usually work with HexPos objects,
-# which are just HexVecs with additional bounds checking. HexVec instances are
-# used for intermediate calculations, e.g. multiplying a HexDir by an integer
-# to get a HexVec ("offset"), then adding that to a HexPos to get a new HexPos.
+
 
 @dataclass(frozen=True, slots=True)
 class HexVec:
+    """
+    ``HexVec`` represents a vector in the axial coordinate system used by the game.
+    Operator overloading is used to conveniently add/subtract/multiply vectors.
+        e.g. ``HexVec(1, 2) + HexVec(3, 4) == HexVec(4, 6)``
+
+    Attributes:
+        r: the r-coordinate of hexagonal vector
+        q: the q-coordinate of hexagonal vector
+    """
     r: int
     q: int
 
@@ -39,12 +58,19 @@ class HexVec:
         yield self.q
 
 
-# HexDir represents a direction in the axial coordinate system used by the
-# game. Most importantly, it's used to represent the direction of a spread
-# action (see actions.py), and can be added to a HexPos to get the position of
-# neighbouring cells.
-
 class HexDir(Enum):
+    """
+    ``HexDir`` represents a direction in the axial coordinate system used by the game. Most
+    importantly, it's used to represent the direction of a spread action (see ``actions.py``),
+    and can be added to a HexPos to get the position of neighbouring cells.
+    Attributes:
+        DownRight : enumerated down right direction
+        Down      : enumerated downward direction
+        DownLeft  : enumerated down left direction
+        UpLeft    : enumerated up left direction
+        Up        : enumerated upward direction
+        UpRight   : enumerated up right direction
+    """
     DownRight = HexVec(0, 1)
     Down      = HexVec(-1, 1)
     DownLeft  = HexVec(-1, 0)
@@ -85,14 +111,18 @@ class HexDir(Enum):
                 return super().__getattribute__(__name)
 
 
-# HexPos represents a position in the axial coordinate system used by the game.
-# Similar to HexDir, it's used to represent the position of a cell on the board
-# in Action dataclasses (see actions.py). For convenience and safety, it also
-# ensures computed vector additions/subtractions are within the bounds of the
-# board, and throws an exception if trying to create an out-of-bounds position.
-
 @dataclass(order=True, frozen=True)
 class HexPos(HexVec):
+    """
+    ``HexPos`` represents a position in the axial coordinate system used by the game. Similar
+    to ``HexDir``, it's used to represent the position of a cell on the board in Action
+    dataclasses (see ``actions.py``).
+
+    Notes:
+    For convenience and safety, it also ensures computed
+    vector additions/subtractions are within the bounds of the board, and throws an exception
+    if trying to create an out-of-bounds position.
+    """
 
     def __post_init__(self):
         if not (0 <= self.r < BOARD_N) or not (0 <= self.q < BOARD_N):

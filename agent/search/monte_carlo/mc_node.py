@@ -1,3 +1,13 @@
+"""
+Module:
+    ``mc_node.py``
+
+Purpose:
+    Monte Carlo Tree's node representation.
+
+Notes:
+"""
+
 import copy
 import time
 from math import sqrt, log

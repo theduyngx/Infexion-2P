@@ -1,5 +1,16 @@
-# COMP30024 Artificial Intelligence, Semester 1 2023
-# Project Part B: Game Playing Agent
+"""
+Module:
+    ``options.py``
+
+Purpose:
+    The options that could be used for the game. This primarily includes time and space limit
+    for an agent to play.
+
+Notes:
+    From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
+    referee pre-completed package. As expected, if the limit is exceeded, the agent will have
+    lost the game.
+"""
 
 import sys
 import argparse
@@ -21,8 +32,8 @@ Welcome to {GAME_NAME} referee version {VERSION}.
 Run `python -m referee --help` for additional usage information.
 {'':*^{F_WIDTH}}"""
 
-# default values (to use if flag is not provided)
-# and missing values (to use if flag is provided, but with no value)
+# default values (to use if flag is not provided) and missing values
+# (to use if flag is provided, but with no value)
 
 WAIT_DEFAULT         = 0      # signifying no delay
 WAIT_NO_VALUE        = 0.5    # seconds (between turns)
@@ -59,7 +70,9 @@ symbol ':' (e.g. 'agent:DifferentAgent').
 
 
 def get_options():
-    """Parse and return command-line arguments."""
+    """
+    Parse and return command-line arguments.
+    """
 
     parser = argparse.ArgumentParser(
         prog            = PROGRAM,

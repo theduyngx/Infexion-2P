@@ -1,8 +1,16 @@
 """
-    Module  : program.py
-    Purpose : The agent program for the game.
+Module:
+    ``program.py``
 
-COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent.
+Purpose:
+    The agent program for the game. This will be used by the ``referee`` and will act under
+    the rules exacted by referee.
+
+Notes:
+    COMP30024 Artificial Intelligence, Semester 1 2023 - Project Part B: Game Playing Agent. When
+    mentioning the rules by referee, it is important to note the following functions:
+    ``action`` to return an action that the agent decides to perform, and
+    ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
 from .search import search
@@ -39,7 +47,8 @@ class Agent:
 
     def action(self, **referee: dict) -> Action:
         """
-        Return the next action to take by the agent.
+        Return the next action to take by the agent. Used by referee to apply the action to
+        the game's board.
         @param referee : the referee
         @return        : the action to be taken next
         """
@@ -53,14 +62,17 @@ class Agent:
                 print_referee(referee)
                 return search(board, color)
             case PlayerColor.BLUE:
-                return minimax_shallow(board, color)
-                # return random_move(board, color)
-                # return greedy_move(board, color)
                 # return mcts_move(board, color)
+                # return minimax_shallow(board, color)
+                # return random_move(board, color)
+                return greedy_move(board, color)
+            case _:
+                raise Exception(f"{color} is not of proper PlayerColor type")
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
-        Update the agent with the last player's action.
+        Update the agent with the last player's action. Called by referee to signal the
+        turn of an agent (both when it is not, and it is their turn).
         @param color   : the player's color
         @param action  : action taken by agent
         @param referee : the referee

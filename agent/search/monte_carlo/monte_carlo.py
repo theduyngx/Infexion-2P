@@ -1,3 +1,13 @@
+"""
+Module:
+    ``monte_carlo.py``
+
+Purpose:
+    The Monte Carlo Tree search algorithm to find the next move for agent.
+
+Notes:
+"""
+
 from referee.game import Action, PlayerColor
 from .agent.game import Board
 from .agent.search import get_legal_moves

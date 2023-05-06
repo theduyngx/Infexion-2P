@@ -1,6 +1,11 @@
 """
-    Module  : constants.py
-    Purpose : Storing global constants.
+Module:
+    ``constants.py``
+
+Purpose:
+    Storing global constants.
+
+Notes:
 """
 
 from ..referee.game import PlayerColor
