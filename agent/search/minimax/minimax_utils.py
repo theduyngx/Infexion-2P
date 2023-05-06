@@ -29,7 +29,7 @@ from ..search_utils import get_legal_moves
 MAX_ENDGAME_NUM_OPPONENT: int = 2
 
 
-def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]:
+def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
@@ -37,7 +37,6 @@ def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]
     Args:
         board: the board
         color: player's color
-        debug: debug mode
 
     Returns:
         the list of actions for endgame (if list is empty then not endgame)
@@ -111,25 +110,21 @@ def check_endgame(board: Board, color: PlayerColor, debug=False) -> list[Action]
         else:
             return []
 
-        # sort the actions by priority 1 - number of captures, and 2 - piece power
-        action_sorted = sorted(final.items(),
-                               key=lambda item: (item[1], board[item[0][0]].power),
-                               reverse=True)
-
-        ###
-        if debug:
-            print("SORTED ACTIONS:")
-            for (pos, dir), val in action_sorted:
-                print(pos, dir, val)
-        ###
+        # sort the actions by following priorities
+        action_sorted = sorted(
+            final.items(),
+            key = lambda item: (
+                item[1],                # 1. number of captures
+                board[item[0][0]].power # 2. piece power
+            ),
+            reverse=True
+        )
+        for (pos, dir), _ in action_sorted:
+            actions.append(SpreadAction(pos, dir))
     return actions
 
 
-def get_optimized_legal_moves(board : Board,
-                              color : PlayerColor,
-                              full  = True,
-                              debug = False
-                              ) -> (list[Action], bool):
+def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
     Optimizations made are to reduce the number of legal moves had to be generated in Minimax
@@ -140,7 +135,6 @@ def get_optimized_legal_moves(board : Board,
         color : specified player's color
         full  : `True` to get the full list of legal moves, or `False` to get the reduced list
                 of all possible legal actions
-        debug : debug mode
 
     Returns:
         * list of all actions that could be applied to board,
@@ -161,7 +155,7 @@ def get_optimized_legal_moves(board : Board,
 
     # endgame check
     if not full:
-        actions = check_endgame(board, color, debug)
+        actions = check_endgame(board, color)
         if len(actions) > 0:
             return actions, True
 
@@ -201,11 +195,7 @@ def get_optimized_legal_moves(board : Board,
     return actions, False
 
 
-def move_ordering(board   : Board,
-                  color   : PlayerColor,
-                  actions : list[Action],
-                  debug   = False
-                  ) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -214,7 +204,6 @@ def move_ordering(board   : Board,
         board   : the board
         color   : player's color to have their legal moves ordered by probabilistic desirability
         actions : the list of legal actions for player
-        debug   : debug mode
 
     Returns:
         the ordered list of actions
@@ -257,12 +246,4 @@ def move_ordering(board   : Board,
         ),
         reverse=True
     )
-
-    ###
-    if debug:
-        print("\nMOVE ORDERING:")
-        for action, opponent_pow, opponent_num, player_pow in action_values:
-            print(action, opponent_pow, opponent_num, player_pow)
-    ###
-
     return list(map(lambda tup: tup[0], action_values))
