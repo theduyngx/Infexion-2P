@@ -18,11 +18,12 @@ from ..agent_test import random_move, greedy_move, minimax_shallow
 from .evaluation import mc_evaluate
 
 # Constants
+RED_VICTORY      : int   = 1
+BLUE_VICTORY     : int   = -1
+CHILD_LIMIT      : int   = 20
+SIMULATION_LIMIT : int   = 1000
 UCT_CONSTANT     : float = sqrt(2)
-RED_VICTORY      : int = 1
-BLUE_VICTORY     : int = -1
-SIMULATION_LIMIT : int = 1000
-CHILD_LIMIT      : int = 20
+TIME_LIMIT       : float = 3
 
 
 class MonteCarloNode:
@@ -63,11 +64,11 @@ class MonteCarloNode:
             board  : the given state of board
             parent : the parent node, default being None
         """
-        self.value: int = 0
-        self.victory: int = 0
-        self.uct: float = 0
-        self.visited: int = 0
-        self.action: Action = action
+        self.value   : int = 0
+        self.victory : int = 0
+        self.visited : int = 0
+        self.uct     : float = 0
+        self.action  : Action = action
 
         # Need to evaluate the board first so that it can be pushed into priority queue
         self.evaluation: int = 0
@@ -78,11 +79,10 @@ class MonteCarloNode:
             self.parent.children.append(self)
 
         # Need this when recalculating UCT
-        self.children: list[MonteCarloNode] = []
-        self.hash_val = board.__hash__()
-        self.depth = board.turn_count
-        self.sim_score: float = 0
-        return
+        self.children  : list[MonteCarloNode] = []
+        self.hash_val  : int = board.__hash__()
+        self.depth     : int = board.turn_count
+        self.sim_score : float = 0
 
     def evaluate_node(self, board: Board):
         """
@@ -92,7 +92,6 @@ class MonteCarloNode:
             board: the given board at the node
         """
         self.evaluation = mc_evaluate(board)
-        return
 
     def evaluate_simulation(self, board: Board):
         """
@@ -102,7 +101,6 @@ class MonteCarloNode:
             board: the given board
         """
         self.sim_score = mc_evaluate(board)
-        return
 
     def calculate_uct(self):
         """
@@ -114,7 +112,6 @@ class MonteCarloNode:
         # Cases where there is division or log of 0
         except ValueError:
             self.uct = self.sim_score
-        return
 
     def calculate_new_uct(self):
         """
@@ -123,7 +120,6 @@ class MonteCarloNode:
         # mcts evaluation value is already normalized
         self.uct = self.evaluation + \
             UCT_CONSTANT*sqrt((log(self.visited)/log(self.parent.visited)))
-        return
 
     def back_propagate(self, board: Board):
         """
@@ -172,57 +168,60 @@ class MonteCarloNode:
             self.victory = RED_VICTORY
         elif test_board.player_wins(PlayerColor.BLUE):
             self.victory = BLUE_VICTORY
-        else:
-            return
 
-    def hard_simulate(self, board: Board):
+    def hard_simulate(self, board: Board, start: float, limit=TIME_LIMIT, debug=False):
         """
         Hard simulation - use heuristics instead to keep implementing moves until a goal state is
         reached.
         Args:
             board: the board
+            start: start time
+            limit: resource limit (in this case is time)
+            debug: debug mode
         """
         num_moves: int = 0
-        st = time.time()
-        while not board.game_over:
+        end = time.time()
+        while end - start < limit and not board.game_over:
             new_action: Action = minimax_shallow(board, board.turn_color)
             board.apply_action(new_action, concrete=False)
             num_moves += 1
-            et = time.time()
-            print(f'Current Time for Simulation: {et - st}, num_moves: {num_moves}')
+            end = time.time()
+            if debug:
+                print(f'Current Time for Simulation: {end - start}, num_moves: {num_moves}')
 
         # Make sure to revert the board back
-        for i in range(num_moves, 1, -1):
+        for i in range(num_moves):
             board.undo_action()
 
         if board.player_wins(PlayerColor.RED):
             self.victory = RED_VICTORY
         elif board.player_wins(PlayerColor.BLUE):
             self.victory = BLUE_VICTORY
-        else:
-            return
 
-    def quick_simulate(self, board: Board):
+    def quick_simulate(self, board: Board, start: float, limit=TIME_LIMIT):
         """
         This simulation really only returns the new value, although normalized to be in
         range ``[0, 1]``
 
         Args:
             board: the board
+            start: start time
+            limit: resource limit (in this case is time)
         """
         num_moves: int = 0
         curr_color: PlayerColor = board.turn_color
-        while num_moves < SIMULATION_LIMIT and not board.game_over:
+        end = time.time()
+        while num_moves < SIMULATION_LIMIT and end - start < limit and not board.game_over:
             new_action: Action = greedy_move(board, curr_color)
             board.apply_action(new_action, concrete=False)
             curr_color = board.turn_color
             num_moves += 1
+            end = time.time()
 
         # Evaluate the simulation, the undo changes made to board
         self.evaluate_simulation(board)
-        for i in range(num_moves, 1, -1):
+        for i in range(num_moves):
             board.undo_action()
-        return
 
     # When picking a node to go to, always pick the node with the lower evaluation value
     def __lt__(self, other):
