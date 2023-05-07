@@ -26,7 +26,7 @@ Notes:
         * NumCl is the number of clusters
         * SizeCl is the total size of clusters
         * NumDom is the number of dominating clusters by size
-        * PowDom is the number
+        * PowDom is the power of clusters that dominate
 """
 
 from dataclasses import dataclass
@@ -35,12 +35,12 @@ from referee.game import PlayerColor
 from ..game import Board, INF, create_clusters
 
 # weighting factors
-NUM_PIECE_FACTOR     : float = 1.8
-POW_PIECE_FACTOR     : float = 1.7
-NUM_CLUSTER_FACTOR   : float = 1.2
-SIZE_CLUSTER_FACTOR  : float = 1.4
-NUM_DOMINANCE_FACTOR : float = 1.55
-POW_DOMINANCE_FACTOR : float = 0.45
+NUM_PIECE_FACTOR     : float = 1.7
+POW_PIECE_FACTOR     : float = 1.47
+NUM_CLUSTER_FACTOR   : float = 1.1
+SIZE_CLUSTER_FACTOR  : float = 1.2
+NUM_DOMINANCE_FACTOR : float = 1.4
+POW_DOMINANCE_FACTOR : float = 0.85
 
 
 @dataclass(slots=True)
