@@ -90,18 +90,17 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     return minimax(board, 2, color, True)
 
 
-def mcts_move(board: Board, color: PlayerColor) -> Action:
+def mcts_move(board: Board) -> Action:
     """
     Monte Carlo Tree search agent move approach.
 
     Args:
         board: given board
-        color: player's color
 
     Returns:
         the action to be taken
     """
     from ..search.monte_carlo import monte_carlo
     if board.turn_count > 0:
-        return monte_carlo(board, color)
+        return monte_carlo(board)
     return SpawnAction(HexPos(3, 3))
