@@ -12,7 +12,7 @@ Notes:
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
 from ..game import Board, DEPTH
-from .minimax import minimax, negamax
+from .minimax import negamax
 
 
 def search(board: Board, color: PlayerColor) -> Action:

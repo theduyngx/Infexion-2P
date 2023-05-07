@@ -61,26 +61,16 @@ OPTIMIZATION FOR MINIMAX:
     ii.  Reverse number of captured pieces (meaning the less, the better)
     iii. The player's piece power
 
-6.  Reusing expanded / generated branches (hard)
+6.  Perfecting Endgame - less greedy, safer, more effective (✓)
+    Requirement:
+    -   The player must be able to capture the stacked piece. That is the pre-requirement.
+    -   However, before even checking this, we must ensure that all opponent's clusters are of size 2 or
+        less, and that an attack is only valid if the player's piece power exceeds the cluster size.
+
+7.  Transposition Tables and Board Symmetries (hard)
+
+8.  Reusing expanded / generated branches (hard)
     We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
     the opponent makes said move and continue with the minimax search.
     Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
     On a likely chance that the branch is not yet pruned, we will be able to reuse an entire depth = 2 tree.
-
-7.  Transposition Tables and Board Symmetries (hard)
-
-8.  IMPORTANT: so far our endgame greedy approach is not yet perfected
-    What we need is to ensure that the cluster size that our player is attacking is smaller than the power
-    of our red piece. Otherwise, the greedy approach simply won't work.
-
-    Here is the requirement:
-    As like before, the player must be able to capture the stacked piece. That is the pre-requirement.
-    However, before even checking this, we can also check for the cluster size surrounding this stacked
-    opponent. The requirement is that for every adjacent position surrounding the stacked piece, there must
-    not be more than 1 adjacent ally:
-        num_adj = [pos + dir for dir in HexDir if board[pos + dir].color == color.opponent]
-        if num_adj > 1:
-            stop function
-
-    For even higher accuracy (but admittedly a lot more conservative), create the clusters and ensure that
-    all enemy clusters are of size 2 and cannot exceed this number.

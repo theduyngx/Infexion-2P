@@ -12,7 +12,7 @@ Notes:
     ``action`` to return an action that the agent decides to perform, and
     ``turn`` which will be called as a signal for agent that it is their turn.
 """
-from referee.game import HexDir
+
 from .search import search
 from .search.agent_test import *
 from .game import Board
