@@ -6,13 +6,13 @@ Purpose:
     Search algorithm to find the next best move for agent.
 
 Notes:
-    The search approach uses Negamax algorithm with alpha-beta pruning and variety of other
+    The search approach uses NegaScout algorithm with alpha-beta pruning and variety of other
     optimization methods to improve performance without sacrificing too much accuracy.
 """
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
 from ..game import Board
-from .minimax import negascout
+from .negascout import negascout
 
 # Depth limit for NegaScout
 DEPTH: int = 4
@@ -21,7 +21,7 @@ DEPTH: int = 4
 def search(board: Board, color: PlayerColor) -> Action:
     """
     Search the best subsequent move for agent. It will be using a pruned and highly optimized
-    Negamax search algorithm, which is a Minimax-variant algorithm.
+    NegaScout search algorithm, which is a Negamax-variant algorithm.
     Args:
         board: the board
         color: the agent's color

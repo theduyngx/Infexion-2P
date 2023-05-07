@@ -3,15 +3,15 @@ Module:
     ``minimax_utils.py``
 
 Purpose:
-    Utility functions for Minimax, Negamax, and NegaScout algorithms, which includes optimization
-    for getting all legal moves for a specific agent and other search optimization functionalities
-    such as move ordering and dynamic move reductions.
+    Utility functions for Minimax-variant algorithms, including Negamax and NegaScout. This includes
+    optimization for getting all legal moves for a specific agent and other search optimization
+    functionalities such as move ordering and dynamic move reductions.
 
 Notes:
-    Get all legal moves is optimized for Minimax, Negamax, and NegaScout algorithms. It allows agent
-    to choose ``full``, if agent requires every possible legal move that's available, or otherwise
-    (a reduced version) if agent wants to ignore specific actions that are considered `quiet`, viz.
-    not having significant effects.
+    Get all legal moves is optimized for Negamax, and NegaScout algorithms. It allows agent to choose
+    ``full``, if agent requires every possible legal move that's available, or otherwise (a reduced
+    version) if agent wants to ignore specific actions that are considered `quiet`, viz. not having
+    significant effects.
 
     Move reduction also entails endgame detection, where the desirable moves become more apparent;
     hence any moves that may not seem desirable can simply be filtered out.

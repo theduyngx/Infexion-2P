@@ -3,16 +3,15 @@ Module:
     ``evaluation.py``
 
 Purpose:
-    Minimax and Negamax search algorithm evaluation function.
+    NegaScout and Negamax search algorithm evaluation function.
 
 Notes:
-    The evaluation function for Minimax and Negamax is a **zero-sum** evaluation function. We
-    make RED as the maximizing side, and BLUE as the minimizing side.
-    Used in both ``minimax.py`` and ``negamax.py``.
+    The evaluation function for NegaScout and Negamax is a **zero-sum** evaluation function.
+    We make RED as the maximizing side, and BLUE as the minimizing side.
+    Used in both ``negascout.py``.
 """
 
 from ...search.evaluation_data import *
-
 
 # Constants
 MAXIMIZE_PLAYER: PlayerColor = PlayerColor.RED
