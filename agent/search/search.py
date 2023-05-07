@@ -32,4 +32,4 @@ def search(board: Board, color: PlayerColor) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    return negamax(board, DEPTH, color, full=False)
+    return negascout(board, DEPTH, color, full=False)

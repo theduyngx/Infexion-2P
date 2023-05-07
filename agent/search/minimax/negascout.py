@@ -3,12 +3,12 @@ Module:
     ``negamax.py``
 
 Purpose:
-    The Negamax search algorithm to find the best next move for the agent, with alpha-beta
-    pruning to improve performance.
+    The NegaScout and Negamax search algorithm to find the best next move for the agent, with
+    alpha-beta pruning to improve performance.
 
 Notes:
-    Negamax algorithm, to reach further depth requires a variety of different optimization methods
-    introduced in ``negamax_utils.py``.
+    NegaScout and Negamax algorithm, to reach further depth requires a variety of different
+    optimization methods introduced in ``minimax_utils.py``.
 """
 
 from referee.game import PlayerColor, Action
