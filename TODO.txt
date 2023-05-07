@@ -67,9 +67,19 @@ OPTIMIZATION FOR MINIMAX:
     -   However, before even checking this, we must ensure that all opponent's clusters are of size 2 or
         less, and that an attack is only valid if the player's piece power exceeds the cluster size.
 
-7.  Transposition Tables and Board Symmetries (hard)
+7.  IMPORTANT: Spawn pruning is a bit risky for now
+    In the optimization, spawn is said to be ignored if player has more than at least 4 pieces compared to
+    opponent's, or player still has under 12 pieces. And spawn will also not be pruned if no spread is
+    currently available (this includes pointless power-1 spread to nowhere).
 
-8.  Reusing expanded / generated branches (hard)
+    However, this is not quite optimal. What if all power-n (n > 1) do not capture any opponent? Is it
+    necessarily better to prune the spawn actions then? The answer is a definite no. If the opponent's
+    agent is smart and when when overwhelmed by a mere power of 4, it builds up by spawning elsewhere
+    and makes sure that our agent can't reach it, then it can counter-attack quite effectively.
+
+8.  Transposition Tables and Board Symmetries (hard)
+
+9.  Reusing expanded / generated branches (hard)
     We will keep the tree in memory. And when the opponent makes a move, we will reuse the branch in which
     the opponent makes said move and continue with the minimax search.
     Of course, if the branch has already been pruned by alpha-beta, we will have to generate it from start.
