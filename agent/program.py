@@ -19,25 +19,6 @@ from .game import Board
 from .utils import *
 
 
-actions = [SpawnAction(HexPos(3, 0)),
-           SpawnAction(HexPos(4, 5)),
-           SpawnAction(HexPos(6, 3)),
-           SpawnAction(HexPos(2, 0)),
-           SpreadAction(HexPos(4, 5), HexDir.UpLeft),
-           SpawnAction(HexPos(2, 2)),
-           SpawnAction(HexPos(4, 2)),
-           SpawnAction(HexPos(6, 6)),
-           SpreadAction(HexPos(3, 0), HexDir.DownLeft),
-           SpawnAction(HexPos(5, 3)),
-           SpreadAction(HexPos(5, 3), HexDir.UpRight),
-           SpawnAction(HexPos(2, 3)),
-           SpawnAction(HexPos(0, 1)),
-           SpawnAction(HexPos(3, 2)),
-           SpawnAction(HexPos(3, 5)),
-           SpawnAction(HexPos(4, 4)),
-           ]
-
-
 class Agent:
     """
     Agent class representing the agent player.
@@ -73,7 +54,9 @@ class Agent:
     def action(self, **referee: dict) -> Action:
         """
         Return the next action to take by the agent. Used by referee to apply the action to
-        the game's board.
+        the game's board. The search algorithm for the action is Negamax. For more specific
+        information, see ``search`` package.
+
         Args:
             referee: the referee
         Returns:
@@ -100,9 +83,6 @@ class Agent:
                 # return minimax_shallow(board, color)
                 # return random_move(board, color)
                 return search(board, color)
-                # if actions:
-                #     return actions.pop(0)
-                # return greedy_move(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
 

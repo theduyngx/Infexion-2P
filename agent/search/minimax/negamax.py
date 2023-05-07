@@ -51,6 +51,10 @@ def alphabeta_negamax(board  : Board,
     """
     Alpha-beta pruning for Negamax search algorithm.
 
+    Note: Unlike Minimax alpha-beta pruning, it will only have to check once for the player's
+    color to determine whether to maximize or minimize. At every subsequent backtrack, it only
+    has to assign negation to that value. This makes alpha-beta for Negamax more elegant.
+
     Args:
         board  : the board
         color  : the current turn of player, specified by player's color
@@ -58,9 +62,8 @@ def alphabeta_negamax(board  : Board,
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
-        full   : whether agent uses reduced-moves minimax,
-                 `True` if in move reduction optimization mode,
-                 `False` if requiring all legal moves
+        full   : * `True` to set move reduction optimization,
+                 * `False` to get actual all possible legal moves
 
     Returns:
         evaluated score of the board and the action to be made
@@ -71,7 +74,6 @@ def alphabeta_negamax(board  : Board,
     value = 0
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
-        assert_action(action)
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 

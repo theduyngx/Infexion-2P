@@ -14,7 +14,7 @@ Notes:
 
 from referee.game import PlayerColor, Action
 from ...game import Board, assert_action, INF, DEPTH
-from .evaluation import evaluate
+from .evaluation import evaluate, MAXIMIZE_PLAYER
 from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 
@@ -58,9 +58,8 @@ def alphabeta(board  : Board,
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
-        full   : whether agent uses reduced-moves minimax,
-                 `True` if in move reduction optimization mode,
-                 `False` if requiring all legal moves
+        full   : * `True` to set move reduction optimization,
+                 * `False` to get actual all possible legal moves
     Returns:
         evaluated score of the board and the action to be made
     """
@@ -70,11 +69,10 @@ def alphabeta(board  : Board,
     value = 0
     if depth == 0 or board.game_over:
         stop = depth >= DEPTH - 1
-        assert_action(action)
         return evaluate(board), action, stop
 
     # maximize
-    if color == PlayerColor.RED:
+    if color == MAXIMIZE_PLAYER:
         legal_moves, endgame = get_optimized_legal_moves(board, color, full)
         ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 

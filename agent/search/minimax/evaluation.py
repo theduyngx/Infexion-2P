@@ -3,18 +3,19 @@ Module:
     ``evaluation.py``
 
 Purpose:
-    Minimax search algorithm evaluation function.
+    Minimax and Negamax search algorithm evaluation function.
 
 Notes:
-    The evaluation function for Minimax is a **zero-sum** evaluation function. We make RED as the
-    maximizing side, and BLUE as the minimizing side. It should be noted that the evaluation
-    is dynamic, meaning if the player is BLUE, it will know to minimize the score.
+    The evaluation function for Minimax and Negamax is a **zero-sum** evaluation function. We
+    make RED as the maximizing side, and BLUE as the minimizing side.
+    Used in both ``minimax.py`` and ``negamax.py``.
 """
 
 from ...search.evaluation_data import *
 
+
 # Constants
-MAXIMIZE_PLAYER : PlayerColor = PlayerColor.RED
+MAXIMIZE_PLAYER: PlayerColor = PlayerColor.RED
 
 
 def evaluate(board: Board) -> float:
@@ -37,8 +38,8 @@ def evaluate(board: Board) -> float:
         return data.immediate_eval
     value  = (data.num_red - data.num_blue) * NUM_PIECE_FACTOR
     value += (data.pow_red - data.pow_blue) * POW_PIECE_FACTOR
+    value += (data.num_red_clusters  - data.num_blue_clusters ) * NUM_CLUSTER_FACTOR
     value += (data.size_red_clusters - data.size_blue_clusters) * SIZE_CLUSTER_FACTOR
     value += (data.num_red_dominates - data.num_blue_dominates) * NUM_DOMINANCE_FACTOR
     value += (data.pow_red_dominates - data.pow_blue_dominates) * POW_DOMINANCE_FACTOR
-    value += (data.num_red_clusters  - data.num_blue_clusters ) * NUM_CLUSTER_FACTOR
     return value
