@@ -8,10 +8,13 @@ Purpose:
 Notes:
     These agents range from simply picking a move randomly that's legal for them, to a greedy
     approach, to more complex agents that are capable of making more complex moves.
+
+    Specifically, we've included a Minimax agent at a shallower depth to minimax optimization
+    and maximize accuracy for its allowed depth, as well as a Monte Carlo Tree search agent
+    which uses 3 different play-out approaches.
 """
 
 from random import randint
-# ....
 from referee.game import Action, PlayerColor, SpawnAction, SpreadAction, HexPos
 from ..game import Board
 from .search_utils import get_legal_moves
@@ -21,16 +24,11 @@ def random_move(board: Board, color: PlayerColor) -> Action:
     """
     Agent's move approach where it picks any random move from all of its possible move set.
 
-    Parameters
-    ----------
-    board: Board
-        the current state of the board
-    color: PlayerColor
-        the agent's color (it is its turn)
+    Args:
+        board: the current state of the board
+        color: the agent's color (it is its turn)
 
-    Returns
-    -------
-    Action
+    Returns:
         the random action to be taken by agent
     """
     actions = get_legal_moves(board, color)
@@ -44,16 +42,11 @@ def greedy_move(board: Board, color: PlayerColor) -> Action:
     it the most power, and if all spread moves lead to no power decrease of opponent, it will
     randomly spawn if possible, otherwise randomly spread.
 
-    Parameters
-    ----------
-    board: Board
-        the board
-    color: PlayerColor
-        the agent's color turn
+    Args:
+        board: the board
+        color: the agent's color turn
 
-    Returns
-    -------
-    Action
+    Returns:
         the action to be taken by agent
     """
     actions = get_legal_moves(board, color)
@@ -86,39 +79,28 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     """
     Depth of 2, full evaluation minimax agent.
 
-    Parameters
-    ----------
-    board: Board
-        given board
-    color: PlayerColor
-        player's color
+    Args:
+        board: given board
+        color: player's color
 
-    Returns
-    -------
-    Action
+    Returns:
         the action to be taken
     """
-    from agent.search.minimax import minimax
+    from ..search.minimax import minimax
     return minimax(board, 2, color, True)
 
 
-def mcts_move(board: Board, color: PlayerColor) -> Action:
+def mcts_move(board: Board) -> Action:
     """
     Monte Carlo Tree search agent move approach.
 
-    Parameters
-    ----------
-    board: Board
-        given board
-    color: PlayerColor
-        player's color
+    Args:
+        board: given board
 
-    Returns
-    -------
-    Action
+    Returns:
         the action to be taken
     """
-    from agent.search.monte_carlo import monte_carlo
+    from ..search.monte_carlo import monte_carlo
     if board.turn_count > 0:
-        return monte_carlo(board, color)
+        return monte_carlo(board)
     return SpawnAction(HexPos(3, 3))

@@ -36,7 +36,7 @@ class MutableHeap:
         Add a new task or update the priority of an existing task
         """
         if task.hash_val in self.entry_finder:
-            self.remove_task(task.hash_val)
+            self.remove_task(task)
         count = next(self.counter)
         entry = [task.depth, priority, count, task]
         self.entry_finder[task.hash_val] = entry

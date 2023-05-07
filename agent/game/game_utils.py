@@ -33,6 +33,7 @@ def assert_action(action):
 def adjacent_positions(pos: HexPos) -> list[HexPos]:
     """
     Get all adjacent positions to the specified one.
+
     Args:
         pos: the specified position
     Returns:

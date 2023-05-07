@@ -6,22 +6,22 @@ Purpose:
     Search algorithm to find the next best move for agent.
 
 Notes:
-    This may use a hybrid of Minimax and Monte Carlo tree search algorithms to produce more quality
-    results by improving accuracy. So far, it is only using Minimax.
+    The search approach uses Negamax algorithm with alpha-beta pruning and variety of other
+    optimization methods to improve performance without sacrificing too much accuracy.
 """
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
 from ..game import Board, DEPTH
-from .minimax import minimax
+from .minimax import negamax, negascout
 
 
 def search(board: Board, color: PlayerColor) -> Action:
     """
-    Search the best subsequent move for agent. It will be using a hybrid of search algorithms and
-    pruning techniques, namely Minimax and Monte Carlo tree search algorithms.
-    Parameters:
-        board : the board
-        color : the agent's color
+    Search the best subsequent move for agent. It will be using a pruned and highly optimized
+    Negamax search algorithm, which is a Minimax-variant algorithm.
+    Args:
+        board: the board
+        color: the agent's color
     Returns:
         the action to take for agent
     """
@@ -32,4 +32,4 @@ def search(board: Board, color: PlayerColor) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    return minimax(board, DEPTH, color, full=False)
+    return negascout(board, DEPTH, color, full=False)

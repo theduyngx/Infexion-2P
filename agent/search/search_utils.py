@@ -21,7 +21,7 @@ def get_legal_moves(board: Board, color: PlayerColor) -> list[Action]:
     specific moves based on domain knowledge of the game.
     However, in the case when player is overwhelmed, then full will be forcefully set to True.
 
-    Parameters:
+    Args:
         board : specified board
         color : specified player's color
     Returns:

@@ -3,16 +3,18 @@ Module:
     ``minimax_utils.py``
 
 Purpose:
-    Utility functions for minimax algorithm, which includes optimization for getting all
-    legal moves for a specific agent and other search optimization functionalities such
-    as move ordering and dynamic move reductions.
+    Utility functions for Minimax, Negamax, and NegaScout algorithms, which includes optimization
+    for getting all legal moves for a specific agent and other search optimization functionalities
+    such as move ordering and dynamic move reductions.
 
 Notes:
-    Get all legal moves is optimized for the Minimax algorithm. It allows agent to choose full, if
-    agent would like to get every possible legal move that's available for it, or reduced, if agent
-    would like to ignore specific actions that are considered `quiet`, viz. not having significant
-    effects. Move reduction also entails endgame detection, where the desirable moves become more
-    apparent; hence any moves that may not seem desirable can simply be filtered out.
+    Get all legal moves is optimized for Minimax, Negamax, and NegaScout algorithms. It allows agent
+    to choose ``full``, if agent requires every possible legal move that's available, or otherwise
+    (a reduced version) if agent wants to ignore specific actions that are considered `quiet`, viz.
+    not having significant effects.
+
+    Move reduction also entails endgame detection, where the desirable moves become more apparent;
+    hence any moves that may not seem desirable can simply be filtered out.
 """
 
 from collections import defaultdict
@@ -22,7 +24,7 @@ from referee.game import HexPos, HexDir, PlayerColor, \
                          MAX_TOTAL_POWER, BOARD_N
 from ...game import Board, adjacent_positions, \
                     Clusters, create_clusters_color, \
-                    MIN_TOTAL_POWER, EMPTY_POWER
+                    MIN_TOTAL_POWER, EMPTY_POWER, MIN_DIFF_SPAWN
 from ..search_utils import get_legal_moves
 
 # Constant
@@ -59,45 +61,45 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
 
         # endgame: if number of opponents less than a third of player's with mostly single-power
         endgame = opponent_num <= player_num // 3 and len(single_power) >= len(bool_single_power)-1
-        if endgame:
+        if not endgame:
+            return []
 
-            # make sure that all clusters of opponent must be of size 2 or lower
-            opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
-            for cluster in opponent_clusters:
-                if len(cluster) > 2:
+        # make sure that all clusters of opponent must be of size 2 or lower
+        opponent_clusters: Clusters = create_clusters_color(board, color.opponent)
+        for cluster in opponent_clusters:
+            if len(cluster) > 2:
+                return []
+            for opponent in cluster:
+                # if piece is stacked, then it must be cleared out, otherwise not endgame
+                stacked = opponent.power > 1
+                cleared = not stacked
+
+                # for each direction, get the same direction ranges
+                for dir in HexDir:
+                    ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
+                    for r in ranges:
+
+                        # for each cell in said direction
+                        for s in r:
+                            curr_pos = opponent.pos - dir * s
+                            cell = board[curr_pos]
+                            # make sure that it has to be the player's cell
+                            if cell.color != color:
+                                continue
+                            # append to actions if cell can reach the opponent and its power
+                            # at least is equal to the opponent's cluster size
+                            if cell.power >= abs(s) and cell.power >= len(cluster):
+                                cleared = True
+                                key = (curr_pos, dir)
+                                if key in action_capture:
+                                    action_capture[key] += 1
+                                else:
+                                    action_capture[key] = 1
+                                if stacked:
+                                    stacked_capture[key] = 1
+                # if stacked opponent cannot be cleared, then it isn't endgame
+                if not cleared:
                     return []
-                for opponent in cluster:
-                    # if piece is stacked, then it must be cleared out, otherwise this isn't endgame
-                    stacked = opponent.power > 1
-                    cleared = not stacked
-
-                    # for each direction, get the same direction ranges
-                    for dir in HexDir:
-                        ranges = [range(1, BOARD_N//2 + 1), range(-1, -BOARD_N//2 - 1, -1)]
-                        for r in ranges:
-                            curr_pos = opponent.pos
-
-                            # for each cell in said direction
-                            for s in r:
-                                curr_pos -= dir
-                                cell = board[curr_pos]
-                                # make sure that it is not an empty cell or opponent's cell
-                                if cell.power == EMPTY_POWER or cell.color == color.opponent:
-                                    continue
-                                # append to actions if cell can reach the opponent and its power at least
-                                # is equal to the opponent's cluster size
-                                if cell.power >= abs(s) and cell.power >= len(cluster):
-                                    cleared = True
-                                    key = (curr_pos, dir)
-                                    if key in action_capture:
-                                        action_capture[key] += 1
-                                    else:
-                                        action_capture[key] = 1
-                                    if stacked:
-                                        stacked_capture[key] = 1
-                    # if stacked opponent cannot be cleared, then it isn't endgame
-                    if not cleared:
-                        return []
 
         # if there is a stacked opponent, then we update number of captures in captured dict
         if stacked_capture:
@@ -110,27 +112,24 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
         else:
             return []
 
-        # sort the actions by priority 1 - number of captures, and 2 - piece power
-        action_sorted = sorted(final.items(),
-                               key=lambda item: (item[1], board[item[0][0]].power),
-                               reverse=True)
-        (pos, dir), max_capture = action_sorted[0]
-        max_power = board[pos].power
-
-        # return only the list of actions that are most desirable (equal highest number of
-        # captures and equal highest power given the number of captures)
-        for (pos, dir), value in action_sorted:
-            if value < max_capture or board[pos].power < max_power:
-                break
+        # sort the actions by following priorities
+        action_sorted = sorted(
+            final.items(),
+            key = lambda item: (
+                item[1],                # 1. number of captures
+                board[item[0][0]].power # 2. piece power
+            ),
+            reverse=True
+        )
+        for (pos, dir), _ in action_sorted:
             actions.append(SpreadAction(pos, dir))
-        assert actions
     return actions
 
 
 def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
-    Optimizations made are to reduce the number of legal moves had to be generated in minimax
+    Optimizations made are to reduce the number of legal moves had to be generated in Minimax
     tree.
 
     Args:
@@ -149,7 +148,9 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     opponent_power = board.color_power(color.opponent)
     total_power    = player_power + opponent_power
     if not full:
-        if color == board.true_turn:
+        if player_power == EMPTY_POWER:
+            full = True
+        elif color == board.true_turn:
             player_overwhelmed = player_power <= opponent_power // 3 and \
                                  total_power >= MIN_TOTAL_POWER
             full = player_overwhelmed
@@ -164,33 +165,35 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     if full:
         return get_legal_moves(board, color), False
 
-    # for every possible move from a given board state, including SPAWN and SPREAD
-    for cell in board.get_cells():
-
-        # append spawn actions on condition
+    # get all spread cells first
+    spread_cells = board.player_cells(color)
+    for cell in spread_cells:
         pos = cell.pos
-        if not board.pos_occupied(pos):
-            if board.total_power() < MAX_TOTAL_POWER:
+        # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
+        if board[pos].power == 1:
+            for dir in HexDir:
+                adj = pos + dir
+                if board[adj].color == color.opponent:
+                    actions.append(SpreadAction(pos, dir))
+        # otherwise, full list requested, or position has power exceeding 1
+        else:
+            actions.extend([SpreadAction(pos, dir) for dir in HexDir])
 
-                # append on condition: within an acceptable range, spawn can be skipped
-                if player_power < MIN_TOTAL_POWER or player_power <= opponent_power:
-                    adj_list = adjacent_positions(pos)
-                    # and the skipped ones are those not adjacent to player's pieces
-                    if any([board[adj].color == color for adj in adj_list]):
-                        actions.append(SpawnAction(pos))
+    # check for every spawn cells
+    if board.total_power() < MAX_TOTAL_POWER:
+        for cell in board.get_cells():
+            pos = cell.pos
+            if board.pos_occupied(pos):
+                continue
 
-        # append spread actions for specific direction
-        elif board[pos].color == color:
+            # append on condition: within an acceptable range, spawn can be skipped
+            if not spread_cells or player_power < MIN_TOTAL_POWER or \
+                    player_power <= opponent_power + MIN_DIFF_SPAWN:
+                adj_list = adjacent_positions(pos)
 
-            # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-            if board[pos].power == 1:
-                for dir in HexDir:
-                    adj = pos + dir
-                    if board[adj].color == color.opponent:
-                        actions.append(SpreadAction(pos, dir))
-            # otherwise, full list requested, or position has power exceeding 1
-            else:
-                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+                # and the skipped ones are those not adjacent to player's pieces
+                if any([board[adj].color == color for adj in adj_list]):
+                    actions.append(SpawnAction(pos))
     return actions, False
 
 
@@ -207,13 +210,13 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
     Returns:
         the ordered list of actions
     """
-    # for each action of the player's list of legal moves
-    index = 0
-    action_values: list[tuple[Action, int, int, int]] = [(None, # Action
+    action_values: list[tuple[Action, int, int, int]] = [(None, # action
                                                           0,    # total power captured
                                                           0,    # total number of captured
                                                           0     # player's piece power
                                                           )] * len(actions)
+    # for each action of the player's list of legal moves
+    index = 0
     for action in actions:
         match action:
             # spawn means adding their power by 1
@@ -222,14 +225,13 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
                 power = board[action.cell].power
-                total_blue_pieces = 0
                 total_blue_power  = 0
-                curr_pos = pos
-                for _ in range(power):
-                    curr_pos += dir
-                    if curr_pos in board and board[curr_pos].color == color.opponent:
-                        total_blue_pieces += 1
+                total_blue_pieces = 0
+                for s in range(1, power + 1):
+                    curr_pos = pos + dir * s
+                    if board[curr_pos].color == color.opponent:
                         total_blue_power  += board[curr_pos].power
+                        total_blue_pieces += 1
                 # Now add these values into the tuple to sort
                 action_values[index] = (action, total_blue_power, total_blue_pieces, power)
             # error case

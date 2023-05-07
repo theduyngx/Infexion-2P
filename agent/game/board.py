@@ -16,7 +16,7 @@ Notes:
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
+from referee.game import HexPos, Action, SpawnAction, SpreadAction, PlayerColor, \
     MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER, WIN_POWER_DIFF
 from .constants import *
 
@@ -97,7 +97,7 @@ class Board:
         "_turn_count"
     ]
 
-    def __init__(self, initial_state: dict[int, CellState] = None):
+    def __init__(self, initial_state: dict[HexPos, CellState] = None):
         """
         Board constructor. The attribute state has key being the hashed value of the hex position of
         the cell, and the value being the cell and its state.
@@ -109,23 +109,22 @@ class Board:
                 * the value is the state of the cell at specified position
         """
         # the state uses dense representation, which also stores the empty cells
-        self._state: dict[int, CellState] = defaultdict()
+        self._state: dict[HexPos, CellState] = defaultdict()
         if initial_state is None:
             initial_state = {}
         for r in range(BOARD_N):
             for q in range(BOARD_N):
                 pos = HexPos(r, q)
-                hash_pos = pos.__hash__()
-                if hash_pos not in initial_state:
-                    initial_state[hash_pos] = CellState(pos)
+                if pos not in initial_state:
+                    initial_state[pos] = CellState(pos)
                 else:
-                    assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
+                    assert initial_state[pos].power > EMPTY_POWER and initial_state[pos].color
 
         # other properties initialized
         self._state.update(initial_state)
         self._turn_count: int = 0
-        self._turn_color: PlayerColor = PLAYER_COLOR
-        self._true_turn : PlayerColor = PLAYER_COLOR
+        self._turn_color: PlayerColor = PlayerColor.RED
+        self._true_turn : PlayerColor = PlayerColor.RED
         self._non_concrete_history: list[BoardMutation] = []
 
     def __getitem__(self, pos: HexPos) -> CellState:
@@ -137,27 +136,28 @@ class Board:
         Returns:
             cell's state
         """
-        return self._state[pos.__hash__()]
+        return self._state[pos]
 
-    def __setitem__(self, pos: HexPos, state: CellState):
+    def __setitem__(self, pos: HexPos, cell: CellState):
         """
         Add a new entry to state.
 
         Args:
-            pos   : the cell position
-            state : the state of the cell
+            pos  : the cell position
+            cell : the state of the cell
         """
-        self._state[pos.__hash__()] = state
+        self._state[pos] = cell
 
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check if a position is occupied by a piece within the board or not.
+
         Args:
             pos: specified position
         Returns:
             boolean indicating whether the position is occupied or not
         """
-        return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
+        return pos in self._state and self[pos].power > EMPTY_POWER
 
     def __hash__(self) -> int:
         """
@@ -220,12 +220,13 @@ class Board:
             true if game is over
         """
         return self.turn_count >= MIN_MOVE_WIN and (self.turn_count >= MAX_TURNS or
-                                                    self.color_power(PLAYER_COLOR) == EMPTY_POWER or
-                                                    self.color_power(OPPONENT_COLOR) == EMPTY_POWER)
+                                                    self.color_power(PlayerColor.RED)  == EMPTY_POWER or
+                                                    self.color_power(PlayerColor.BLUE) == EMPTY_POWER)
 
     def player_wins(self, player: PlayerColor) -> bool:
         """
         Check if specified player has won the game.
+
         Args:
             player: specified player, denoted by their color
         Returns:
@@ -243,6 +244,7 @@ class Board:
     def player_cells(self, color: PlayerColor) -> list[CellState]:
         """
         Get the list of cells of specified player's
+
         Args:
             color: the player's color
         Returns:
@@ -256,6 +258,7 @@ class Board:
     def num_players(self, color: PlayerColor) -> int:
         """
         Get the number of player pieces currently on the board
+
         Args:
             color: the player's color
         Returns:
@@ -266,6 +269,7 @@ class Board:
     def color_power(self, color: PlayerColor) -> int:
         """
         Method getting the current total power of a specified player.
+
         Args:
             color: the player's color
         Returns:
@@ -276,10 +280,12 @@ class Board:
     def color_number_and_power(self, color: PlayerColor) -> (int, int):
         """
         Method getting the current total power of a specified player and the number of pieces.
+
         Args:
             color: the player's color
         Returns:
-            their number of pieces on board and power
+            * player's number of pieces on board
+            * player's total power
         """
         color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
         return len(color_cells), sum(color_cells)
@@ -287,6 +293,7 @@ class Board:
     def pos_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
+
         Args:
             pos: specified cell's coordinates
         Returns:
