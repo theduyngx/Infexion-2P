@@ -91,18 +91,18 @@ class Agent:
         match color:
             case PlayerColor.RED:
                 print_referee(referee)
-                # return greedy_move(board, color)
-                return search(board, color)
+                return greedy_move(board, color)
+                # return search(board, color)
 
             case PlayerColor.BLUE:
                 # return mcts_move(board, color)
                 # return search(board, color)
                 # return minimax_shallow(board, color)
                 # return random_move(board, color)
-                # return search(board, color)
-                if actions:
-                    return actions.pop(0)
-                return greedy_move(board, color)
+                return search(board, color)
+                # if actions:
+                #     return actions.pop(0)
+                # return greedy_move(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
 
