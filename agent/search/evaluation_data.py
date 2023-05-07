@@ -10,6 +10,23 @@ Notes:
     The evaluation information includes the number of pieces of a both sides, their total power,
     and their clusters. The information on clusters will be used for dominance factor data. This
     is especially significant since much of Infexion is about dominating the blue.
+    With the provided constants, the evaluation score of the board is calculated as follows:
+
+    |
+    .. math:: Eval(state) = 1.8  * (Num_r    - Num_b   ) +
+                            1.7  * (Pow_r    - Pow_b   ) + \n
+                            1.2  * (NumCl_r  - NumCl_b ) +
+                            1.4  * (SizeCl_r - SizeCl_b) + \n
+                            1.55 * (NumDom_r - NumDom_b) +
+                            0.45 * (PowDom_r - PowDom_b)
+
+    Where: (each of a specified color)
+        * Num is the number of pieces
+        * Pow is the total power
+        * NumCl is the number of clusters
+        * SizeCl is the total size of clusters
+        * NumDom is the number of dominating clusters by size
+        * PowDom is the number
 """
 
 from dataclasses import dataclass
@@ -101,7 +118,7 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         # red's cluster
         if cluster.color == PlayerColor.RED:
             data.num_red_clusters  += 1
-            data.size_red_clusters += len(cluster)
+            data.size_red_clusters += len(cluster) ** SIZE_CLUSTER_FACTOR
             # dominance factor is checked solely via red pieces
             for blue_cell in cluster.get_opponents():
                 blue_cluster = clusters[blue_cell]
@@ -121,5 +138,17 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         # blue's cluster
         else:
             data.num_blue_clusters  += 1
-            data.size_blue_clusters += len(cluster)
+            data.size_blue_clusters += len(cluster) ** SIZE_CLUSTER_FACTOR
+
+    # added weights to other values
+    data.num_red            **= NUM_PIECE_FACTOR
+    data.pow_red            **= POW_PIECE_FACTOR
+    data.num_red_clusters   **= NUM_CLUSTER_FACTOR
+    data.num_red_dominates  **= NUM_DOMINANCE_FACTOR
+    data.pow_red_dominates  **= POW_DOMINANCE_FACTOR
+    data.num_blue           **= NUM_PIECE_FACTOR
+    data.pow_blue           **= POW_PIECE_FACTOR
+    data.num_blue_clusters  **= NUM_CLUSTER_FACTOR
+    data.num_blue_dominates **= NUM_DOMINANCE_FACTOR
+    data.pow_blue_dominates **= POW_DOMINANCE_FACTOR
     return data

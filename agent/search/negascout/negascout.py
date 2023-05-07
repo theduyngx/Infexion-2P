@@ -38,7 +38,6 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     """
     alpha = -INF
     beta = INF
-    assert not board.game_over
     _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, full)
     assert_action(action)
     return action
@@ -72,11 +71,13 @@ def alphabeta_negamax(board  : Board,
                  * `False` to get actual all possible legal moves
 
     Returns:
-        evaluated score of the board and the action to be made
+        * evaluated score of the board and the action to be made
+        * the action to be taken
+        * boolean premature stopping condition
     """
     # reached depth limit, or terminal node
-    stop = False
-    ret = None
+    ret   = None
+    stop  = False
     value = 0
     if depth == 0 or board.game_over:
         stop = depth >= ceil - 1
@@ -126,8 +127,7 @@ def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Actio
         the action to take for agent
     """
     alpha = -INF
-    beta = INF
-    assert not board.game_over
+    beta  = INF
     _, action, _ = alphabeta_pvs(board, color, depth, depth, None, alpha, beta, full)
     assert_action(action)
     return action
@@ -162,7 +162,9 @@ def alphabeta_pvs(board  : Board,
                  * `False` to get actual all possible legal moves
 
     Returns:
-        evaluated score of the board and the action to be made
+        * evaluated score of the board and the action to be made
+        * the action to be taken
+        * boolean premature stopping condition
     """
     # reached depth limit, or terminal node
     if depth == 0 or board.game_over:
@@ -174,7 +176,7 @@ def alphabeta_pvs(board  : Board,
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
     ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 
-    # apply the estimated best action in move ordering
+    # apply the estimated best action (aka. the first one in move ordering)
     first_move = ordered_moves[0]
     board.apply_action(first_move, concrete=False)
     value, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, first_move, -beta, -alpha, full)
@@ -182,7 +184,7 @@ def alphabeta_pvs(board  : Board,
     # undo after finishing
     board.undo_action()
 
-    # check if score within bound, if so must check for the remaining possible actions
+    # check if score within alpha-beta bound, if so, check for the remaining possible actions
     ret = first_move
     if alpha < value < beta:
         for possible_action in ordered_moves[1:]:
@@ -210,7 +212,7 @@ def alphabeta_pvs(board  : Board,
             alpha = max(alpha, value)
 
             # cutoff / stop prematurely
-            if stop or alpha >= beta:
+            if alpha >= beta or stop:
                 break
 
     # return evaluated value and corresponding action

@@ -165,27 +165,22 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     if full:
         return get_legal_moves(board, color), False
 
-    # get all spread cells first
-    spread_cells = board.player_cells(color)
-    for cell in spread_cells:
+    for cell in board.get_cells():
         pos = cell.pos
-        # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-        if board[pos].power == 1:
-            for dir in HexDir:
-                adj = pos + dir
-                if board[adj].color == color.opponent:
-                    actions.append(SpreadAction(pos, dir))
-        # otherwise, full list requested, or position has power exceeding 1
-        else:
-            actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+        # check for spread cells
+        if cell.color == color:
+            # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
+            if board[pos].power == 1:
+                for dir in HexDir:
+                    adj = pos + dir
+                    if board[adj].color == color.opponent:
+                        actions.append(SpreadAction(pos, dir))
+            # otherwise, full list requested, or position has power exceeding 1
+            else:
+                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
 
-    # check for every spawn cells
-    if board.total_power() < MAX_TOTAL_POWER:
-        for cell in board.get_cells():
-            pos = cell.pos
-            if board.pos_occupied(pos):
-                continue
-
+        # check for every spawn cells
+        elif board.total_power() < MAX_TOTAL_POWER and not board.pos_occupied(pos):
             # spawn is skipped if the spawn is not adjacent to any of player's cell
             adj_list = adjacent_positions(pos)
             if any([board[adj].color == color for adj in adj_list]):

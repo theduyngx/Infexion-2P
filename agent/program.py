@@ -75,12 +75,12 @@ class Agent:
                 return search(board, color)
 
             case PlayerColor.BLUE:
-                # from .search.minimax import negamax
+                # from .search.negascout import negamax
                 # return negamax(board, 4, color)
                 # return mcts_move(board)
-                return minimax_shallow(board, color)
+                # return minimax_shallow(board, color)
                 # return random_move(board, color)
-                # return greedy_move(board, color)
+                return greedy_move(board, color)
                 # return search(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
