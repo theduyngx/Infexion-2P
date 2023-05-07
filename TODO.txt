@@ -72,10 +72,14 @@ OPTIMIZATION FOR MINIMAX:
     --> We've implemented something theoretically the same, which is NegaScout.
         Not quite reusing, but not re-evaluating already evaluated nodes, essentially.
 
-8.  IMPORTANT: Spawn pruning is a bit risky for now
-    In the optimization, spawn is said to be ignored if player has more than at least 4 pieces compared
-    to opponent's, or player still has under 12 pieces. And spawn will also not be pruned if no spread
-    is currently available (this includes pointless power-1 spread to nowhere).
+8.  Spawn pruning is a bit risky for now (✓)
+    --> IMPORTANT: Sort of removed it because NegaScout already makes it fast enough to compensate.
+        However, compared to before, it is already 50 seconds slower if endgame requires a SPAWN from us
+        dominating player. So we should still think of a better method to either:
+        -   order these SPAWN actions to make use of NegaScout capability
+        -   or simply prune more SPAWN actions (like, is it certainly better to always spawn at ally
+            cluster nearest to enemy's, perhaps? What is something we can ascertain that it is better so
+            that we can remove the others altogether?
 
     However, this is not quite optimal. What if all power-n (n > 1) do not capture any opponent? Is it
     necessarily better to prune the spawn actions then? The answer is a definite no. If the opponent's

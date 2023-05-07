@@ -12,5 +12,4 @@ INF             : float = float("inf")
 EMPTY_POWER     : int = 0
 MIN_MOVE_WIN    : int = 2
 MIN_TURN_COUNT  : int = 2
-MIN_DIFF_SPAWN  : int = 5
 MIN_TOTAL_POWER : int = 12

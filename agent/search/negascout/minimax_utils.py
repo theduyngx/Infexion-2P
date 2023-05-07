@@ -24,7 +24,7 @@ from referee.game import HexPos, HexDir, PlayerColor, \
                          MAX_TOTAL_POWER, BOARD_N
 from ...game import Board, adjacent_positions, \
                     Clusters, create_clusters_color, \
-                    MIN_TOTAL_POWER, EMPTY_POWER, MIN_DIFF_SPAWN
+                    MIN_TOTAL_POWER, EMPTY_POWER
 from ..search_utils import get_legal_moves
 
 # Constant
@@ -186,14 +186,10 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
             if board.pos_occupied(pos):
                 continue
 
-            # append on condition: within an acceptable range, spawn can be skipped
-            if not spread_cells or player_power < MIN_TOTAL_POWER or \
-                    player_power <= opponent_power + MIN_DIFF_SPAWN:
-                adj_list = adjacent_positions(pos)
-
-                # and the skipped ones are those not adjacent to player's pieces
-                if any([board[adj].color == color for adj in adj_list]):
-                    actions.append(SpawnAction(pos))
+            # spawn is skipped if the spawn is not adjacent to any of player's cell
+            adj_list = adjacent_positions(pos)
+            if any([board[adj].color == color for adj in adj_list]):
+                actions.append(SpawnAction(pos))
     return actions, False
 
 

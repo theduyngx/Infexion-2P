@@ -54,8 +54,8 @@ class Agent:
     def action(self, **referee: dict) -> Action:
         """
         Return the next action to take by the agent. Used by referee to apply the action to
-        the game's board. The search algorithm for the action is Negamax. For more specific
-        information, see ``search`` package.
+        the game's board. The search algorithm for the action is NegaScout. For more specific
+        information, see ``search`` and ``negascout`` packages.
 
         Args:
             referee: the referee
@@ -78,9 +78,9 @@ class Agent:
                 # from .search.minimax import negamax
                 # return negamax(board, 4, color)
                 # return mcts_move(board)
-                # return minimax_shallow(board, color)
+                return minimax_shallow(board, color)
                 # return random_move(board, color)
-                return greedy_move(board, color)
+                # return greedy_move(board, color)
                 # return search(board, color)
             case _:
                 raise Exception(f"{color} is not of proper PlayerColor type")
