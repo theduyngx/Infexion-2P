@@ -11,8 +11,11 @@ Notes:
 """
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
-from ..game import Board, DEPTH
-from .minimax import negamax, negascout
+from ..game import Board
+from .minimax import negascout
+
+# Depth limit for NegaScout
+DEPTH: int = 4
 
 
 def search(board: Board, color: PlayerColor) -> Action:

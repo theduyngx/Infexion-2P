@@ -1,10 +1,10 @@
 """
 Module:
-    ``negamax.py``
+    ``negascout.py``
 
 Purpose:
-    The NegaScout and Negamax search algorithm to find the best next move for the agent, with
-    alpha-beta pruning to improve performance.
+    The NegaScout (and Negamax) search algorithm to find the best next move for the agent,
+    with alpha-beta pruning.
 
 Notes:
     NegaScout and Negamax algorithm, to reach further depth requires a variety of different
@@ -12,9 +12,12 @@ Notes:
 """
 
 from referee.game import PlayerColor, Action
-from ...game import Board, assert_action, INF, DEPTH
+from ...game import Board, assert_action, INF
 from .evaluation import evaluate, MAXIMIZE_PLAYER
 from .minimax_utils import get_optimized_legal_moves, move_ordering
+
+# Constants
+NULL_WINDOW: float = 1
 
 
 def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
@@ -27,7 +30,8 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
         board: the board
         depth: the search depth limit
         color: the agent's color
-        full : whether agent uses reduced-moves minimax
+        full : * `True` to set move reduction optimization,
+               * `False` to get actual all possible legal moves
 
     Returns:
         the action to take for agent
@@ -35,18 +39,19 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     alpha = -INF
     beta = INF
     assert not board.game_over
-    _, action, _ = alphabeta_negamax(board, color, depth, None, alpha, beta, full)
+    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, full)
     assert_action(action)
     return action
 
 
-def alphabeta_negamax(board: Board,
-                      color: PlayerColor,
-                      depth: int,
-                      action: Action,
-                      alpha: float,
-                      beta: float,
-                      full=False,
+def alphabeta_negamax(board  : Board,
+                      color  : PlayerColor,
+                      depth  : int,
+                      ceil   : int,
+                      action : Action,
+                      alpha  : float,
+                      beta   : float,
+                      full   = False,
                       ) -> (float, Action, bool):
     """
     Alpha-beta pruning for Negamax search algorithm.
@@ -59,6 +64,7 @@ def alphabeta_negamax(board: Board,
         board  : the board
         color  : the current turn of player, specified by player's color
         depth  : the current depth in the search tree
+        ceil   : top depth level
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
@@ -73,7 +79,7 @@ def alphabeta_negamax(board: Board,
     ret = None
     value = 0
     if depth == 0 or board.game_over:
-        stop = depth >= DEPTH - 1
+        stop = depth >= ceil - 1
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
@@ -84,7 +90,7 @@ def alphabeta_negamax(board: Board,
 
         # apply action
         board.apply_action(possible_action, concrete=False)
-        curr_val, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, possible_action,
+        curr_val, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, ceil, possible_action,
                                               -beta, -alpha, full)
         curr_val = -curr_val
         # undo after finishing
@@ -113,7 +119,8 @@ def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Actio
         board: the board
         depth: the search depth limit
         color: the agent's color
-        full : whether agent uses reduced-moves minimax
+        full : * `True` to set move reduction optimization,
+               * `False` to get actual all possible legal moves
 
     Returns:
         the action to take for agent
@@ -121,18 +128,19 @@ def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Actio
     alpha = -INF
     beta = INF
     assert not board.game_over
-    _, action, _ = alphabeta_pvs(board, color, depth, None, alpha, beta, full)
+    _, action, _ = alphabeta_pvs(board, color, depth, depth, None, alpha, beta, full)
     assert_action(action)
     return action
 
 
-def alphabeta_pvs(board: Board,
-                  color: PlayerColor,
-                  depth: int,
-                  action: Action,
-                  alpha: float,
-                  beta: float,
-                  full=False,
+def alphabeta_pvs(board  : Board,
+                  color  : PlayerColor,
+                  depth  : int,
+                  ceil   : int,
+                  action : Action,
+                  alpha  : float,
+                  beta   : float,
+                  full   = False,
                   ) -> (float, Action, bool):
     """
     Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm.
@@ -146,6 +154,7 @@ def alphabeta_pvs(board: Board,
         board  : the board
         color  : the current turn of player, specified by player's color
         depth  : the current depth in the search tree
+        ceil   : top depth level
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
@@ -157,7 +166,7 @@ def alphabeta_pvs(board: Board,
     """
     # reached depth limit, or terminal node
     if depth == 0 or board.game_over:
-        stop = depth >= DEPTH - 1
+        stop = depth >= ceil - 1
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
@@ -168,7 +177,7 @@ def alphabeta_pvs(board: Board,
     # apply the estimated best action in move ordering
     first_move = ordered_moves[0]
     board.apply_action(first_move, concrete=False)
-    value, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, first_move, -beta, -alpha, full)
+    value, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, first_move, -beta, -alpha, full)
     value = -value
     # undo after finishing
     board.undo_action()
@@ -181,15 +190,15 @@ def alphabeta_pvs(board: Board,
             # null window search - window width of 1
             # this is to quickly confirm or reject the score of the current move is indeed the best
             board.apply_action(possible_action, concrete=False)
-            curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, possible_action,
-                                              -alpha - 1, -alpha, full)
+            curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                              -(alpha + NULL_WINDOW), -alpha, full)
             curr_val = -curr_val
             board.undo_action()
 
             # full window search - normal negamax alpha-beta, thus no optimization was made
             if alpha < curr_val < beta:
                 board.apply_action(possible_action, concrete=False)
-                curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, possible_action,
+                curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
                                                   -beta, -alpha, full)
                 curr_val = -curr_val
                 board.undo_action()

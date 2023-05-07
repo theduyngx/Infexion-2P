@@ -11,5 +11,4 @@ Notes:
 """
 
 from .minimax_utils import move_ordering
-from .minimax import minimax
 from .negascout import negamax, negascout
