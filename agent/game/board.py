@@ -151,6 +151,7 @@ class Board:
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check if a position is occupied by a piece within the board or not.
+
         Args:
             pos: specified position
         Returns:
@@ -225,6 +226,7 @@ class Board:
     def player_wins(self, player: PlayerColor) -> bool:
         """
         Check if specified player has won the game.
+
         Args:
             player: specified player, denoted by their color
         Returns:
@@ -242,6 +244,7 @@ class Board:
     def player_cells(self, color: PlayerColor) -> list[CellState]:
         """
         Get the list of cells of specified player's
+
         Args:
             color: the player's color
         Returns:
@@ -255,6 +258,7 @@ class Board:
     def num_players(self, color: PlayerColor) -> int:
         """
         Get the number of player pieces currently on the board
+
         Args:
             color: the player's color
         Returns:
@@ -265,6 +269,7 @@ class Board:
     def color_power(self, color: PlayerColor) -> int:
         """
         Method getting the current total power of a specified player.
+
         Args:
             color: the player's color
         Returns:
@@ -275,6 +280,7 @@ class Board:
     def color_number_and_power(self, color: PlayerColor) -> (int, int):
         """
         Method getting the current total power of a specified player and the number of pieces.
+
         Args:
             color: the player's color
         Returns:
@@ -287,6 +293,7 @@ class Board:
     def pos_occupied(self, pos: HexPos) -> bool:
         """
         Check if a specified cell is occupied in the board or not.
+
         Args:
             pos: specified cell's coordinates
         Returns:
