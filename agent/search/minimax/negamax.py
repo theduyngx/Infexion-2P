@@ -165,7 +165,7 @@ def alphabeta_pvs(board: Board,
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
     ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 
-    # apply first action
+    # apply the estimated best action in move ordering
     first_move = ordered_moves[0]
     board.apply_action(first_move, concrete=False)
     value, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, first_move, -beta, -alpha, full)
@@ -173,27 +173,28 @@ def alphabeta_pvs(board: Board,
     # undo after finishing
     board.undo_action()
 
+    # check if score within bound, if so must check for the remaining possible actions
     ret = first_move
     if alpha < value < beta:
         for possible_action in ordered_moves[1:]:
 
-            # apply action
+            # null window search - window width of 1
+            # this is to quickly confirm or reject the score of the current move is indeed the best
             board.apply_action(possible_action, concrete=False)
             curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, possible_action,
                                               -alpha - 1, -alpha, full)
             curr_val = -curr_val
-            # undo after finishing
             board.undo_action()
 
+            # full window search - normal negamax alpha-beta, thus no optimization was made
             if alpha < curr_val < beta:
-                # apply action
                 board.apply_action(possible_action, concrete=False)
                 curr_val, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, possible_action,
-                                                  -beta, -curr_val, full)
+                                                  -beta, -alpha, full)
                 curr_val = -curr_val
-                # undo after finishing
                 board.undo_action()
 
+            # update alpha (maximize score) and evaluation score
             if curr_val > value or ret is None:
                 value = curr_val
                 ret = possible_action
