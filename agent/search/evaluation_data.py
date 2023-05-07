@@ -106,7 +106,7 @@ def get_evaluate_data(board: Board) -> EvaluateData:
 
     # clusters and dominance evaluation data
     clusters = create_clusters(board)
-    for cluster in clusters.values():
+    for cluster in clusters:
 
         # player's cluster
         if cluster.color == PLAYER_COLOR:
