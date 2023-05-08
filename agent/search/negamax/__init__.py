@@ -1,9 +1,9 @@
 """
 Package:
-    ``negascout``
+    ``negamax``
 
 Purpose:
-    Provide the NegaScout (and Negamax, additionally) search algorithm function to find the next
+    Provide the Negamax (and NegaScout, additionally) search algorithm function to find the next
     move for agent.
 
 Notes:
@@ -12,4 +12,4 @@ Notes:
 """
 
 from .minimax_utils import move_ordering
-from .negascout import negamax, negascout
+from .negamax import negamax, negascout

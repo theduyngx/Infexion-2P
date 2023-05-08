@@ -1,13 +1,13 @@
 """
 Module:
-    ``negascout.py``
+    ``negamax.py``
 
 Purpose:
-    The NegaScout (and Negamax) search algorithm to find the best next move for the agent,
+    The Negamax (and NegaScout) search algorithm to find the best next move for the agent,
     with alpha-beta pruning.
 
 Notes:
-    NegaScout and Negamax algorithm, to reach further depth requires a variety of different
+    Negamax (and NegaScout) algorithm, to reach further depth requires a variety of different
     optimization methods introduced in ``minimax_utils.py``.
 """
 
@@ -112,9 +112,8 @@ def alphabeta_negamax(board  : Board,
 def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     """
     NegaScout search algorithm to find the next action to take for the agent. It is called when it
-    is the agent with specified color's turn. It is an enhanced version of Negamax, which uses
-    iterative deepening and a good move ordering to produce better performance with no sacrifice
-    to accuracy.
+    is the agent with specified color's turn. It is an enhanced version of Negamax, which makes use
+    of good move ordering and narrow search window to more effectively prune unlikely good nodes.
 
     Args:
         board: the board
@@ -145,11 +144,6 @@ def alphabeta_pvs(board  : Board,
     """
     Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm.
 
-    Note: Unlike Negamax, it will have a narrower search window, and first initially uses iterative
-    deepening with the assumption that the first node should be the best node. With this assumption,
-    it is possible to make the search a lot faster with actual good move ordering without having to
-    explore as many nodes as Negamax alpha-beta pruning would have had to.
-
     Args:
         board  : the board
         color  : the current turn of player, specified by player's color
@@ -174,31 +168,30 @@ def alphabeta_pvs(board  : Board,
 
     # for each child node of board
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-    ordered_moves = move_ordering(board, color, legal_moves, depth == ceil - 1) if endgame else legal_moves
+    ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
     ret : Action = None
     stop: bool   = False
-
-    for action in ordered_moves:
-        board.apply_action(action, concrete=False)
+    for possible_action in ordered_moves:
+        board.apply_action(possible_action, concrete=False)
 
         # first child node - the estimated best possible move
-        if action is ordered_moves[0]:
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
+        if possible_action is ordered_moves[0]:
+            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
                                            -beta, -alpha, full)
             score = -score
-            ret = action
+            ret = possible_action
 
         # subsequent child nodes
         else:
             # null window to efficiently confirm or reject the previous action
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
+            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
                                            -alpha - NULL_WINDOW, -alpha, full)
             score = -score
 
             # full window search - normal negamax alpha-beta, thus no optimization was made
             if alpha < score < beta:
-                score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
-                                               -beta, -alpha, full)
+                score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                               -beta, -score, full)
                 score = -score
         # undo after finishing
         board.undo_action()
@@ -206,7 +199,7 @@ def alphabeta_pvs(board  : Board,
         # update alpha (maximize score) and return action
         if score > alpha:
             alpha = score
-            ret = action
+            ret = possible_action
 
         # cutoff / stop prematurely
         if alpha >= beta or stop:

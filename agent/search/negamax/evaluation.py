@@ -7,8 +7,7 @@ Purpose:
 
 Notes:
     The evaluation function for NegaScout and Negamax is a **zero-sum** evaluation function.
-    We make RED as the maximizing side, and BLUE as the minimizing side.
-    Used in both ``negascout.py``.
+    We make RED as the maximizing side, and BLUE as the minimizing side. Used in ``negamax.py``.
 """
 
 from ...search.evaluation_data import *

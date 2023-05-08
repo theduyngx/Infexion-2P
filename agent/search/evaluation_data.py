@@ -34,10 +34,10 @@ from ..game import Board, INF, create_clusters
 
 # weighting factors
 NUM_PIECE_FACTOR     : float = 2.0
-POW_PIECE_FACTOR     : float = 1.8
+POW_PIECE_FACTOR     : float = 1.6
 NUM_CLUSTER_FACTOR   : float = 0.8
 NUM_DOMINANCE_FACTOR : float = 1.55
-POW_DOMINANCE_FACTOR : float = 0.85
+POW_DOMINANCE_FACTOR : float = 0.65
 
 
 @dataclass(slots=True)
@@ -112,8 +112,8 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         if cluster.color == PlayerColor.RED:
             data.num_red_clusters  += 1
             # dominance factor is checked solely via red pieces
-            for blue_cell in cluster.get_opponents():
-                blue_cluster = clusters[blue_cell]
+            for adj_opponent in cluster.get_opponents():
+                blue_cluster = clusters[adj_opponent]
 
                 # cluster size dominance
                 if len(cluster) < len(blue_cluster):

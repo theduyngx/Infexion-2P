@@ -38,11 +38,9 @@ def mc_evaluate(board: Board) -> float:
 
     # adding another return value specifically for ordering the heapq for MonteCarlo
     red_val  = data.num_red_clusters   * NUM_CLUSTER_FACTOR   + \
-               data.size_red_clusters  * SIZE_CLUSTER_FACTOR  + \
                data.num_red_dominates  * NUM_DOMINANCE_FACTOR + \
                data.pow_red_dominates  * POW_DOMINANCE_FACTOR
     blue_val = data.num_blue_clusters  * NUM_CLUSTER_FACTOR   + \
-               data.size_blue_clusters * SIZE_CLUSTER_FACTOR  + \
                data.num_blue_dominates * NUM_DOMINANCE_FACTOR + \
                data.pow_blue_dominates * POW_DOMINANCE_FACTOR
     if board.true_turn == PlayerColor.RED:

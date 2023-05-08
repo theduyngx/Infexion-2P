@@ -13,25 +13,10 @@ Notes:
         * ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
-from referee.game import HexDir
 from .search import search
 from .search.agent_test import *
 from .game import Board
 from .utils import *
-
-
-actions = [SpawnAction(HexPos(4, 4)),
-           SpawnAction(HexPos(6, 3)),
-           SpawnAction(HexPos(3, 3)),
-           SpawnAction(HexPos(5, 6)),
-           SpreadAction(HexPos(5, 6), HexDir.UpRight),
-           SpawnAction(HexPos(2, 4)),
-           SpawnAction(HexPos(6, 6)),
-           SpawnAction(HexPos(5, 4)),
-           SpreadAction(HexPos(4, 4), HexDir.UpRight),
-           SpawnAction(HexPos(3, 4)),
-           SpreadAction(HexPos(3, 3), HexDir.DownRight),
-           ]
 
 
 class Agent:
@@ -86,12 +71,11 @@ class Agent:
 
         match color:
             case PlayerColor.RED:
-                if actions:
-                    return actions.pop(0)
                 return greedy_move(board, color)
                 # from .search.negascout import negamax
                 # return negamax(board, 4, color)
                 # return search(board, color)
+                # return minimax_shallow(board, color)
 
             case PlayerColor.BLUE:
                 # return mcts_move(board)
