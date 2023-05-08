@@ -167,32 +167,30 @@ def alphabeta_pvs(board  : Board,
         return sign * evaluate(board), action, stop
 
     # for each child node of board
-    legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-    ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+    # debug = depth == ceil
+    debug = False
+    legal_moves, endgame = get_optimized_legal_moves(board, color, full, debug)
+    ordered_moves = move_ordering(board, color, legal_moves, debug) if not endgame else legal_moves
+
     ret : Action = None
     stop: bool   = False
+    b = beta
+    score = -INF
     for possible_action in ordered_moves:
         board.apply_action(possible_action, concrete=False)
+        curr, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                       -b, -alpha, full)
+        curr = -curr
 
-        # first child node - the estimated best possible move
-        if possible_action is ordered_moves[0]:
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                           -beta, -alpha, full)
-            score = -score
-            ret = possible_action
-
-        # subsequent child nodes
-        else:
-            # null window to efficiently confirm or reject the previous action
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                           -alpha - NULL_WINDOW, -alpha, full)
-            score = -score
-
-            # full window search - normal negamax alpha-beta, thus no optimization was made
-            if alpha < score < beta:
+        if curr > score:
+            if b == beta or ret is NoneZ:
+                score = curr
+                ret = possible_action
+            else:
                 score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                               -beta, -score, full)
+                                               -beta, -curr, full)
                 score = -score
+
         # undo after finishing
         board.undo_action()
 
@@ -201,9 +199,10 @@ def alphabeta_pvs(board  : Board,
             alpha = score
             ret = possible_action
 
-        # cutoff / stop prematurely
+        # cutoff / stop prematurely, and update search window
         if alpha >= beta or stop:
             break
+        b = alpha + 1
 
     # return evaluated score and corresponding action
     return alpha, ret, stop
