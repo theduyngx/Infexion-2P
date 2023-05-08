@@ -19,10 +19,6 @@ from .game import Board
 from .utils import *
 
 
-actions = [SpawnAction(HexPos(1, 5)),
-           SpawnAction(HexPos(1, 6))]
-
-
 class Agent:
     """
     Agent class representing the agent player.
@@ -75,8 +71,6 @@ class Agent:
 
         match color:
             case PlayerColor.RED:
-                # if actions:
-                #     return actions.pop(0)
                 return greedy_move(board, color)
                 # from .search.negamax import negascout
                 # return negascout(board, 4, color, full=False)
