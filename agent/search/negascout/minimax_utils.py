@@ -188,7 +188,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug=False) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -227,7 +227,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
                 action_values[index] = (action, total_blue_power, total_blue_pieces, power)
             # error case
             case _:
-                raise "move_ordering: Action not of any type"
+                raise Exception("move_ordering: Action not of any type")
         index += 1
 
     # sort the actions by their desirability, in decreasing order, in following priorities
@@ -239,4 +239,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         ),
         reverse=True
     )
+
+    if debug:
+        for action, op_pow, op_num, player_pow in action_values:
+            print(action, op_pow, op_num, player_pow)
+
     return list(map(lambda tup: tup[0], action_values))

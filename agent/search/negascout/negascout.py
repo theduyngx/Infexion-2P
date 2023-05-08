@@ -174,7 +174,7 @@ def alphabeta_pvs(board  : Board,
 
     # for each child node of board
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-    ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+    ordered_moves = move_ordering(board, color, legal_moves, depth == ceil - 1) if endgame else legal_moves
     ret : Action = None
     stop: bool   = False
 
