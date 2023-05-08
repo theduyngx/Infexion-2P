@@ -22,9 +22,11 @@ def search(board: Board, color: PlayerColor) -> Action:
     """
     Search the best subsequent move for agent. It will be using a pruned and highly optimized
     NegaScout search algorithm, which is a Negamax-variant algorithm.
+
     Args:
         board: the board
         color: the agent's color
+
     Returns:
         the action to take for agent
     """
@@ -35,4 +37,4 @@ def search(board: Board, color: PlayerColor) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    return negamax(board, DEPTH, color, full=False)
+    return negamax(board, DEPTH, color, full=False) # 42 seconds
