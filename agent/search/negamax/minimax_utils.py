@@ -165,6 +165,23 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug
     if full:
         return get_legal_moves(board, color), False
 
+    # IDEA:
+    # The idea is, if the opponent is very cluttered, then you only need a few representative moves
+    # to make:
+    #   for each empty cell:
+    #       if it is only adjacent to your piece:
+    #           if not yet stored:
+    #               with that cluster, remember "stored only_adj_to_player"
+    #           else skip
+    #       if it is adjacent to an opponent piece:
+    #           do similarly
+    # This ensures that it will always be next to your cluster, and that for each of your cluster, it
+    # will only care about a representative move where either it is isolated from enemy and only adjacent
+    # to ally, or it is adjacent to both ally and enemy.
+
+    # This idea stems from the fact that cluttered enemies cannot really attack you (a shitty idea, but
+    # an idea nonetheless).
+
     for cell in board.get_cells():
         pos = cell.pos
         # check for spread cells
@@ -188,7 +205,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug = False) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -202,9 +219,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         the ordered list of actions
     """
     action_values: list[tuple[Action, int, int, int]] = [(None, # action
-                                                              0,    # total power captured
-                                                              0,    # total number of captured
-                                                              0     # player's piece power
+                                                          0,    # total power captured
+                                                          0,    # total number of captured
+                                                          0     # player's piece power
                                                           )] * len(actions)
     # for each action of the player's list of legal moves
     index = 0
@@ -239,5 +256,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         ),
         reverse=True
     )
+
+    if debug:
+        for action, op_pow, op_num, player_pow in action_values:
+            print(action, op_pow, op_num, player_pow)
 
     return list(map(lambda tup: tup[0], action_values))
