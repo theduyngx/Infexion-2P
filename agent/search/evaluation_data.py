@@ -15,16 +15,14 @@ Notes:
     |
     .. math:: Eval(state) = 1.8  * (Num_r    - Num_b   ) +
                             1.7  * (Pow_r    - Pow_b   ) + \n
-                            1.2  * (NumCl_r  - NumCl_b ) +
-                            1.4  * (SizeCl_r - SizeCl_b) + \n
-                            1.55 * (NumDom_r - NumDom_b) +
-                            0.45 * (PowDom_r - PowDom_b)
+                            0.8  * (NumCl_r  - NumCl_b ) +
+                            1.55 * (NumDom_r - NumDom_b) + \n
+                            0.85 * (PowDom_r - PowDom_b)
 
     Where: (each of a specified color)
         * Num is the number of pieces
         * Pow is the total power
         * NumCl is the number of clusters
-        * SizeCl is the total size of clusters
         * NumDom is the number of dominating clusters by size
         * PowDom is the power of clusters that dominate
 """
@@ -35,11 +33,10 @@ from referee.game import PlayerColor
 from ..game import Board, INF, create_clusters
 
 # weighting factors
-NUM_PIECE_FACTOR     : float = 1.7
-POW_PIECE_FACTOR     : float = 1.47
-NUM_CLUSTER_FACTOR   : float = 1.1
-SIZE_CLUSTER_FACTOR  : float = 1.2
-NUM_DOMINANCE_FACTOR : float = 1.4
+NUM_PIECE_FACTOR     : float = 1.8
+POW_PIECE_FACTOR     : float = 1.7
+NUM_CLUSTER_FACTOR   : float = 0.8
+NUM_DOMINANCE_FACTOR : float = 1.55
 POW_DOMINANCE_FACTOR : float = 0.85
 
 
@@ -53,14 +50,12 @@ class EvaluateData:
         num_red_clusters   : the number of red's clusters
         num_red_dominates  : the number of clusters where red dominates blue
         pow_red_dominates  : the power of clusters where red dominates blue
-        size_red_clusters  : the size of red's clusters
 
         num_blue           : the number of blue pieces on the board
         pow_blue           : the blue's total power
         num_blue_clusters  : the number of blue's clusters
         num_blue_dominates : the number of clusters where blue dominates red
         pow_blue_dominates : the power of clusters where blue dominates red
-        size_blue_clusters : the size of red's clusters
 
         immediate_eval     : immediate evaluation value where the game is already over
         immediate          : whether value is immediately evaluated or not
@@ -70,14 +65,12 @@ class EvaluateData:
     num_red_clusters   : int = 0
     num_red_dominates  : int = 0
     pow_red_dominates  : int = 0
-    size_red_clusters  : int = 0
 
     num_blue           : int = 0
     pow_blue           : int = 0
     num_blue_clusters  : int = 0
     num_blue_dominates : int = 0
     pow_blue_dominates : int = 0
-    size_blue_clusters : int = 0
 
     immediate_eval     : int = 0
     immediate          : bool = False
@@ -118,7 +111,6 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         # red's cluster
         if cluster.color == PlayerColor.RED:
             data.num_red_clusters  += 1
-            data.size_red_clusters += len(cluster) ** SIZE_CLUSTER_FACTOR
             # dominance factor is checked solely via red pieces
             for blue_cell in cluster.get_opponents():
                 blue_cluster = clusters[blue_cell]
@@ -138,17 +130,4 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         # blue's cluster
         else:
             data.num_blue_clusters  += 1
-            data.size_blue_clusters += len(cluster) ** SIZE_CLUSTER_FACTOR
-
-    # added weights to other values
-    data.num_red            **= NUM_PIECE_FACTOR
-    data.pow_red            **= POW_PIECE_FACTOR
-    data.num_red_clusters   **= NUM_CLUSTER_FACTOR
-    data.num_red_dominates  **= NUM_DOMINANCE_FACTOR
-    data.pow_red_dominates  **= POW_DOMINANCE_FACTOR
-    data.num_blue           **= NUM_PIECE_FACTOR
-    data.pow_blue           **= POW_PIECE_FACTOR
-    data.num_blue_clusters  **= NUM_CLUSTER_FACTOR
-    data.num_blue_dominates **= NUM_DOMINANCE_FACTOR
-    data.pow_blue_dominates **= POW_DOMINANCE_FACTOR
     return data
