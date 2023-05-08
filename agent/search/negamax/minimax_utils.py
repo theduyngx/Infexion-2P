@@ -31,7 +31,7 @@ from ..search_utils import get_legal_moves
 MAX_ENDGAME_NUM_OPPONENT: int = 2
 
 
-def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
+def check_endgame(board: Board, color: PlayerColor, debug = False) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
@@ -76,27 +76,23 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
 
                 # for each direction, get the same direction ranges
                 for dir in HexDir:
-                    ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
-                    for r in ranges:
-
-                        # for each cell in said direction
-                        for s in r:
-                            curr_pos = opponent.pos - dir * s
-                            cell = board[curr_pos]
-                            # make sure that it has to be the player's cell
-                            if cell.color != color:
-                                continue
-                            # append to actions if cell can reach the opponent and its power
-                            # at least is equal to the opponent's cluster size
-                            if cell.power >= abs(s) and cell.power >= len(cluster):
-                                cleared = True
-                                key = (curr_pos, dir)
-                                if key in action_capture:
-                                    action_capture[key] += 1
-                                else:
-                                    action_capture[key] = 1
-                                if stacked:
-                                    stacked_capture[key] = 1
+                    for s in range(1, BOARD_N//2 + 1):
+                        curr_pos = opponent.pos - dir * s
+                        cell = board[curr_pos]
+                        # make sure that it has to be the player's cell
+                        if cell.color != color:
+                            continue
+                        # append to actions if cell can reach the opponent and its power
+                        # at least is equal to the opponent's cluster size
+                        if cell.power >= abs(s) and cell.power >= len(cluster):
+                            cleared = True
+                            key = (curr_pos, dir)
+                            if key in action_capture:
+                                action_capture[key] += 1
+                            else:
+                                action_capture[key] = 1
+                            if stacked:
+                                stacked_capture[key] = 1
                 # if stacked opponent cannot be cleared, then it isn't endgame
                 if not cleared:
                     return []
@@ -121,12 +117,16 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
             ),
             reverse=True
         )
+        if debug:
+            for (pos, dir), val in action_sorted:
+                print(SpreadAction(pos, dir), val, board[pos])
+
         for (pos, dir), _ in action_sorted:
             actions.append(SpreadAction(pos, dir))
     return actions
 
 
-def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
+def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug=False) -> (list[Action], bool):
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
     Optimizations made are to reduce the number of legal moves had to be generated in Minimax
@@ -157,7 +157,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
 
     # endgame check
     if not full:
-        actions = check_endgame(board, color)
+        actions = check_endgame(board, color, debug)
         if len(actions) > 0:
             return actions, True
 
@@ -202,9 +202,9 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         the ordered list of actions
     """
     action_values: list[tuple[Action, int, int, int]] = [(None, # action
-                                                          0,    # total power captured
-                                                          0,    # total number of captured
-                                                          0     # player's piece power
+                                                              0,    # total power captured
+                                                              0,    # total number of captured
+                                                              0     # player's piece power
                                                           )] * len(actions)
     # for each action of the player's list of legal moves
     index = 0
