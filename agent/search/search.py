@@ -16,16 +16,18 @@ from .negamax import negamax, negascout
 
 # Depth limit for NegaScout
 DEPTH: int = 4
+TIME_THRESHOLD: float = 10
 
 
-def search(board: Board, color: PlayerColor) -> Action:
+def search(board: Board, color: PlayerColor, player_time) -> Action:
     """
     Search the best subsequent move for agent. It will be using a pruned and highly optimized
     NegaScout search algorithm, which is a Negamax-variant algorithm.
 
     Args:
-        board: the board
-        color: the agent's color
+        board       : the board
+        color       : the agent's color
+        player_time : agent's remaining time
 
     Returns:
         the action to take for agent
@@ -37,4 +39,7 @@ def search(board: Board, color: PlayerColor) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    return negascout(board, DEPTH, color, full=False) # 42 seconds
+    # desperation
+    if player_time <= TIME_THRESHOLD:
+        return negamax(board, 2, color, full=False)
+    return negascout(board, DEPTH, color, full=False)
