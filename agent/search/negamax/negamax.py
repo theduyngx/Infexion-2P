@@ -166,43 +166,45 @@ def alphabeta_pvs(board  : Board,
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
-    # for each child node of board
-    # debug = depth == ceil
-    debug = False
-    legal_moves, endgame = get_optimized_legal_moves(board, color, full, debug)
-    ordered_moves = move_ordering(board, color, legal_moves, debug) if not endgame else legal_moves
+    # generating optimized moves and order them
+    legal_moves, endgame = get_optimized_legal_moves(board, color, full)
+    ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 
+    # for each child node of board
     ret : Action = None
     stop: bool   = False
+    a = alpha
     b = beta
-    score = -INF
     for possible_action in ordered_moves:
-        board.apply_action(possible_action, concrete=False)
-        curr, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                       -b, -alpha, full)
-        curr = -curr
 
-        if curr > score:
-            if b == beta or ret is NoneZ:
-                score = curr
-                ret = possible_action
-            else:
-                score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                               -beta, -curr, full)
-                score = -score
+        # search with updated search window a and b
+        board.apply_action(possible_action, concrete=False)
+        score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                       -b, -a, full)
+        score = -score
+
+        # first action - estimated best action
+        if possible_action is ordered_moves[0]:
+            ret = possible_action
+
+        # subsequent actions - if within range, search full alpha-beta window
+        elif a < score < beta and depth < ceil - 1:
+            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                           -beta, -score, full)
+            score = -score
 
         # undo after finishing
         board.undo_action()
 
         # update alpha (maximize score) and return action
-        if score > alpha:
-            alpha = score
+        if score > a:
+            a = score
             ret = possible_action
 
         # cutoff / stop prematurely, and update search window
-        if alpha >= beta or stop:
+        if a >= beta or stop:
             break
-        b = alpha + 1
+        b = a + NULL_WINDOW
 
     # return evaluated score and corresponding action
-    return alpha, ret, stop
+    return a, ret, stop

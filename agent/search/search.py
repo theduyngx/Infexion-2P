@@ -12,7 +12,7 @@ Notes:
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
 from ..game import Board
-from .negamax import negamax
+from .negamax import negamax, negascout
 
 # Depth limit for NegaScout
 DEPTH: int = 4
@@ -37,4 +37,4 @@ def search(board: Board, color: PlayerColor) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    return negamax(board, DEPTH, color, full=False) # 42 seconds
+    return negascout(board, DEPTH, color, full=False) # 42 seconds
