@@ -31,7 +31,7 @@ from ..search_utils import get_legal_moves
 MAX_ENDGAME_NUM_OPPONENT: int = 2
 
 
-def check_endgame(board: Board, color: PlayerColor, debug = False) -> list[Action]:
+def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
     """
     Endgame detection - the optimization function for getting all legal nodes on the condition
     that the game is reaching its end.
@@ -117,16 +117,13 @@ def check_endgame(board: Board, color: PlayerColor, debug = False) -> list[Actio
             ),
             reverse=True
         )
-        if debug:
-            for (pos, dir), val in action_sorted:
-                print(SpreadAction(pos, dir), val, board[pos])
 
         for (pos, dir), _ in action_sorted:
             actions.append(SpreadAction(pos, dir))
     return actions
 
 
-def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug=False) -> (list[Action], bool):
+def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (list[Action], bool):
     """
     Get optimized legal moves of a specified player color from a specific state of the board.
     Optimizations made are to reduce the number of legal moves had to be generated in Minimax
@@ -157,30 +154,13 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug
 
     # endgame check
     if not full:
-        actions = check_endgame(board, color, debug)
+        actions = check_endgame(board, color)
         if len(actions) > 0:
             return actions, True
 
     # getting all legal moves
     if full:
         return get_legal_moves(board, color), False
-
-    # IDEA:
-    # The idea is, if the opponent is very cluttered, then you only need a few representative moves
-    # to make:
-    #   for each empty cell:
-    #       if it is only adjacent to your piece:
-    #           if not yet stored:
-    #               with that cluster, remember "stored only_adj_to_player"
-    #           else skip
-    #       if it is adjacent to an opponent piece:
-    #           do similarly
-    # This ensures that it will always be next to your cluster, and that for each of your cluster, it
-    # will only care about a representative move where either it is isolated from enemy and only adjacent
-    # to ally, or it is adjacent to both ally and enemy.
-
-    # This idea stems from the fact that cluttered enemies cannot really attack you (a shitty idea, but
-    # an idea nonetheless).
 
     for cell in board.get_cells():
         pos = cell.pos
@@ -205,7 +185,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True, debug
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug = False) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -256,9 +236,5 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug
         ),
         reverse=True
     )
-
-    if debug:
-        for action, op_pow, op_num, player_pow in action_values:
-            print(action, op_pow, op_num, player_pow)
 
     return list(map(lambda tup: tup[0], action_values))

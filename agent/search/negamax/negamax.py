@@ -11,6 +11,7 @@ Notes:
     optimization methods introduced in ``minimax_utils.py``.
 """
 
+from time import time
 from referee.game import PlayerColor, Action
 from ...game import Board, assert_action, INF
 from .evaluation import evaluate, MAXIMIZE_PLAYER
@@ -18,6 +19,7 @@ from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 # Constants
 NULL_WINDOW: float = 1
+TIME_LIMIT : float = 15
 
 
 def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
@@ -37,8 +39,9 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
         the action to take for agent
     """
     alpha = -INF
-    beta = INF
-    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, full)
+    beta  = INF
+    timer = time()
+    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, timer, full)
     assert_action(action)
     return action
 
@@ -50,6 +53,7 @@ def alphabeta_negamax(board  : Board,
                       action : Action,
                       alpha  : float,
                       beta   : float,
+                      timer  : float,
                       full   = False,
                       ) -> (float, Action, bool):
     """
@@ -67,6 +71,7 @@ def alphabeta_negamax(board  : Board,
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
+        timer  : the timer, it will end prematurely if it exceeds a specific amount of allowed time
         full   : * `True` to set move reduction optimization,
                  * `False` to get actual all possible legal moves
 
@@ -79,8 +84,9 @@ def alphabeta_negamax(board  : Board,
     ret   = None
     stop  = False
     score = 0
-    if depth == 0 or board.game_over:
-        stop = depth >= ceil - 1
+    end   = time()
+    if depth == 0 or board.game_over or end - timer >= TIME_LIMIT:
+        stop = depth >= ceil - 1 or end - timer >= TIME_LIMIT
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
@@ -92,7 +98,7 @@ def alphabeta_negamax(board  : Board,
         # apply action
         board.apply_action(action, concrete=False)
         curr_val, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, ceil, action,
-                                              -beta, -alpha, full)
+                                              -beta, -alpha, timer, full)
         curr_val = -curr_val
         # undo after finishing
         board.undo_action()

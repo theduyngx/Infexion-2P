@@ -16,7 +16,7 @@ from .negamax import negamax, negascout
 
 # Depth limit for NegaScout
 DEPTH: int = 4
-TIME_THRESHOLD: float = 10
+TIME_THRESHOLD: float = 20
 
 
 def search(board: Board, color: PlayerColor, player_time) -> Action:
@@ -42,4 +42,4 @@ def search(board: Board, color: PlayerColor, player_time) -> Action:
     # desperation
     if player_time <= TIME_THRESHOLD:
         return negamax(board, 2, color, full=False)
-    return negascout(board, DEPTH, color, full=False)
+    return negamax(board, DEPTH, color, full=False)
