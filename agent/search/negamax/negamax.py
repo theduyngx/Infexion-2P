@@ -9,6 +9,10 @@ Purpose:
 Notes:
     Negamax (and NegaScout) algorithm, to reach further depth requires a variety of different
     optimization methods introduced in ``minimax_utils.py``.
+|
+References:
+    Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+    [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
 """
 
 from time import time
@@ -121,6 +125,11 @@ def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Actio
     is the agent with specified color's turn. It is an enhanced version of Negamax, which makes use
     of good move ordering and narrow search window to more effectively prune unlikely good nodes.
 
+    |
+    References:
+        Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+        [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
+
     Args:
         board: the board
         depth: the search depth limit
@@ -148,7 +157,15 @@ def alphabeta_pvs(board  : Board,
                   full   = False,
                   ) -> (float, Action, bool):
     """
-    Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm.
+    Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm. As stated above,
+    NegaScout will use narrower search window first as an estimate to quickly confirm or reject
+    full window search expansions. This gives it a better worst case performance than normal
+    alpha-beta pruning.
+
+    |
+    References:
+        Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+        [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
 
     Args:
         board  : the board
@@ -179,14 +196,13 @@ def alphabeta_pvs(board  : Board,
     # for each child node of board
     ret : Action = None
     stop: bool   = False
-    a = alpha
     b = beta
     for possible_action in ordered_moves:
 
         # search with updated search window a and b
         board.apply_action(possible_action, concrete=False)
         score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                       -b, -a, full)
+                                       -b, -alpha, full)
         score = -score
 
         # first action - estimated best action
@@ -194,23 +210,23 @@ def alphabeta_pvs(board  : Board,
             ret = possible_action
 
         # subsequent actions - if within range, search full alpha-beta window
-        elif a < score < beta and depth < ceil - 1:
+        elif alpha < score < beta:
             score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
-                                           -beta, -score, full)
+                                           -beta, -alpha, full)
             score = -score
 
         # undo after finishing
         board.undo_action()
 
         # update alpha (maximize score) and return action
-        if score > a:
-            a = score
+        if score > alpha:
+            alpha = score
             ret = possible_action
 
         # cutoff / stop prematurely, and update search window
-        if a >= beta or stop:
+        if alpha >= beta or stop:
             break
-        b = a + NULL_WINDOW
+        b = alpha + NULL_WINDOW
 
     # return evaluated score and corresponding action
-    return a, ret, stop
+    return alpha, ret, stop
