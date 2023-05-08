@@ -86,8 +86,8 @@ def minimax_shallow(board: Board, color: PlayerColor) -> Action:
     Returns:
         the action to be taken
     """
-    from ..search.minimax import minimax
-    return minimax(board, 2, color, True)
+    from ..search.negascout import negamax
+    return negamax(board, 2, color, True)
 
 
 def mcts_move(board: Board) -> Action:

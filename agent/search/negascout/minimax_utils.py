@@ -3,15 +3,15 @@ Module:
     ``minimax_utils.py``
 
 Purpose:
-    Utility functions for Minimax, Negamax, and NegaScout algorithms, which includes optimization
-    for getting all legal moves for a specific agent and other search optimization functionalities
-    such as move ordering and dynamic move reductions.
+    Utility functions for Minimax-variant algorithms, including Negamax and NegaScout. This includes
+    optimization for getting all legal moves for a specific agent and other search optimization
+    functionalities such as move ordering and dynamic move reductions.
 
 Notes:
-    Get all legal moves is optimized for Minimax, Negamax, and NegaScout algorithms. It allows agent
-    to choose ``full``, if agent requires every possible legal move that's available, or otherwise
-    (a reduced version) if agent wants to ignore specific actions that are considered `quiet`, viz.
-    not having significant effects.
+    Get all legal moves is optimized for Negamax, and NegaScout algorithms. It allows agent to choose
+    ``full``, if agent requires every possible legal move that's available, or otherwise (a reduced
+    version) if agent wants to ignore specific actions that are considered `quiet`, viz. not having
+    significant effects.
 
     Move reduction also entails endgame detection, where the desirable moves become more apparent;
     hence any moves that may not seem desirable can simply be filtered out.
@@ -24,7 +24,7 @@ from referee.game import HexPos, HexDir, PlayerColor, \
                          MAX_TOTAL_POWER, BOARD_N
 from ...game import Board, adjacent_positions, \
                     Clusters, create_clusters_color, \
-                    MIN_TOTAL_POWER, EMPTY_POWER, MIN_DIFF_SPAWN
+                    MIN_TOTAL_POWER, EMPTY_POWER
 from ..search_utils import get_legal_moves
 
 # Constant
@@ -165,35 +165,26 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     if full:
         return get_legal_moves(board, color), False
 
-    # get all spread cells first
-    spread_cells = board.player_cells(color)
-    for cell in spread_cells:
+    for cell in board.get_cells():
         pos = cell.pos
-        # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
-        if board[pos].power == 1:
-            for dir in HexDir:
-                adj = pos + dir
-                if board[adj].color == color.opponent:
-                    actions.append(SpreadAction(pos, dir))
-        # otherwise, full list requested, or position has power exceeding 1
-        else:
-            actions.extend([SpreadAction(pos, dir) for dir in HexDir])
+        # check for spread cells
+        if cell.color == color:
+            # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
+            if board[pos].power == 1:
+                for dir in HexDir:
+                    adj = pos + dir
+                    if board[adj].color == color.opponent:
+                        actions.append(SpreadAction(pos, dir))
+            # otherwise, full list requested, or position has power exceeding 1
+            else:
+                actions.extend([SpreadAction(pos, dir) for dir in HexDir])
 
-    # check for every spawn cells
-    if board.total_power() < MAX_TOTAL_POWER:
-        for cell in board.get_cells():
-            pos = cell.pos
-            if board.pos_occupied(pos):
-                continue
-
-            # append on condition: within an acceptable range, spawn can be skipped
-            if not spread_cells or player_power < MIN_TOTAL_POWER or \
-                    player_power <= opponent_power + MIN_DIFF_SPAWN:
-                adj_list = adjacent_positions(pos)
-
-                # and the skipped ones are those not adjacent to player's pieces
-                if any([board[adj].color == color for adj in adj_list]):
-                    actions.append(SpawnAction(pos))
+        # check for every spawn cells
+        elif board.total_power() < MAX_TOTAL_POWER and not board.pos_occupied(pos):
+            # spawn is skipped if the spawn is not adjacent to any of player's cell
+            adj_list = adjacent_positions(pos)
+            if any([board[adj].color == color for adj in adj_list]):
+                actions.append(SpawnAction(pos))
     return actions, False
 
 
