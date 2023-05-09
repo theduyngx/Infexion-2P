@@ -76,27 +76,23 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
 
                 # for each direction, get the same direction ranges
                 for dir in HexDir:
-                    ranges = [range(1, BOARD_N//2 + 1), range(-1, -(BOARD_N//2+1), -1)]
-                    for r in ranges:
-
-                        # for each cell in said direction
-                        for s in r:
-                            curr_pos = opponent.pos - dir * s
-                            cell = board[curr_pos]
-                            # make sure that it has to be the player's cell
-                            if cell.color != color:
-                                continue
-                            # append to actions if cell can reach the opponent and its power
-                            # at least is equal to the opponent's cluster size
-                            if cell.power >= abs(s) and cell.power >= len(cluster):
-                                cleared = True
-                                key = (curr_pos, dir)
-                                if key in action_capture:
-                                    action_capture[key] += 1
-                                else:
-                                    action_capture[key] = 1
-                                if stacked:
-                                    stacked_capture[key] = 1
+                    for s in range(1, BOARD_N//2 + 1):
+                        curr_pos = opponent.pos - dir * s
+                        cell = board[curr_pos]
+                        # make sure that it has to be the player's cell
+                        if cell.color != color:
+                            continue
+                        # append to actions if cell can reach the opponent and its power
+                        # at least is equal to the opponent's cluster size
+                        if cell.power >= abs(s) and cell.power >= len(cluster):
+                            cleared = True
+                            key = (curr_pos, dir)
+                            if key in action_capture:
+                                action_capture[key] += 1
+                            else:
+                                action_capture[key] = 1
+                            if stacked:
+                                stacked_capture[key] = 1
                 # if stacked opponent cannot be cleared, then it isn't endgame
                 if not cleared:
                     return []
@@ -121,6 +117,7 @@ def check_endgame(board: Board, color: PlayerColor) -> list[Action]:
             ),
             reverse=True
         )
+
         for (pos, dir), _ in action_sorted:
             actions.append(SpreadAction(pos, dir))
     return actions
@@ -188,7 +185,7 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
     return actions, False
 
 
-def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug=False) -> list[Action]:
+def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> list[Action]:
     """
     Move ordering for speed-up pruning. Using domain knowledge of the game, this will more likely
     to choose a better move first in order to prune more branches before expanding them.
@@ -227,22 +224,17 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action], debug
                 action_values[index] = (action, total_blue_power, total_blue_pieces, power)
             # error case
             case _:
-                raise "move_ordering: Action not of any type"
+                raise Exception("move_ordering: Action not of any type")
         index += 1
 
     # sort the actions by their desirability, in decreasing order, in following priorities
     action_values.sort(
         key=lambda tup: (
             tup[1],    # 1. total power captured
-            -1*tup[2],   # 2. reverse number of pieces captured (viz. more stacked captures)
+            -tup[2],   # 2. reverse number of pieces captured (viz. more stacked captures)
             tup[3]     # 3. player's piece power
         ),
         reverse=True
     )
-
-    if debug:
-        for action, op_pow, op_num, player_pow in action_values:
-            print(action, op_pow, op_num, player_pow)
-        print()
 
     return list(map(lambda tup: tup[0], action_values))

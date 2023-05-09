@@ -34,10 +34,10 @@ from ..game import Board, INF, create_clusters
 
 # weighting factors
 NUM_PIECE_FACTOR     : float = 2.0
-POW_PIECE_FACTOR     : float = 1.8
+POW_PIECE_FACTOR     : float = 1.6
 NUM_CLUSTER_FACTOR   : float = 0.8
 NUM_DOMINANCE_FACTOR : float = 1.55
-POW_DOMINANCE_FACTOR : float = 0.85
+POW_DOMINANCE_FACTOR : float = 0.65
 
 
 @dataclass(slots=True)

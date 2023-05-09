@@ -1,16 +1,21 @@
 """
 Module:
-    ``negascout.py``
+    ``negamax.py``
 
 Purpose:
-    The NegaScout (and Negamax) search algorithm to find the best next move for the agent,
+    The Negamax (and NegaScout) search algorithm to find the best next move for the agent,
     with alpha-beta pruning.
 
 Notes:
-    NegaScout and Negamax algorithm, to reach further depth requires a variety of different
+    Negamax (and NegaScout) algorithm, to reach further depth requires a variety of different
     optimization methods introduced in ``minimax_utils.py``.
+|
+References:
+    Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+    [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
 """
 
+from time import time
 from referee.game import PlayerColor, Action
 from ...game import Board, assert_action, INF
 from .evaluation import evaluate, MAXIMIZE_PLAYER
@@ -18,6 +23,7 @@ from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 # Constants
 NULL_WINDOW: float = 1
+TIME_LIMIT : float = 15
 
 
 def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
@@ -37,8 +43,9 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
         the action to take for agent
     """
     alpha = -INF
-    beta = INF
-    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, full)
+    beta  = INF
+    timer = time()
+    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, timer, full)
     assert_action(action)
     return action
 
@@ -50,6 +57,7 @@ def alphabeta_negamax(board  : Board,
                       action : Action,
                       alpha  : float,
                       beta   : float,
+                      timer  : float,
                       full   = False,
                       ) -> (float, Action, bool):
     """
@@ -67,6 +75,7 @@ def alphabeta_negamax(board  : Board,
         action : most recent action made to reach the current board state
         alpha  : move that improves player's position
         beta   : move that improves opponent's position
+        timer  : the timer, it will end prematurely if it exceeds a specific amount of allowed time
         full   : * `True` to set move reduction optimization,
                  * `False` to get actual all possible legal moves
 
@@ -79,8 +88,9 @@ def alphabeta_negamax(board  : Board,
     ret   = None
     stop  = False
     score = 0
-    if depth == 0 or board.game_over:
-        stop = depth >= ceil - 1
+    end   = time()
+    if depth == 0 or board.game_over or end - timer >= TIME_LIMIT:
+        stop = depth >= ceil - 1 or end - timer >= TIME_LIMIT
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
@@ -92,7 +102,7 @@ def alphabeta_negamax(board  : Board,
         # apply action
         board.apply_action(action, concrete=False)
         curr_val, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, ceil, action,
-                                              -beta, -alpha, full)
+                                              -beta, -alpha, timer, full)
         curr_val = -curr_val
         # undo after finishing
         board.undo_action()
@@ -112,9 +122,13 @@ def alphabeta_negamax(board  : Board,
 def negascout(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     """
     NegaScout search algorithm to find the next action to take for the agent. It is called when it
-    is the agent with specified color's turn. It is an enhanced version of Negamax, which uses
-    iterative deepening and a good move ordering to produce better performance with no sacrifice
-    to accuracy.
+    is the agent with specified color's turn. It is an enhanced version of Negamax, which makes use
+    of good move ordering and narrow search window to more effectively prune unlikely good nodes.
+
+    |
+    References:
+        Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+        [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
 
     Args:
         board: the board
@@ -143,12 +157,15 @@ def alphabeta_pvs(board  : Board,
                   full   = False,
                   ) -> (float, Action, bool):
     """
-    Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm.
+    Alpha-beta pruning for NegaScout, or Principle Variation Search algorithm. As stated above,
+    NegaScout will use narrower search window first as an estimate to quickly confirm or reject
+    full window search expansions. This gives it a better worst case performance than normal
+    alpha-beta pruning.
 
-    Note: Unlike Negamax, it will have a narrower search window, and first initially uses iterative
-    deepening with the assumption that the first node should be the best node. With this assumption,
-    it is possible to make the search a lot faster with actual good move ordering without having to
-    explore as many nodes as Negamax alpha-beta pruning would have had to.
+    |
+    References:
+        Reinefeld, A. (1983). `An Improvement to the Scout Tree-Search Algorithm`
+        [Journal of the International Computer Games Association] https://doi.org/10.3233/ICG-1983-6402
 
     Args:
         board  : the board
@@ -172,45 +189,44 @@ def alphabeta_pvs(board  : Board,
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
-    # for each child node of board
+    # generating optimized moves and order them
     legal_moves, endgame = get_optimized_legal_moves(board, color, full)
-    ordered_moves = move_ordering(board, color, legal_moves, depth == ceil) if not endgame else legal_moves
+    ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
+
+    # for each child node of board
     ret : Action = None
     stop: bool   = False
+    b = beta
+    for possible_action in ordered_moves:
 
-    for action in ordered_moves:
-        board.apply_action(action, concrete=False)
+        # search with updated search window a and b
+        board.apply_action(possible_action, concrete=False)
+        score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+                                       -b, -alpha, full)
+        score = -score
 
-        # first child node - the estimated best possible move
-        if action is ordered_moves[0]:
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
+        # first action - estimated best action
+        if possible_action is ordered_moves[0]:
+            ret = possible_action
+
+        # subsequent actions - if within range, search full alpha-beta window
+        elif alpha < score < beta:
+            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
                                            -beta, -alpha, full)
             score = -score
-            ret = action
 
-        # subsequent child nodes
-        else:
-            # null window to efficiently confirm or reject the previous action
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
-                                           -alpha - NULL_WINDOW, -alpha, full)
-            score = -score
-
-            # full window search - normal negamax alpha-beta, thus no optimization was made
-            if alpha < score < beta:
-                score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
-                                               -beta, -alpha, full)
-                score = -score
         # undo after finishing
         board.undo_action()
 
         # update alpha (maximize score) and return action
         if score > alpha:
             alpha = score
-            ret = action
+            ret = possible_action
 
-        # cutoff / stop prematurely
+        # cutoff / stop prematurely, and update search window
         if alpha >= beta or stop:
             break
+        b = alpha + NULL_WINDOW
 
     # return evaluated score and corresponding action
     return alpha, ret, stop

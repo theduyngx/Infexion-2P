@@ -13,7 +13,7 @@ import time
 from referee.game import Action
 from ...game import Board
 from ...search import get_legal_moves
-from ..minimax import move_ordering
+from ..negamax import move_ordering
 from .mutable_heapq import MutableHeap
 from .mc_node import MonteCarloNode, TIME_LIMIT
 
