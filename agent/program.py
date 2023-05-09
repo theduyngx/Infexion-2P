@@ -13,8 +13,8 @@ Notes:
         * ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
+from referee.game import Action, SpawnAction, SpreadAction
 from .search import search
-from .search.agent_test import *
 from .game import Board
 from .utils import *
 
@@ -67,24 +67,7 @@ class Agent:
         color_print = ansi_color(color)
         print(f"{color_print} TURN:")
         print_referee(referee)
-        # return search(board, color)
-
-        match color:
-            case PlayerColor.RED:
-                return greedy_move(board, color)
-                # from .search.negamax import negascout, negamax
-                # return negascout(board, 4, color, full=False)
-                # return search(board, color)
-                # return minimax_shallow(board, color)
-
-            case PlayerColor.BLUE:
-                # return mcts_move(board)
-                # return minimax_shallow(board, color)
-                # return random_move(board, color)
-                # return greedy_move(board, color)
-                return search(board, color, referee["time_remaining"])
-            case _:
-                raise Exception(f"{color} is not of proper PlayerColor type")
+        return search(board, color, referee["time_remaining"])
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
