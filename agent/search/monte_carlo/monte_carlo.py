@@ -10,50 +10,37 @@ Notes:
 
 import time
 
-from referee.game import Action, PlayerColor
+from referee.game import Action
 from ...game import Board
 from ...search import get_legal_moves
-from ..minimax import move_ordering
+from ..negamax import move_ordering
 from .mutable_heapq import MutableHeap
-from .mc_node import MonteCarloNode
-
-# Constants
-LIMIT       : int = 60
-TIME_LIMIT  : float = 4
-CHILD_LIMIT : int = 20
+from .mc_node import MonteCarloNode, TIME_LIMIT
 
 
-def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
+def monte_carlo(board: Board, limit=TIME_LIMIT) -> Action:
     """
     Monte Carlo Tree search algorithm returning the next action to be taken by agent.
 
-    Parameters
-    ----------
-    board: Board
-        the board
-    turn_color: PlayerColor
-        the agent's color
-    limit: int
-        the number of operations limit to stop the search
+    Args:
+        board      : the board
+        limit      : the number of operations limit to stop the search
 
-    Returns
-    -------
-    Action
+    Returns:
         the action to be taken by agent
     """
-    operation = 0
-    multiplier = 1 if turn_color == PlayerColor.RED else -1
 
-    # open_min = queue.PriorityQueue()
-    open_min = MutableHeap()
-    discovered = {}
+    operation    = 0
+    open_min     = MutableHeap()
+    discovered   = {}
     initial_node = MonteCarloNode(None, board)
     discovered[initial_node.hash_val] = 1
     open_min.add_task(initial_node)
     st = time.time()
-    et = time.time()
+    et = st
 
-    while et-st <= TIME_LIMIT and operation < limit and open_min.pq:
+    # loop until it reached time limit or has explored all nodes
+    while et-st <= limit and open_min.pq:
         curr_state = open_min.pop_task()
         del discovered[curr_state.hash_val]
 
@@ -73,22 +60,22 @@ def monte_carlo(board: Board, turn_color: PlayerColor, limit=LIMIT) -> Action:
             board.apply_action(all_moves[i], concrete=False)
 
         # Then get all the neighbors associated with the current node
-        legal_moves = get_legal_moves(board, board.turn_color)
-        ordered_map = move_ordering(board, board.turn_color, legal_moves)
-        for i in range(len(ordered_map)):
-            neighbor: Action = ordered_map[i]
+        legal_moves   = get_legal_moves(board, board.turn_color)
+        ordered_moves = move_ordering(board, board.turn_color, legal_moves)
+        for neighbor in ordered_moves:
             curr_neighbor: MonteCarloNode = MonteCarloNode(neighbor, board, curr_state)
+
             # Only add to the node if the board has not yet been discovered
             if curr_neighbor.hash_val not in discovered:
                 curr_neighbor.evaluate_node(board)
                 new_evaluation = curr_neighbor.evaluation
-                open_min.add_task(curr_neighbor, new_evaluation * multiplier)
+                open_min.add_task(curr_neighbor, new_evaluation)
                 discovered[curr_neighbor.hash_val] = 1
             board.undo_action()
 
         # simulations and backpropagation (only when this isn't the first node)
         if operation > 0:
-            curr_state.quick_simulate(board)
+            curr_state.hard_simulate(board, st, limit)
             curr_state.back_propagate(board)
 
         # Undo the actions for the board

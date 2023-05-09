@@ -34,10 +34,8 @@ def main(options: Namespace | None = None):
     """
     Main function of the game program, handled by referee. It runs the game.
 
-    Parameters
-    ----------
-    options: Namespace
-        options upon running the game
+    Args:
+        options: options upon running the game
     """
     if options is None:
         options = get_options()

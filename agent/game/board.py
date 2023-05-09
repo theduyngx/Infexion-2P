@@ -16,7 +16,7 @@ Notes:
 from collections import defaultdict
 from dataclasses import dataclass
 
-from referee.game import HexPos, Action, SpawnAction, SpreadAction, \
+from referee.game import HexPos, Action, SpawnAction, SpreadAction, PlayerColor, \
     MAX_CELL_POWER, BOARD_N, MAX_TURNS, MAX_TOTAL_POWER, WIN_POWER_DIFF
 from .constants import *
 
@@ -97,90 +97,72 @@ class Board:
         "_turn_count"
     ]
 
-    def __init__(self, initial_state: dict[int, CellState] = None):
+    def __init__(self, initial_state: dict[HexPos, CellState] = None):
         """
         Board constructor. The attribute state has key being the hashed value of the hex position of
         the cell, and the value being the cell and its state.
 
-        Parameters
-        ----------
-        initial_state: dict[int, CellState]
-            board's state, default being an empty dictionary;
-            the key is the hashed value of the position,
-            the value is the state of the cell at specified position
+        Args:
+            initial_state:
+                * board's state, default being an empty dictionary;
+                * the key is the hashed value of the position,
+                * the value is the state of the cell at specified position
         """
         # the state uses dense representation, which also stores the empty cells
-        self._state: dict[int, CellState] = defaultdict()
+        self._state: dict[HexPos, CellState] = defaultdict()
         if initial_state is None:
             initial_state = {}
         for r in range(BOARD_N):
             for q in range(BOARD_N):
                 pos = HexPos(r, q)
-                hash_pos = pos.__hash__()
-                if hash_pos not in initial_state:
-                    initial_state[hash_pos] = CellState(pos)
+                if pos not in initial_state:
+                    initial_state[pos] = CellState(pos)
                 else:
-                    assert initial_state[hash_pos].power > EMPTY_POWER and initial_state[hash_pos].color
+                    assert initial_state[pos].power > EMPTY_POWER and initial_state[pos].color
 
         # other properties initialized
         self._state.update(initial_state)
         self._turn_count: int = 0
-        self._turn_color: PlayerColor = PLAYER_COLOR
-        self._true_turn : PlayerColor = PLAYER_COLOR
+        self._turn_color: PlayerColor = PlayerColor.RED
+        self._true_turn : PlayerColor = PlayerColor.RED
         self._non_concrete_history: list[BoardMutation] = []
 
     def __getitem__(self, pos: HexPos) -> CellState:
         """
         Return the state of a cell on the board.
 
-        Parameters
-        ----------
-        pos: HexPos
-            specified position
-
-        Returns
-        -------
-        CellState
+        Args:
+            pos: specified position
+        Returns:
             cell's state
         """
-        return self._state[pos.__hash__()]
+        return self._state[pos]
 
-    def __setitem__(self, pos: HexPos, state: CellState):
+    def __setitem__(self, pos: HexPos, cell: CellState):
         """
         Add a new entry to state.
 
-        Parameters
-        ----------
-        pos: HexPos
-            the cell position
-        state: CellState
-            the state of the cell
+        Args:
+            pos  : the cell position
+            cell : the state of the cell
         """
-        self._state[pos.__hash__()] = state
+        self._state[pos] = cell
 
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check if a position is occupied by a piece within the board or not.
 
-        Parameters
-        ----------
-        pos: HexPos
-            specified position
-
-        Returns
-        -------
-        bool
+        Args:
+            pos: specified position
+        Returns:
             boolean indicating whether the position is occupied or not
         """
-        return pos.__hash__() in self._state and self[pos].power > EMPTY_POWER
+        return pos in self._state and self[pos].power > EMPTY_POWER
 
     def __hash__(self) -> int:
         """
         State hashed value. This is to check if a state has been visited or not in the memory tree.
-
-        Returns
-        -------
-        int
+        Returns:
             hashed value of state
         """
         return hash(frozenset(self.get_cells()))
@@ -188,10 +170,7 @@ class Board:
     def __str__(self) -> str:
         """
         Represent the current board, used for debugging
-
-        Returns
-        -------
-        str
+        Returns:
             string representation of the Board
         """
         str_list = []
@@ -237,28 +216,20 @@ class Board:
     def game_over(self) -> bool:
         """
         Check if the game is over or not, meaning if a player has won the game.
-
-        Returns
-        -------
-        bool
+        Returns:
             true if game is over
         """
         return self.turn_count >= MIN_MOVE_WIN and (self.turn_count >= MAX_TURNS or
-                                                    self.color_power(PLAYER_COLOR) == EMPTY_POWER or
-                                                    self.color_power(OPPONENT_COLOR) == EMPTY_POWER)
+                                                    self.color_power(PlayerColor.RED)  == EMPTY_POWER or
+                                                    self.color_power(PlayerColor.BLUE) == EMPTY_POWER)
 
     def player_wins(self, player: PlayerColor) -> bool:
         """
         Check if specified player has won the game.
 
-        Parameters
-        ----------
-        player: PlayerColor
-            specified player, denoted by their color
-
-        Returns
-        -------
-        bool
+        Args:
+            player: specified player, denoted by their color
+        Returns:
             `True` if won, `False` if not
         """
         return self.game_over and (self.color_power(player.opponent) == EMPTY_POWER or
@@ -274,14 +245,9 @@ class Board:
         """
         Get the list of cells of specified player's
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-
-        Returns
-        -------
-        list[CellState]
+        Args:
+            color: the player's color
+        Returns:
             the list of cells that specified player occupies
         """
         return list(filter(
@@ -293,14 +259,9 @@ class Board:
         """
         Get the number of player pieces currently on the board
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-
-        Returns
-        -------
-        int
+        Args:
+            color: the player's color
+        Returns:
             number of player pieces
         """
         return len(self.player_cells(color))
@@ -309,14 +270,9 @@ class Board:
         """
         Method getting the current total power of a specified player.
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-
-        Returns
-        -------
-        int
+        Args:
+            color: the player's color
+        Returns:
             their power
         """
         return sum(map(lambda cell: cell.power, self.player_cells(color)))
@@ -325,15 +281,11 @@ class Board:
         """
         Method getting the current total power of a specified player and the number of pieces.
 
-        Parameters
-        ----------
-        color: PlayerColor
-            the player's color
-
-        Returns
-        -------
-        tuple[int, int]
-            their number of pieces on board and power
+        Args:
+            color: the player's color
+        Returns:
+            * player's number of pieces on board
+            * player's total power
         """
         color_cells = list(map(lambda cell: cell.power, self.player_cells(color)))
         return len(color_cells), sum(color_cells)
@@ -342,14 +294,9 @@ class Board:
         """
         Check if a specified cell is occupied in the board or not.
 
-        Parameters
-        ----------
-        pos: HexPos
-            specified cell's coordinates
-
-        Returns
-        -------
-        bool
+        Args:
+            pos: specified cell's coordinates
+        Returns:
             `True` if cell is occupied, `False` if not
         """
         return self[pos].power > EMPTY_POWER
@@ -359,14 +306,9 @@ class Board:
         Spawn action applied to the board. It shouldn't check for illegal moves so far to allow for
         possibility of trial and error when testing with agent's board.
 
-        Parameters
-        ----------
-        action: Action
-            the specified spawn action applied to board
-
-        Returns
-        -------
-        BoardMutation
+        Args:
+            action: the specified spawn action applied to board
+        Returns:
             the board mutation
         """
         pos = action.cell
@@ -394,14 +336,9 @@ class Board:
         Spread action applied to the board. It shouldn't check for illegal moves so far to allow for
         possibility of trial and error when testing with agent's board.
 
-        Parameters
-        ----------
-        action: Action
-            the specified spread action applied to board
-
-        Returns
-        -------
-        BoardMutation
+        Args:
+            action: the specified spread action applied to board
+        Returns:
             board mutation
         """
         from_cell, dir = action.cell, action.direction
@@ -437,12 +374,11 @@ class Board:
         """
         Apply an action to a board, mutating the board state.
 
-        Parameters
-        ----------
-        action: Action
-            the specified action applied to board
-        concrete: bool
-            whether action is non-concrete (an applied action within search), or otherwise
+        Args:
+            action   : the specified action applied to board
+            concrete :
+                * `True` if action is non-concrete (an applied action within search)
+                * `False` if otherwise
         """
         match action:
             case SpawnAction():

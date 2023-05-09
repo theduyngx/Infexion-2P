@@ -1,9 +1,10 @@
 """
 Package:
-    ``minimax``
+    ``negamax``
 
 Purpose:
-    Provide the minimax search algorithm function to find the next move for agent.
+    Provide the Negamax (and NegaScout, additionally) search algorithm function to find the next
+    move for agent.
 
 Notes:
     Move ordering, which is an alpha-beta pruning optimization method, is also included to be shared
@@ -11,4 +12,4 @@ Notes:
 """
 
 from .minimax_utils import move_ordering
-from .minimax import minimax
+from .negamax import negamax, negascout, TIME_LIMIT_PER_MOVE

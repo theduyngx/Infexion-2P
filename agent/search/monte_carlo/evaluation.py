@@ -23,27 +23,30 @@ def mc_evaluate(board: Board) -> float:
     evaluation is normalized, meaning if it is a win for the player, it will be 1, and if it is
     definite loss then it will be 0. Any value in between shows the desirability of the state.
 
-    Parameters
-    ----------
-    board: Board
-        current state of board
+    Args:
+        board: current state of board
 
-    Returns
-    -------
-    float
+    Returns:
         the evaluated value of the board
     """
     data: EvaluateData = get_evaluate_data(board)
     if data.immediate:
-        return data.immediate_evaluation
+        if board.true_turn == PlayerColor.RED:
+            return 0 if data.immediate_eval < 0 else 1
+        else:
+            return 1 if data.immediate_eval < 0 else 0
 
     # adding another return value specifically for ordering the heapq for MonteCarlo
-    player_val   = data.num_player_clusters    * NUM_CLUSTER_FACTOR   + \
-                   data.size_player_clusters   * SIZE_CLUSTER_FACTOR  + \
-                   data.num_player_dominates   * NUM_DOMINANCE_FACTOR + \
-                   data.pow_player_dominates   * POW_DOMINANCE_FACTOR
-    opponent_val = data.num_opponent_clusters  * NUM_CLUSTER_FACTOR   + \
-                   data.size_opponent_clusters * SIZE_CLUSTER_FACTOR  + \
-                   data.num_opponent_dominates * NUM_DOMINANCE_FACTOR + \
-                   data.pow_opponent_dominates * POW_DOMINANCE_FACTOR
+    red_val  = data.num_red_clusters   * NUM_CLUSTER_FACTOR   + \
+               data.num_red_dominates  * NUM_DOMINANCE_FACTOR + \
+               data.pow_red_dominates  * POW_DOMINANCE_FACTOR
+    blue_val = data.num_blue_clusters  * NUM_CLUSTER_FACTOR   + \
+               data.num_blue_dominates * NUM_DOMINANCE_FACTOR + \
+               data.pow_blue_dominates * POW_DOMINANCE_FACTOR
+    if board.true_turn == PlayerColor.RED:
+        player_val = red_val
+        opponent_val = blue_val
+    else:
+        player_val = blue_val
+        opponent_val = red_val
     return player_val / (player_val + opponent_val)

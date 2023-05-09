@@ -17,11 +17,8 @@ from referee.game import PlayerColor
 def print_referee(referee: dict):
     """
     Print referee data.
-
-    Parameters
-    ----------
-    referee: dict
-        the referee
+    Args:
+        referee: the referee
     """
     print("--------------------------------------")
     print("Time remaining  :", referee["time_remaining"])
@@ -33,16 +30,11 @@ def ansi_color(color: PlayerColor, ansi=True) -> str:
     """
     Apply ansi formatting to player's color.
 
-    Parameters
-    ----------
-    color: PlayerColor
-        player's color
-    ansi: bool
-        whether to apply ansi
+    Args:
+        color: player's color
+        ansi : whether to apply ansi
 
-    Returns
-    -------
-    str
+    Returns:
         formatted string
     """
     color_print = color

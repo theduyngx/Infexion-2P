@@ -16,6 +16,6 @@ Notes:
 """
 
 from .board import Board, CellState
-from .cluster import create_clusters
+from .cluster import create_clusters, create_clusters_color, Clusters
 from .game_utils import *
 from .constants import *

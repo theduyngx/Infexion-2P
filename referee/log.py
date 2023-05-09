@@ -139,12 +139,9 @@ class LogStream:
         """
         Write the log.
 
-        Parameters
-        ----------
-        message: str
-            specified log message
-        level: LogLevel
-            log's type
+        Args:
+            message : specified log message
+            level   : log's type
         """
         message_lines = message.splitlines()
         for line in message_lines:
@@ -160,11 +157,8 @@ class LogStream:
     def _out(self, message: str):
         """
         Output log.
-
-        Parameters
-        ----------
-        message: str
-            specified message
+        Args:
+            message: specified message
         """
         # Optionally strip unicode symbols
         if not self.setting("unicode"):
