@@ -21,7 +21,7 @@ from collections import defaultdict
 
 from referee.game import HexPos, HexDir, PlayerColor, \
                          Action, SpawnAction, SpreadAction, \
-                         MAX_TOTAL_POWER, BOARD_N
+                         MAX_TOTAL_POWER, BOARD_N, WIN_POWER_DIFF
 from ...game import Board, adjacent_positions, \
                     Clusters, create_clusters_color, \
                     MIN_TOTAL_POWER, EMPTY_POWER
@@ -166,18 +166,26 @@ def get_optimized_legal_moves(board: Board, color: PlayerColor, full=True) -> (l
         pos = cell.pos
         # check for spread cells
         if cell.color == color:
-            # add if total power exceeds acceptable limit for reduction, and that spread is non-quiet
             if board[pos].power == 1:
-                for dir in HexDir:
-                    adj = pos + dir
-                    if board[adj].color == color.opponent:
-                        actions.append(SpreadAction(pos, dir))
+                # condition to allow spread onto itself
+                if total_power >= MAX_TOTAL_POWER // 2 - 1 and \
+                        abs(player_power - opponent_power) <= WIN_POWER_DIFF:
+                    for dir in HexDir:
+                        adj = pos + dir
+                        if board.pos_occupied(adj):
+                            actions.append(SpreadAction(pos, dir))
+                # add if spread is a non-quiet action
+                else:
+                    for dir in HexDir:
+                        adj = pos + dir
+                        if board[adj].color == color.opponent:
+                            actions.append(SpreadAction(pos, dir))
             # otherwise, full list requested, or position has power exceeding 1
             else:
                 actions.extend([SpreadAction(pos, dir) for dir in HexDir])
 
         # check for every spawn cells
-        elif board.total_power() < MAX_TOTAL_POWER and not board.pos_occupied(pos):
+        elif not board.pos_occupied(pos) and board.total_power() < MAX_TOTAL_POWER:
             # spawn is skipped if the spawn is not adjacent to any of player's cell
             adj_list = adjacent_positions(pos)
             if any([board[adj].color == color for adj in adj_list]):
@@ -209,7 +217,7 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         match action:
             # spawn means adding their power by 1
             case SpawnAction(_):
-                action_values[index] = (action, 0, 0, 1)
+                action_values[index] = (action, 0, 0, 0)
             # spread can either be a power-1 spread, or higher, which is possibly more desirable
             case SpreadAction(pos, dir):
                 power = board[action.cell].power

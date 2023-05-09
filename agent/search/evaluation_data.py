@@ -13,11 +13,11 @@ Notes:
     With the provided constants, the evaluation score of the board is calculated as follows:
 
     |
-    .. math:: Eval(state) = 1.8  * (Num_r    - Num_b   ) +
-                            1.7  * (Pow_r    - Pow_b   ) + \n
+    .. math:: Eval(state) = 2.0  * (Num_r    - Num_b   ) +
+                            1.6  * (Pow_r    - Pow_b   ) + \n
                             0.8  * (NumCl_r  - NumCl_b ) +
                             1.55 * (NumDom_r - NumDom_b) + \n
-                            0.85 * (PowDom_r - PowDom_b)
+                            0.65 * (PowDom_r - PowDom_b)
 
     Where: (each of a specified color)
         * Num is the number of pieces
