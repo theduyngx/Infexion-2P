@@ -71,9 +71,9 @@ class Agent:
 
         match color:
             case PlayerColor.RED:
-                # return greedy_move(board, color)
-                from .search.negascout import negamax
-                return negamax(board, 4, color)
+                return greedy_move(board, color)
+                # from .search.negascout import negamax
+                # return negamax(board, 4, color)
                 # return search(board, color)
 
             case PlayerColor.BLUE:

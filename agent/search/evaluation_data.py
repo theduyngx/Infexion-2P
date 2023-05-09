@@ -112,8 +112,8 @@ def get_evaluate_data(board: Board) -> EvaluateData:
         if cluster.color == PlayerColor.RED:
             data.num_red_clusters  += 1
             # dominance factor is checked solely via red pieces
-            for blue_cell in cluster.get_opponents():
-                blue_cluster = clusters[blue_cell]
+            for adj_opponent in cluster.get_opponents():
+                blue_cluster = clusters[adj_opponent]
 
                 # cluster size dominance
                 if len(cluster) < len(blue_cluster):
