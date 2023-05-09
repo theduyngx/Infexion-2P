@@ -72,7 +72,7 @@ class Agent:
         match color:
             case PlayerColor.RED:
                 return greedy_move(board, color)
-                # from .search.negamax import negascout
+                # from .search.negamax import negascout, negamax
                 # return negascout(board, 4, color, full=False)
                 # return search(board, color)
                 # return minimax_shallow(board, color)

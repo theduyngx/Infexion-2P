@@ -23,21 +23,22 @@ from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 # Constants
 NULL_WINDOW: float = 1
-TIME_LIMIT : float = 15
+TIME_LIMIT_PER_MOVE: float = 15
 
 
-def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
+def negamax(board: Board, depth: int, color: PlayerColor, full=False, time_lim=TIME_LIMIT_PER_MOVE) -> Action:
     """
     Negamax search algorithm to find the next action to take for the agent. It is called when it
     is the agent with specified color's turn. There's no performance difference between negamax
     and minimax, however.
 
     Args:
-        board: the board
-        depth: the search depth limit
-        color: the agent's color
-        full : * `True` to set move reduction optimization,
-               * `False` to get actual all possible legal moves
+        board    : the board
+        depth    : the search depth limit
+        color    : the agent's color
+        full     : * `True` to set move reduction optimization,
+                   * `False` to get actual all possible legal moves
+        time_lim : the maximum allowed time to return an action
 
     Returns:
         the action to take for agent
@@ -45,20 +46,21 @@ def negamax(board: Board, depth: int, color: PlayerColor, full=False) -> Action:
     alpha = -INF
     beta  = INF
     timer = time()
-    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, timer, full)
+    _, action, _ = alphabeta_negamax(board, color, depth, depth, None, alpha, beta, timer, full, time_lim)
     assert_action(action)
     return action
 
 
-def alphabeta_negamax(board  : Board,
-                      color  : PlayerColor,
-                      depth  : int,
-                      ceil   : int,
-                      action : Action,
-                      alpha  : float,
-                      beta   : float,
-                      timer  : float,
-                      full   = False,
+def alphabeta_negamax(board    : Board,
+                      color    : PlayerColor,
+                      depth    : int,
+                      ceil     : int,
+                      action   : Action,
+                      alpha    : float,
+                      beta     : float,
+                      timer    : float,
+                      full     = False,
+                      time_lim = TIME_LIMIT_PER_MOVE
                       ) -> (float, Action, bool):
     """
     Alpha-beta pruning for Negamax search algorithm.
@@ -68,16 +70,17 @@ def alphabeta_negamax(board  : Board,
     has to assign negation to that score. This makes alpha-beta for Negamax more elegant.
 
     Args:
-        board  : the board
-        color  : the current turn of player, specified by player's color
-        depth  : the current depth in the search tree
-        ceil   : top depth level
-        action : most recent action made to reach the current board state
-        alpha  : move that improves player's position
-        beta   : move that improves opponent's position
-        timer  : the timer, it will end prematurely if it exceeds a specific amount of allowed time
-        full   : * `True` to set move reduction optimization,
-                 * `False` to get actual all possible legal moves
+        board    : the board
+        color    : the current turn of player, specified by player's color
+        depth    : the current depth in the search tree
+        ceil     : top depth level
+        action   : most recent action made to reach the current board state
+        alpha    : move that improves player's position
+        beta     : move that improves opponent's position
+        timer    : the timer, it will end prematurely if it exceeds a specific amount of allowed time
+        full     : * `True` to set move reduction optimization,
+                   * `False` to get actual all possible legal moves
+        time_lim : the maximum allowed time to return an action
 
     Returns:
         * evaluated score of the board and the action to be made
@@ -86,11 +89,11 @@ def alphabeta_negamax(board  : Board,
     """
     # reached depth limit, or terminal node
     ret   = None
-    stop  = False
-    score = 0
+    score = 0           # arbitrary score which will be changed later anyway, as long ret is None
     end   = time()
-    if depth == 0 or board.game_over or end - timer >= TIME_LIMIT:
-        stop = depth >= ceil - 1 or end - timer >= TIME_LIMIT
+    stop  = end - timer >= time_lim
+    if depth == 0 or board.game_over or stop:
+        stop = depth >= ceil - 1 or stop
         sign = 1 if color == MAXIMIZE_PLAYER else -1
         return sign * evaluate(board), action, stop
 
@@ -101,13 +104,15 @@ def alphabeta_negamax(board  : Board,
 
         # apply action
         board.apply_action(action, concrete=False)
-        curr_val, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, ceil, action,
-                                              -beta, -alpha, timer, full)
-        curr_val = -curr_val
+        curr, _, stop = alphabeta_negamax(board, color.opponent, depth - 1, ceil, action,
+                                          -beta, -alpha, timer, full)
+        curr = -curr
         # undo after finishing
         board.undo_action()
-        if curr_val > score or ret is None:
-            score = curr_val
+
+        # update score and, likewise, alpha
+        if curr > score or ret is None:
+            score = curr
             ret = action
         alpha = max(alpha, score)
 
@@ -194,24 +199,24 @@ def alphabeta_pvs(board  : Board,
     ordered_moves = move_ordering(board, color, legal_moves) if not endgame else legal_moves
 
     # for each child node of board
-    ret : Action = None
-    stop: bool   = False
-    b = beta
-    for possible_action in ordered_moves:
+    b    = beta
+    ret  : Action = None
+    stop : bool   = False
+    for action in ordered_moves:
 
         # search with updated search window a and b
-        board.apply_action(possible_action, concrete=False)
-        score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+        board.apply_action(action, concrete=False)
+        score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
                                        -b, -alpha, full)
         score = -score
 
         # first action - estimated best action
-        if possible_action is ordered_moves[0]:
-            ret = possible_action
+        if action is ordered_moves[0]:
+            ret = action
 
         # subsequent actions - if within range, search full alpha-beta window
         elif alpha < score < beta:
-            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, possible_action,
+            score, _, stop = alphabeta_pvs(board, color.opponent, depth - 1, ceil, action,
                                            -beta, -alpha, full)
             score = -score
 
@@ -221,7 +226,7 @@ def alphabeta_pvs(board  : Board,
         # update alpha (maximize score) and return action
         if score > alpha:
             alpha = score
-            ret = possible_action
+            ret   = action
 
         # cutoff / stop prematurely, and update search window
         if alpha >= beta or stop:

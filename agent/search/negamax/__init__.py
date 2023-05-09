@@ -12,4 +12,4 @@ Notes:
 """
 
 from .minimax_utils import move_ordering
-from .negamax import negamax, negascout
+from .negamax import negamax, negascout, TIME_LIMIT_PER_MOVE

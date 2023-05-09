@@ -7,22 +7,26 @@ Purpose:
 
 Notes:
     The search approach uses Negamax algorithm with alpha-beta pruning and variety of other
-    optimization methods to improve performance without sacrificing too much accuracy.
+    optimization methods to improve performance without sacrificing too much accuracy. It is
+    important to note that the search algorithm will switch to a simpler agent under time
+    pressure, and is able to control allowed time per move before cut-off.
 """
 
 from referee.game import PlayerColor, Action, SpawnAction, HexPos, HexDir
 from ..game import Board
-from .negamax import negamax, negascout
+from .negamax import negamax, TIME_LIMIT_PER_MOVE
 
 # Depth limit for NegaScout
-DEPTH: int = 4
-TIME_THRESHOLD: float = 10
+DEPTH         : int   = 4
+REDUCED_DEPTH : int   = 2
+MIN_TIME_DIFF : float = 5
+TIME_THRESHOLD: float = 15
 
 
 def search(board: Board, color: PlayerColor, player_time) -> Action:
     """
     Search the best subsequent move for agent. It will be using a pruned and highly optimized
-    NegaScout search algorithm, which is a Negamax-variant algorithm.
+    Negamax search algorithm, which is a Minimax-variant algorithm.
 
     Args:
         board       : the board
@@ -39,7 +43,9 @@ def search(board: Board, color: PlayerColor, player_time) -> Action:
             pos = cell.pos
             if not board.pos_occupied(pos) and all([not board.pos_occupied(pos + dir) for dir in HexDir]):
                 return SpawnAction(pos)
-    # desperation
-    if player_time <= TIME_THRESHOLD:
-        return negamax(board, 2, color, full=False)
-    return negascout(board, DEPTH, color, full=False)
+
+    # desperation not under time pressure yet, but under allowed move time
+    if player_time <= TIME_LIMIT_PER_MOVE + MIN_TIME_DIFF:
+        return negamax(board, DEPTH, color, full=False, time_lim = TIME_LIMIT_PER_MOVE - MIN_TIME_DIFF)
+    depth = REDUCED_DEPTH if player_time <= TIME_THRESHOLD else DEPTH
+    return negamax(board, depth, color, full=False)
