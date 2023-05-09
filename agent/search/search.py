@@ -45,7 +45,7 @@ def search(board: Board, color: PlayerColor, player_time) -> Action:
                 return SpawnAction(pos)
 
     # desperation not under time pressure yet, but under allowed move time
-    if player_time <= TIME_LIMIT_PER_MOVE + MIN_TIME_DIFF:
-        return negamax(board, DEPTH, color, full=False, time_lim = TIME_LIMIT_PER_MOVE - MIN_TIME_DIFF)
     depth = REDUCED_DEPTH if player_time <= TIME_THRESHOLD else DEPTH
+    if player_time <= TIME_LIMIT_PER_MOVE + MIN_TIME_DIFF:
+        return negamax(board, depth, color, full=False, time_lim = TIME_LIMIT_PER_MOVE - MIN_TIME_DIFF)
     return negamax(board, depth, color, full=False)

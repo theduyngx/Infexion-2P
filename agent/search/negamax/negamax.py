@@ -23,7 +23,7 @@ from .minimax_utils import get_optimized_legal_moves, move_ordering
 
 # Constants
 NULL_WINDOW: float = 1
-TIME_LIMIT_PER_MOVE: float = 15
+TIME_LIMIT_PER_MOVE: float = 18
 
 
 def negamax(board: Board, depth: int, color: PlayerColor, full=False, time_lim=TIME_LIMIT_PER_MOVE) -> Action:
