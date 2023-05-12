@@ -235,24 +235,93 @@ def get_options():
 
 
 class PackageSpecAction(argparse.Action):
+    """
+    Class to parse the package and module to find the corresponding agent.
+    """
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Modified by student to allow higher flexibility in the parsing. Call to class will parse
+        the agent accordingly. Note that the default package that would not require package
+        specification is ``agent``. Any other package name must be  specified accordingly.
+
+        Another important note is that there are certain conventions to using agent parameters:
+            * If agent is only `specified by package`, then package must be un-capitalized and
+              be called so accordingly; and its agent must be named "Agent" in top __init__.py
+            * If agent is only `specified by its class`, then the package must be named "agent"
+              and the class must be first-character capitalized.
+            * Otherwise, specify the entire directory.
+        In the end, if you choose to abbreviate your call, simply remember to ensure that, if
+        called by agent, at least first-letter capitalize it (as long as the first letter is
+        capitalized). And for package call, do otherwise.
+
+        Args:
+            parser        : argument parser
+            namespace     : namespace specification for the value
+            values        : the values being the actual agent, or directory to it
+            option_string : default none, optional
+        """
         if not isinstance(values, str):
             raise argparse.ArgumentError(
                 self, "expected a string, got %r" % (values,)
             )
 
-        pkg_spec = values
-
-        # detect alternative class:
-        if ":" in pkg_spec:
-            pkg, cls = pkg_spec.split(":", maxsplit=1)
+        # clean up the directory
+        dirs: list[str]
+        if '/' in values:
+            dirs = values.split('/')
+        elif '\\' in values:
+            dirs = values.split('\\')
+        elif '.' in values:
+            dirs = values.split('.')
         else:
-            pkg = pkg_spec
-            cls = "Agent"
+            dirs = [values]
 
-        # try to convert path to module name
-        mod = pkg.strip("/\\").replace("/", ".").replace("\\", ".")
-        if mod.endswith(".py"):  # NOTE: Assumes submodule is not named `py`.
+        cls = None
+        potential_abbr = False
+        # cleanup any redundant directory specifier at the head
+        if dirs[0] == '':
+            dirs.pop(0)
+        if len(dirs) == 0:
+            raise argparse.ArgumentError(
+                self, f"{values} is not a valid agent, or directory"
+            )
+
+        # if there is actually only 1 directory specifier, then either:
+        # 1. specifier is package --> must follow convention of class being "Agent"
+        # 2. specifier is class   --> must follow convention of package being "agent"
+        elif len(dirs) == 1:
+            if dirs[0][0].isupper():
+                cls = dirs[0]
+                pkg = "agent"
+                potential_abbr = len(cls) < 5
+            else:
+                cls = "Agent"
+                pkg = dirs[0]
+        # otherwise, the user must fully specify the entire directory
+        else:
+            pkg = dirs[0]
+            for dir in dirs[1:]:
+                cls += "." + dir
+
+        # abbreviations
+        if potential_abbr:
+            cls_lower = cls.lower()
+            if cls_lower == "a":
+                cls = "Agent"
+            elif "r" in cls_lower:
+                cls = "RandomAgent"
+            elif "g" in cls_lower:
+                cls = "GreedyAgent"
+            elif "mc" in cls_lower:
+                cls = "MonteCarloAgent"
+            elif "ms" in cls_lower:
+                cls = "MinimaxShallowAgent"
+            elif "ng" in cls_lower or "ns" in cls_lower:
+                cls = "NegaScoutAgent"
+
+        # convert path to module name
+        mod = pkg
+        if mod.endswith(".py"):  # NOTE: Assumes submodule is not named `py`
             mod = mod[:-3]
 
         # save the result in the arguments namespace as a tuple

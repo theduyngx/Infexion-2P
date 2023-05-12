@@ -30,3 +30,6 @@ To run the game in Pycharm, do as follows:
 * Choose a Python Interpreter (must be Python 3.10 or newer)
 * Working directory: "**../AI-part-B**"
 * In Execution, tick **Emulate terminal in output console**
+
+Agent parameters when running the game:
+* ...
