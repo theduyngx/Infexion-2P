@@ -13,7 +13,7 @@ Notes:
         * ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
-from referee.game import Action, SpawnAction, SpreadAction
+from referee.game import Action
 from .search import search
 from .game import Board
 from .utils import *
@@ -39,6 +39,7 @@ class Agent:
             color     : the player's color
             **referee : the referee containing specific important information of the game
         """
+        assert referee
         self._color = color
         self._board = Board()
 
@@ -63,10 +64,9 @@ class Agent:
         """
         board = self._board
         color = self._color
-        color_print = ansi_color(color)
-        print(f"{color_print} TURN:")
         print_referee(referee)
-        return search(board, color, referee["time_remaining"])
+        action = search(board, color, referee["time_remaining"])
+        return action
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -79,14 +79,3 @@ class Agent:
             referee : the referee
         """
         self._board.apply_action(action)
-        if self._color == color:
-            assert referee
-            color_print = ansi_color(color)
-
-            match action:
-                case SpawnAction(cell):
-                    print(f"{color_print} SPAWN at {cell}")
-                    pass
-                case SpreadAction(cell, direction):
-                    print(f"{color_print} SPREAD from {cell} - {direction}")
-                    pass

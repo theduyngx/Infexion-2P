@@ -67,18 +67,23 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
     Returns:
         asynchronous interception
     """
+    first_player_init = False
     while True:
         update: GameUpdate = yield
         match update:
             case PlayerInitialising(player):
                 stream.info(f"Player {player} is initialising")
+                if not first_player_init:
+                    first_player_init = True
+                else:
+                    stream.info()
             case GameBegin(_):
                 stream.info()
                 stream.info(f"Let the game begin!")
                 stream.info()
             case TurnBegin(turn_id, player):
-                stream.info()
                 stream.info(f"{player} to play (turn {turn_id}) ...")
+                stream.info()
             case TurnEnd(_, player, action):
                 stream.info()
                 stream.info(f"{player} plays action {action}")

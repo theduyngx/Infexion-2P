@@ -110,6 +110,11 @@ class Board:
     ]
 
     def __init__(self, initial_state=None):
+        """
+        Referee's Board constructor.
+        Args:
+            initial_state: the initial state of the board.
+        """
         if initial_state is None:
             initial_state = {}
         self._state: dict[HexPos, CellState] = defaultdict(lambda: CellState(None, 0))
@@ -117,18 +122,25 @@ class Board:
         self._turn_color: PlayerColor = PlayerColor.RED
         self._history: list[BoardMutation] = []
 
-    def __getitem__(self, cell: HexPos) -> CellState:
+    def __getitem__(self, pos: HexPos) -> CellState:
         """
-        Return the state of a cell on the board.
+        Get the state of a cell on the board given a position.
+        Args:
+            pos: the cell's position
+        Returns:
+            the cell
         """
-        if not _within_bounds(cell):
-            raise IndexError(f"Cell position '{cell}' is invalid.")
-        return self._state[cell]
+        if not _within_bounds(pos):
+            raise IndexError(f"Cell position '{pos}' is invalid.")
+        return self._state[pos]
 
     def apply_action(self, action: Action):
         """
         Apply an action to a board, mutating the board state. Throws an
         IllegalActionException if the action is invalid.
+
+        Args:
+            action: the to be applied action
         """
         match action:
             case SpawnAction():
@@ -138,10 +150,8 @@ class Board:
             case _:
                 raise IllegalActionException(
                     f"Unknown action {action}", self._turn_color)
-
         for mutation in res_action.cell_mutations:
             self._state[mutation.cell] = mutation.next
-
         self._history.append(res_action)
         self._turn_color = self._turn_color.opponent
 
@@ -160,24 +170,58 @@ class Board:
 
     def render(self, use_color=False, use_unicode=False) -> str:
         """
+        Return a visualisation of the game board via a multiline string. The layout
+        corresponds to the axial coordinate system as described in the game
+        specification document.
+
+        Args:
+            use_color   : if ansi color is to be applied
+            use_unicode : if unicode is to be applied
+
+        Returns:
+            The string visualisation of the board
+        """
+        """
         Return a visualisation of the game board via a multiline string. The
         layout corresponds to the axial coordinate system as described in the
         game specification document.
         """
-        def apply_ansi(string, ansi_color=None, bold=True, mutated=False):
-            # Helper function to apply ANSI color codes
-            bold_code = "\033[1m" if bold else ""
+        def apply_ansi(string, ansi_color=None, bold=False, mutated=False) -> str:
+            """
+            Apply ansi-format to string. Helper function.
+
+            Args:
+                string     : given string
+                ansi_color : ansi color to be formatted
+                bold       : if string is bold or not
+                mutated    : apply ansi if only cell is mutated
+
+            Returns:
+                The formatted string
+            """
+            from ..log import LogColor
+
+            bold_code  = LogColor.BOLD if bold else ""
             color_code = ""
             string = "[".strip() + string.strip() + "]".strip() if mutated else string
             if ansi_color == "r":
-                color_code = "\033[31m"
+                color_code = LogColor.RED
             if ansi_color == "b":
-                color_code = "\033[34m"
-            return f"{bold_code}{color_code}{string}\033[0m"
+                color_code = LogColor.BLUE
+            return f"{bold_code}{color_code}{string}{LogColor.ESCAPE}"
 
-        def is_mutated(cells_mutated: set[CellMutation], position: HexPos):
-            # Student-written helper method for checking if cell is just mutated
-            # This helps to mark positions that are just mutated to make it clearer
+        def is_mutated(cells_mutated: set[CellMutation], position: HexPos) -> bool:
+            """
+            Student-written helper method for checking if cell is just mutated.
+            This helps to mark positions that are just mutated to make it clearer.
+
+            Args:
+                cells_mutated:
+                position:
+
+            Returns:
+                if cell has been mutated
+            """
             if cells_mutated is None:
                 return False
             return any([mutated.cell == position for mutated in cells_mutated])
@@ -196,7 +240,7 @@ class Board:
                 if self._cell_occupied(pos):
                     player, power = self._state[pos]
                     color = "r" if player == PlayerColor.RED else "b"
-                    text = f"{color}{power}".center(4)
+                    text  = f"{color}{power}".center(4)
                     output += apply_ansi(text, ansi_color=color, bold=use_unicode,
                                          mutated=is_mutated(cell_mutations, pos)) \
                         if use_color else text

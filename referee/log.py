@@ -29,7 +29,8 @@ class LogColor(Enum):
     WHITE     = "\033[37m"
     GREY      = "\033[90m"
     CYAN      = "\033[96m"
-    BLACK_BG  = "\033[100m"
+    BOLD      = "\033[1m"
+    ESCAPE    = "\033[0m"
     RESET_ALL = "\033[0m"
 
     def __str__(self):
