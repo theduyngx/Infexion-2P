@@ -25,7 +25,8 @@ from traceback import format_tb
 
 from .game import Player, PlayerColor
 from .log import LogStream, LogColor, LogLevel
-from .run import game_user_wait, run_game, game_commentator, game_event_logger, game_delay, output_board_updates
+from .run import game_user_wait, run_game, game_commentator, \
+                 game_event_logger, game_delay, output_board_updates
 from .agent import AgentProxyPlayer
 from .options import get_options
 
@@ -49,15 +50,14 @@ def main(options: Namespace | None = None):
             LogLevel.INFO,
             LogLevel.INFO,
             LogLevel.DEBUG,
-        ][options.verbosity])
+        ][options.verbosity]
+    )
     LogStream.set_global_setting("ansi", options.use_colour)
     LogStream.set_global_setting("unicode", options.use_unicode)
 
     # Referee log stream
-    rl = LogStream("referee", LogColor.WHITE)
-    rl.info("all messages printed by referee/wrapper modules begin with *")
-    rl.info("(any other lines of output must be from your Agent class).")
-    rl.info("\n")
+    rl = LogStream("referee", LogColor.GREY)
+    rl.info("referee's messages begin with *")
 
     # Game log stream
     gl: LogStream | None = None
@@ -101,14 +101,15 @@ def main(options: Namespace | None = None):
             player_loc = vars(options)[f"player{p_num}_loc"]
             player_name = f"player {p_num} [{':'.join(player_loc)}]"
 
-            rl.info(f"wrapping {player_name} as {player_color}...")
+            rl.info(f"wrapping {player_name} as {player_color.log_format(options.use_colour)}...")
             p: Player = AgentProxyPlayer(
                 player_name,
                 player_color,
                 player_loc,
                 time_limit=options.time,
                 space_limit=options.space,
-                log=LogStream(f"player{p_num}", LogColor[str(player_color)])
+                log=LogStream(f"player{p_num}", LogColor[str(player_color)]),
+                ansi=options.use_colour
             )
             agents[p] = {
                 "name": player_name,

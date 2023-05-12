@@ -96,11 +96,26 @@ def mcts_move(board: Board) -> Action:
 
     Args:
         board: given board
-
     Returns:
         the action to be taken
     """
     from ..search.monte_carlo import monte_carlo
     if board.turn_count > 0:
         return monte_carlo(board)
+    return SpawnAction(HexPos(3, 3))
+
+
+def negascout_move(board: Board, color: PlayerColor) -> Action:
+    """
+    NegaScout search agent move approach.
+
+    Args:
+        board: given board
+        color: player's color
+    Returns:
+        the action to be taken
+    """
+    from ..search.negamax import negascout
+    if board.turn_count > 0:
+        return negascout(board, 4, color)
     return SpawnAction(HexPos(3, 3))

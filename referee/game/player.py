@@ -13,6 +13,7 @@ Notes:
 from enum import Enum
 from abc import abstractmethod
 from .actions import Action
+from ..log import LogColor
 
 
 class PlayerColor(Enum):
@@ -39,6 +40,23 @@ class PlayerColor(Enum):
             PlayerColor.RED: "RED",
             PlayerColor.BLUE: "BLUE"
         }[self]
+
+    def log_format(self, ansi=False) -> str:
+        """
+        Student written method. Return ansi-formatted string for the player.
+
+        Args:
+            ansi: `True` if ansi-applied, `False` if otherwise
+
+        Returns:
+            the ansi string format
+        """
+        color = ""
+        width = ""
+        if ansi:
+            color = LogColor.RED if self.value == 0 else LogColor.BLUE
+            width = LogColor.BOLD
+        return f"{width}{color}{self.__str__()}{LogColor.ESCAPE}"
 
     def __index__(self) -> int:
         """
@@ -69,15 +87,28 @@ class Player:
     Player is an abstract base class for actual players of the game.
     It's used internally by the referee to wrap your agent and/or other virtual players.
     """
-    def __init__(self, color: PlayerColor):
+    def __init__(self, color: PlayerColor, ansi):
+        """
+        Player constructor.
+        Args:
+            color : player's color
+            ansi  : optional ansi color to apply
+        """
         self._color = color
+        self._ansi = ansi
 
     @property
     def color(self) -> PlayerColor:
+        """
+        Player's color - a property.
+        """
         return self._color
 
     def __str__(self) -> str:
-        return str(self._color)
+        """
+        String representation of player.
+        """
+        return str(self._color.log_format(self._ansi))
 
     @abstractmethod
     async def action(self) -> Action:

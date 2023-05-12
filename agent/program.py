@@ -13,8 +13,9 @@ Notes:
         * ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
-from referee.game import Action, SpawnAction, SpreadAction
-from .search import search
+from referee.game import Action
+from .search import search, random_move, greedy_move,\
+                    minimax_shallow, mcts_move, negascout_move
 from .game import Board
 from .utils import *
 
@@ -39,7 +40,7 @@ class Agent:
             color     : the player's color
             **referee : the referee containing specific important information of the game
         """
-        print_referee(referee)
+        assert referee
         self._color = color
         self._board = Board()
 
@@ -62,12 +63,8 @@ class Agent:
         Returns:
             the action to be taken next
         """
-        board = self._board
-        color = self._color
-        color_print = ansi_color(color)
-        print(f"{color_print} TURN:")
         print_referee(referee)
-        return search(board, color, referee["time_remaining"])
+        return search(self._board, self._color, referee["time_remaining"])
 
     def turn(self, color: PlayerColor, action: Action, **referee: dict):
         """
@@ -79,14 +76,94 @@ class Agent:
             action  : the action taken by agent
             referee : the referee
         """
-        assert referee
         self._board.apply_action(action)
-        color_print = ansi_color(color)
 
-        match action:
-            case SpawnAction(cell):
-                print(f"{color_print} SPAWN at {cell}")
-                pass
-            case SpreadAction(cell, direction):
-                print(f"{color_print} SPREAD from {cell} - {direction}")
-                pass
+
+class RandomAgent(Agent):
+    """
+    The Random agent which does not use the primary search algorithm.
+    It inherits from Agent.
+    """
+    def action(self, **referee: dict) -> Action:
+        """
+        Overridden action to perform random search instead.
+
+        Args:
+            **referee: the referee
+        Returns:
+            the action taken by agent
+        """
+        print_referee(referee)
+        return random_move(self._board, self._color)
+
+
+class GreedyAgent(Agent):
+    """
+    The Greedy agent which does not use the primary search algorithm.
+    It inherits from Agent.
+    """
+    def action(self, **referee: dict) -> Action:
+        """
+        Overridden action to perform greedy search instead.
+
+        Args:
+            **referee: the referee
+        Returns:
+            the action taken by agent
+        """
+        print_referee(referee)
+        return greedy_move(self._board, self._color)
+
+
+class MinimaxShallowAgent(Agent):
+    """
+    The Shallow Minimax agent which does not use the primary search algorithm.
+    It inherits from Agent.
+    """
+    def action(self, **referee: dict) -> Action:
+        """
+        Overridden action to perform shallow Minimax search instead.
+
+        Args:
+            **referee: the referee
+        Returns:
+            the action taken by agent
+        """
+        print_referee(referee)
+        return minimax_shallow(self._board, self._color)
+
+
+class MonteCarloAgent(Agent):
+    """
+    The Monte Carlo agent which does not use the primary search algorithm.
+    It inherits from Agent.
+    """
+    def action(self, **referee: dict) -> Action:
+        """
+        Overridden action to perform Monte Carlo search instead.
+
+        Args:
+            **referee: the referee
+        Returns:
+            the action taken by agent
+        """
+        print_referee(referee)
+        return mcts_move(self._board)
+
+
+class NegaScoutAgent(Agent):
+    """
+    The NegaScout agent which does not use the primary search algorithm.
+    It inherits from Agent.
+    """
+    def action(self, **referee: dict) -> Action:
+        """
+        Overridden action to perform NegaScout search instead.
+
+        Args:
+            **referee: the referee
+        Returns:
+            the action taken by agent
+        """
+        print_referee(referee)
+        return negascout_move(self._board, self._color)

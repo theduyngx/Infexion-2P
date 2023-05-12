@@ -30,26 +30,31 @@ class AgentProxyPlayer(Player):
     are run in a separate process to the referee, so that they cannot interfere with the
     referee's execution. See the AgentProcess (process.py) class for more details.
     """
-    def __init__(self,
-                 name               : str,
-                 color              : PlayerColor,
-                 agent_loc          : tuple[str, str],
-                 time_limit         : float | None,
-                 space_limit        : float | None,
-                 log                : LogStream = NullLogger(),
-                 intercept_exc_type : Type[Exception] = PlayerException
-                 ):
+    def __init__(
+            self,
+            name               : str,
+            color              : PlayerColor,
+            agent_loc          : tuple[str, str],
+            time_limit         : float | None,
+            space_limit        : float | None,
+            log                : LogStream = NullLogger(),
+            intercept_exc_type : Type[Exception] = PlayerException,
+            ansi               : bool = False
+         ):
         """
         Proxy agent constructor.
-        @param name               : agent's name
-        @param color              : agent's color
-        @param agent_loc          : agent's location (??)
-        @param time_limit         : agent's time limit
-        @param space_limit        : agent's space limit
-        @param log                : agent's log stream
-        @param intercept_exc_type : interception for something
+
+        Args:
+            name               : agent's name
+            color              : agent's color
+            agent_loc          : agent's location (??)
+            time_limit         : agent's time limit
+            space_limit        : agent's space limit
+            log                : agent's log stream
+            intercept_exc_type : interception for something
+            ansi               : whether ansi-format is applied
         """
-        super().__init__(color)
+        super().__init__(color, ansi)
         assert isinstance(agent_loc, tuple), "agent_loc must be a tuple"
         assert len(agent_loc) == 2, "agent_loc must be a tuple (pkg, cls)"
         self._pkg, self._cls = agent_loc
@@ -107,7 +112,9 @@ class AgentProxyPlayer(Player):
         """
         Import the agent class (in a separate process). Note: We are wrapping another async
         context manager here, so need to use the __aenter__ and __aexit__ methods.
-        @return: the proxy agent
+
+        Returns:
+            proxy agent
         """
         self._log.debug(f"creating agent subprocess...")
         with self._intercept_exc():
