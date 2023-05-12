@@ -12,6 +12,7 @@ Notes:
 """
 
 from referee.game import PlayerColor
+from referee.log import LogColor
 
 
 def print_referee(referee: dict):
@@ -20,10 +21,18 @@ def print_referee(referee: dict):
     Args:
         referee: the referee
     """
-    print("--------------------------------------")
-    print("Time remaining  :", referee["time_remaining"])
-    print("Space remaining :", referee["space_remaining"])
-    print("--------------------------------------")
+    bg    = LogColor.BLACK_BG
+    txt   = LogColor.CYAN
+    escp  = "\033[0m"
+    time  = referee["time_remaining"]
+    space = referee["space_remaining"]
+    time  = round(time, 6) if time is not None else time
+    space = round(space, 6) if space is not None else space
+    logs  = f"  {bg}--------------------------------------{escp}\n" \
+            f"  {txt}Time remaining  (s)  : {time}{escp}\n" \
+            f"  {txt}Space remaining (Mb) : {space}{escp}\n" \
+            f"  {bg}--------------------------------------{escp}"
+    print(logs)
 
 
 def ansi_color(color: PlayerColor, ansi=True) -> str:
@@ -40,9 +49,11 @@ def ansi_color(color: PlayerColor, ansi=True) -> str:
     color_print = color
     if ansi:
         bold_code = "\033[1m"
+        color_ansi = ""
         match color:
             case PlayerColor.RED:
-                color_print = f"{bold_code}\033[31m{color}\033[0m"
+                color_ansi = LogColor.RED
             case PlayerColor.BLUE:
-                color_print = f"{bold_code}\033[34m{color}\033[0m"
+                color_ansi = LogColor.BLUE
+        color_print = f"  {bold_code}{color_ansi}{color}\033[0m"
     return color_print

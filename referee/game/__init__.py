@@ -3,7 +3,7 @@ Package:
     ``referee.game``
 
 Purpose:
-    Game representation.
+    Game representation for referee.
 
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent

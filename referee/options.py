@@ -14,7 +14,7 @@ Notes:
 
 import sys
 import argparse
-from .game import PlayerColor, GAME_NAME, NUM_PLAYERS
+from .game import PlayerColor, TITLE_SCREEN, GAME_NAME, NUM_PLAYERS
 
 # Program information:
 PROGRAM = "referee"
@@ -24,13 +24,16 @@ DESCRIPTION = (
 )
 F_WIDTH = 79
 
+
 WELCOME = f"""{'':*^{F_WIDTH}}
-Welcome to {GAME_NAME} referee version {VERSION}.
+
+{TITLE_SCREEN}
 
 {DESCRIPTION}
-
 Run `python -m referee --help` for additional usage information.
+
 {'':*^{F_WIDTH}}"""
+
 
 # default values (to use if flag is not provided) and missing values
 # (to use if flag is provided, but with no value)

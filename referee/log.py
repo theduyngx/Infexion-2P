@@ -26,8 +26,10 @@ class LogColor(Enum):
     YELLOW    = "\033[33m"
     BLUE      = "\033[34m"
     MAGENTA   = "\033[35m"
-    CYAN      = "\033[36m"
     WHITE     = "\033[37m"
+    GREY      = "\033[90m"
+    CYAN      = "\033[96m"
+    BLACK_BG  = "\033[100m"
     RESET_ALL = "\033[0m"
 
     def __str__(self):
@@ -170,7 +172,7 @@ class LogStream:
         if self.setting("level") <= LogLevel.DEBUG:
             self.log(message, LogLevel.DEBUG)
 
-    def info(self, message=""):
+    def info(self, message="\n"):
         if self.setting("level") <= LogLevel.INFO:
             self.log(message, LogLevel.INFO)
 

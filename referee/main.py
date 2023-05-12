@@ -49,15 +49,14 @@ def main(options: Namespace | None = None):
             LogLevel.INFO,
             LogLevel.INFO,
             LogLevel.DEBUG,
-        ][options.verbosity])
+        ][options.verbosity]
+    )
     LogStream.set_global_setting("ansi", options.use_colour)
     LogStream.set_global_setting("unicode", options.use_unicode)
 
     # Referee log stream
-    rl = LogStream("referee", LogColor.WHITE)
-    rl.info("all messages printed by referee/wrapper modules begin with *")
-    rl.info("(any other lines of output must be from your Agent class).")
-    rl.info("\n")
+    rl = LogStream("referee", LogColor.GREY)
+    rl.info("referee's messages begin with *")
 
     # Game log stream
     gl: LogStream | None = None

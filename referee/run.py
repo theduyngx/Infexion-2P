@@ -71,12 +71,16 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
         update: GameUpdate = yield
         match update:
             case PlayerInitialising(player):
-                stream.info(f"player {player} is initialising")
+                stream.info(f"Player {player} is initialising")
             case GameBegin(_):
-                stream.info(f"let the game begin!")
+                stream.info()
+                stream.info(f"Let the game begin!")
+                stream.info()
             case TurnBegin(turn_id, player):
+                stream.info()
                 stream.info(f"{player} to play (turn {turn_id}) ...")
             case TurnEnd(_, player, action):
+                stream.info()
                 stream.info(f"{player} plays action {action}")
             case PlayerError(message):
                 stream.error(f"player error: {message}")
@@ -178,8 +182,8 @@ async def game_user_wait(stream: LogStream) -> AsyncGenerator:
 
 
 async def output_board_updates(stream      : LogStream,
-                               use_color   : bool = False,
-                               use_unicode : bool = False,
+                               use_color   = False,
+                               use_unicode = False,
                                width       : int = 66
                                ) -> AsyncGenerator:
     """

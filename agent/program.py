@@ -39,7 +39,6 @@ class Agent:
             color     : the player's color
             **referee : the referee containing specific important information of the game
         """
-        print_referee(referee)
         self._color = color
         self._board = Board()
 
@@ -79,14 +78,15 @@ class Agent:
             action  : the action taken by agent
             referee : the referee
         """
-        assert referee
         self._board.apply_action(action)
-        color_print = ansi_color(color)
+        if self._color == color:
+            assert referee
+            color_print = ansi_color(color)
 
-        match action:
-            case SpawnAction(cell):
-                print(f"{color_print} SPAWN at {cell}")
-                pass
-            case SpreadAction(cell, direction):
-                print(f"{color_print} SPREAD from {cell} - {direction}")
-                pass
+            match action:
+                case SpawnAction(cell):
+                    print(f"{color_print} SPAWN at {cell}")
+                    pass
+                case SpreadAction(cell, direction):
+                    print(f"{color_print} SPREAD from {cell} - {direction}")
+                    pass

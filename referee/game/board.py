@@ -85,6 +85,19 @@ class BoardMutation:
         return f"BoardMutation({self.cell_mutations})"
 
 
+def _within_bounds(coord: HexPos) -> bool:
+    """
+    Check whether a coordinate is within the board's bound.
+
+    Args:
+        coord: specified coordinate
+    Returns:
+        `True` if within bounds, `False` if otherwise
+    """
+    r, q = coord
+    return 0 <= r < BOARD_N and 0 <= q < BOARD_N
+
+
 class Board:
     """
     Game's board representation. This is the board used by referee.
@@ -108,7 +121,7 @@ class Board:
         """
         Return the state of a cell on the board.
         """
-        if not self._within_bounds(cell):
+        if not _within_bounds(cell):
             raise IndexError(f"Cell position '{cell}' is invalid.")
         return self._state[cell]
 
@@ -145,13 +158,13 @@ class Board:
             self._state[mutation.cell] = mutation.prev
         self._turn_color = self._turn_color.opponent
 
-    def render(self, use_color: bool = False, use_unicode: bool = False) -> str:
+    def render(self, use_color=False, use_unicode=False) -> str:
         """
         Return a visualisation of the game board via a multiline string. The
         layout corresponds to the axial coordinate system as described in the
         game specification document.
         """
-        def apply_ansi(string, bold=True, ansi_color=None, mutated=False):
+        def apply_ansi(string, ansi_color=None, bold=True, mutated=False):
             # Helper function to apply ANSI color codes
             bold_code = "\033[1m" if bold else ""
             color_code = ""
@@ -181,10 +194,11 @@ class Board:
                 q = max(row - (dim - 1), 0) + col
                 pos = HexPos(r, q)
                 if self._cell_occupied(pos):
-                    color, power = self._state[pos]
-                    color = "r" if color == PlayerColor.RED else "b"
+                    player, power = self._state[pos]
+                    color = "r" if player == PlayerColor.RED else "b"
                     text = f"{color}{power}".center(4)
-                    output += apply_ansi(text, ansi_color=color, bold=True, mutated=is_mutated(cell_mutations, pos)) \
+                    output += apply_ansi(text, ansi_color=color, bold=use_unicode,
+                                         mutated=is_mutated(cell_mutations, pos)) \
                         if use_color else text
                 else:
                     output += "[__]" if is_mutated(cell_mutations, pos) else " .. "
@@ -215,7 +229,7 @@ class Board:
             return False
         return any([
             self.turn_count >= MAX_TURNS,
-            self._color_power(PlayerColor.RED) == 0,
+            self._color_power(PlayerColor.RED)  == 0,
             self._color_power(PlayerColor.BLUE) == 0
         ])
 
@@ -227,7 +241,7 @@ class Board:
         if not self.game_over:
             return None
 
-        red_power = self._color_power(PlayerColor.RED)
+        red_power  = self._color_power(PlayerColor.RED)
         blue_power = self._color_power(PlayerColor.BLUE)
         if abs(red_power - blue_power) < WIN_POWER_DIFF:
             return None
@@ -249,15 +263,11 @@ class Board:
     def _color_power(self, color: PlayerColor) -> int:
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
-    def _within_bounds(self, coord: HexPos) -> bool:
-        r, q = coord
-        return 0 <= r < BOARD_N and 0 <= q < BOARD_N
-
     def _cell_occupied(self, coord: HexPos) -> bool:
         return self._state[coord].power > 0
 
     def _validate_action_pos_input(self, pos: HexPos):
-        if type(pos) != HexPos or not self._within_bounds(pos):
+        if type(pos) != HexPos or not _within_bounds(pos):
             raise IllegalActionException(
                 f"'{pos}' is not a valid position.", self._turn_color)
 
@@ -312,7 +322,7 @@ class Board:
                 f"SPREAD cell {from_cell} not occupied by {action_player}",
                 self._turn_color)
 
-        # Compute destination cell coords.
+        # Compute destination cell coordinates.
         to_cells = [
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
