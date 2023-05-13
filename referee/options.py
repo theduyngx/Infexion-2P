@@ -27,9 +27,7 @@ F_WIDTH = 79
 
 WELCOME = f"""
 {'':*^{F_WIDTH}}
-
 {TITLE_SCREEN}
-
 {DESCRIPTION}
 Run `python -m referee --help` for additional usage information.
 

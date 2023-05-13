@@ -209,11 +209,12 @@ async def output_board_updates(stream      : LogStream,
             case BoardUpdate(board):
                 stream.info(f"\n{' game board '.center(width, '=')}\n\n")
                 stream.info(
-                    '\n'.join([f"{'':<7}{line}" for line in
-                               board.render(
-                                   use_color=use_color,
-                                   use_unicode=use_unicode,
-                               ).splitlines()
-                               ])
+                    '\n'.join([
+                        f"{'':<7}{line}" for line in
+                        board.render(
+                            use_color=use_color,
+                            use_unicode=use_unicode,
+                        ).splitlines()
+                    ])
                 )
                 stream.info(f"\n{''.center(width, '=')}\n\n")
