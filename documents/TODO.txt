@@ -1,0 +1,89 @@
+Evaluation function (ordered by priority):
+    1.  Material / Power: Essentially RED - BLUE
+    2.  Clusters
+
+Clusters (ordered by priority):
+    1.  Priority by cluster size
+    2.  Priority by number of clusters
+    3.  There must be a certain point, depending on the board's state, that maximizes the benefit
+        between cluster size and number of clusters
+
+Said context of the state:
+    This is entirely dictated by the dominance factor of each side's clusters
+    1.  Check for each adjacent clusters of opposing sides, which cluster is bigger
+    2.  Second priority is the power of the pieces within the cluster
+    Once again, there should be a mathematical balance between the pieces' stack powers and the
+    cluster size it is in.
+
+--> From this, we can conclude that:
+    -   It is generally better to have bigger clusters than to have more clusters. Although this
+        should be dictated by the dominance factor of the state.
+    -   The dominance factor should be that: bigger clusters are generally better than small sized
+        ones. Although some small size with large stack values should be a second priority to consider.
+    ->  Therefore, it is not necessarily better to have bigger clusters. But sometimes, bigger clusters
+        can still be dominated by slightly smaller clusters with large stack pieces.
+
+    -   Hence, a move is considered good if it can, first and foremost, capture opponent pieces. How
+        much better, or even worse, will then be checked by the effect the most has on the state's
+        clusters.
+        +   If our cluster will grow in size, it is also perhaps a good move
+        +   If the opposition's clusters decrease in size, and that it divides the cluster up, it could
+            also be a good move.
+        +   In general, though, this is a balance act and the calculation should show that much. It is
+            not always assured that a specific aspect being changed will necessarily always lead to a
+            better result, but the general score deduced from all these factors will be the end-of-all.
+
+
+---------------------------------------------------------------------------------------
+
+
+OPTIMIZATION FOR MINIMAX:
+
+1.  Endgame quick play (✓)
+    Speed up end game, probably will require a different evaluation function where it significantly
+    emphasizes on the piece power that we can capture.
+
+2.  Weed out redundant moves (✓)
+    There are lots of moves that can be considered equivalent as per domain knowledge (like spawning
+    in the middle of nowhere here is the same as there). If we can, somehow in some way, weed these
+    moves out of the picture, we can significantly speed up the process.
+
+3.  Instant win (✓)
+    Implement instant win (our real turn and we win immediately).
+
+4.  Correct over-reduced spawn actions (✓)
+    Specifically, in the case where all player pieces are of power 1, then player-adjacent spawn should
+    be allowed.
+
+5.  Enhanced move ordering (✓)
+    In current state, move ordering should be smarter - The best moves are supposed to be ones that
+    capture the most stacked opponents. The ordering should be sorted in this order:
+    i.   Total power captured
+    ii.  Reverse number of captured pieces (meaning the less, the better)
+    iii. The player's piece power
+
+6.  Perfecting Endgame - less greedy, safer, more effective (✓)
+    Requirement:
+    -   The player must be able to capture the stacked piece. That is the pre-requirement.
+    -   However, before even checking this, we must ensure that all opponent's clusters are of size 2
+        or less, and that an attack is only valid if the player's piece power exceeds the cluster size.
+
+7.  Reusing expanded / generated branches (hard) (✓)
+    --> We've implemented something theoretically the same, which is NegaScout.
+        Not quite reusing, but not re-evaluating already evaluated nodes, essentially.
+
+8.  Spawn pruning is a bit risky for now (✓)
+    --> IMPORTANT: Sort of removed it because NegaScout already makes it fast enough to compensate.
+        However, compared to before, it is already 50 seconds slower if endgame requires a SPAWN from us
+        dominating player. So we should still think of a better method to either:
+        -   order these SPAWN actions to make use of NegaScout capability
+        -   or simply prune more SPAWN actions (like, is it certainly better to always spawn at ally
+            cluster nearest to enemy's, perhaps? What is something we can ascertain that it is better so
+            that we can remove the others altogether?
+
+    However, this is not quite optimal. What if all power-n (n > 1) do not capture any opponent? Is it
+    necessarily better to prune the spawn actions then? The answer is a definite no. If the opponent's
+    agent is smart and when overwhelmed by a mere power of 4, it builds up by spawning elsewhere, and
+    makes sure that our agent can't reach it, then it can counter-attack quite effectively.
+
+9.  Transposition Tables and Board Symmetries (hard)
