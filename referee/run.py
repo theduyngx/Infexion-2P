@@ -35,17 +35,17 @@ async def run_game(players: list[Player],
         the winning player (interface) or 'None' if drawn.
     """
 
-    async def _update_handlers(handlers: list[AsyncGenerator | None], update: GameUpdate | None):
+    async def _update_handlers(handlers: list[AsyncGenerator | None], updates: GameUpdate | None):
         """
         Helper function to handle the update.
         Args:
             handlers : the handlers
-            update   : specified update
+            updates  : specified update
         """
         for handler in handlers:
             try:
                 if handler is not None:
-                    await handler.asend(update)
+                    await handler.asend(updates)
             except StopAsyncIteration:
                 handlers.remove(handler)
 
@@ -72,11 +72,10 @@ async def game_commentator(stream: LogStream) -> AsyncGenerator:
         update: GameUpdate = yield
         match update:
             case PlayerInitialising(player):
-                stream.info(f"Player {player} is initialising")
-                if not first_player_init:
-                    first_player_init = True
-                else:
+                stream.info(f"Player {player} is initialising...")
+                if first_player_init:
                     stream.info()
+                first_player_init = True
             case GameBegin(_):
                 stream.info()
                 stream.info(f"Let the game begin!")
@@ -126,8 +125,8 @@ async def game_event_logger(stream: LogStream) -> AsyncGenerator:
     def log_referee(*params: str):
         _log("referee", *params)
 
-    def log_player(player: Player, *params: str):
-        _log(str(player), *params)
+    def log_player(p: Player, *params: str):
+        _log(str(p), *params)
 
     while True:
         update: GameUpdate = yield

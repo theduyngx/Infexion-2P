@@ -11,9 +11,6 @@ Notes:
     fully delegated to referee.
 """
 
-from referee.game import PlayerColor
-from referee.log import LogColor
-
 
 def print_referee(referee: dict):
     """
@@ -21,14 +18,12 @@ def print_referee(referee: dict):
     Args:
         referee: the referee
     """
-    color = LogColor.CYAN
-    escp  = LogColor.ESCAPE
     time  = referee["time_remaining"]
     space = referee["space_remaining"]
     time_format  = '{:09.6f}'.format(round(time , 6)) if time is not None else time
     space_format = '{:09.6f}'.format(round(space, 6)) if space is not None else space
-    logs  = f"  {color}---------------------------------{escp}\n" \
-            f"  {color}Time remaining  (s)  : {time_format}{escp}\n" \
-            f"  {color}Space remaining (Mb) : {space_format}{escp}\n" \
-            f"  {color}---------------------------------{escp}"
+    logs  = f"  ---------------------------------\n" \
+            f"  Time remaining  (s)  : {time_format}\n" \
+            f"  Space remaining (Mb) : {space_format}\n" \
+            f"  ---------------------------------"
     print(logs)

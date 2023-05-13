@@ -25,7 +25,8 @@ DESCRIPTION = (
 F_WIDTH = 79
 
 
-WELCOME = f"""{'':*^{F_WIDTH}}
+WELCOME = f"""
+{'':*^{F_WIDTH}}
 
 {TITLE_SCREEN}
 
