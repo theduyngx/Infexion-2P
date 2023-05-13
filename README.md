@@ -1,6 +1,6 @@
 # INFEXION The Game
 
-*Specifications*: Please read it in the specs.<br>
+*Specifications*: Please read it in the specs (in documents directory).<br>
 *Authors*: The Duy Nguyen and Ramon Javier L. Felipe VI.
 *Acknowledgement*: `referee` source code is originally written by the
 University of Melbourne, COMP30024, Semester 1, 2024; modified and tweaked by the authors.
