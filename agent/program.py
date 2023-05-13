@@ -13,7 +13,7 @@ Notes:
         * ``turn`` which will be called as a signal for agent that it is their turn.
 """
 
-from referee.game import Action
+from referee.game import Action, PlayerColor
 from .search import search, random_move, greedy_move,\
                     minimax_shallow, mcts_move, negascout_move
 from .game import Board
@@ -76,6 +76,7 @@ class Agent:
             action  : the action taken by agent
             referee : the referee
         """
+        assert(color and referee)
         self._board.apply_action(action)
 
 
