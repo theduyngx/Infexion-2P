@@ -1,17 +1,24 @@
 # INFEXION The Game
 
 *Specifications*: Please read it in the specs (in documents directory).<br>
-*Authors*: The Duy Nguyen and Ramon Javier L. Felipe VI.
+*Authors*: The Duy Nguyen and Ramon Javier L. Felipe VI.<br>
 *Acknowledgement*: `referee` source code is originally written by the
 University of Melbourne, COMP30024, Semester 1, 2024; modified and tweaked by the authors.
 
-### Instructions:
+### Basic running:
 
 To run the game:
-* To run: `python3 referee agent agent`
-* Recommended run: `python3 referee agent agent -s -t -u -c` where the tags, respectively,
-  represent: space and time limit allowed, unicode-allowed, and ansi-color allowed.
+* To run:
+  ```console
+  $ python3 referee agent agent
+  ```
+* Recommended run (where the tags, respectively, represent: space limit enabled, time limit enabled,
+  unicode enabled, and ansi-color enabled):
+  ```console
+  $ python3 referee agent agent -s -t -u -c
+  ```
 
+### Ansi-formatting on Window console:
 If using Windows, which would not support ansi formats by default, do as follows:
 * Open **Registry Editor**
 * Go to **HKEY_CURRENT_USER** folder
@@ -21,6 +28,7 @@ If using Windows, which would not support ansi formats by default, do as follows
 * Fill in **Value Data** *10* in Hexadecimal
 * Save
 
+### Pycharm
 To run the game in Pycharm, do as follows:
 * Choose **Edit Configuration** at Run
 * Click "**+**", or New, **Python**
@@ -38,13 +46,17 @@ your agent in the program command:
 
 1. The most conventional way is to specify your agent class as `Agent` in an un-capitalized
    package name (i.e. `agent`, `greedy`, etc.). With this, the command should be:<br>
-   `$ python3 referee agent greedy `*``[-optional_flags]``*
+   ```console
+   $ python3 referee agent greedy
+   ```
 
 2. The second conventional way is to specify your package as `agent` (again, the casing of
    packages and classes are very important). Doing this, likewise, allows you to name your
    agent class anything, as long as its first character is capitalized (i.e. `GreedyAgent`,
    `MinimaxAgent`, etc.). With this, the command should be:<br>
-   `$ python3 referee GreedyAgent MinimaxAgent `*`[-optional_flags]`*
+   ```console
+   $ python3 referee GreedyAgent MinimaxAgent
+   ```
 
 3. If specified by agent (the second way), then there are specific abbreviations that may be
    of convenience to use:
@@ -54,6 +66,11 @@ your agent in the program command:
    * If `MC` (in any casing) is included, it will represent `MonteCarloAgent`
    * If `MS` (in any casing) is included, it will represent `MinimaxShallowAgent`
    * If `NG` (in any casing) is included, it will represent `NegaScoutAgent`
+   
+   Example: The following will run GreedyAgent and RandomAgent specifically in the `agent` package:
+   ```console
+   $ python3 referee GA R
+   ```
    
    Note that abbreviations, for the sake of convenience, to be triggered, the agent's parameters
    in the command must have *length of less than 5*. Otherwise, the program will simply consider
@@ -65,4 +82,6 @@ your agent in the program command:
    uniformed. An example is you put your `NegamaxAgent` agent in a script named `agents`. The path to
    that script is: `my_agent/minimax/agents`, where `my_agent` is top-level package, same level as
    `referee`. Then the command would be like this:<br>
-   `$ python3 referee agent my_agent/minimax/agents/NegamaxAgent `*``[-optional_flags]``*
+   ```console
+   $ python3 referee agent my_agent/minimax/agents/NegamaxAgent
+   ```
