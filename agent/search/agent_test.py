@@ -2,6 +2,9 @@
 Module:
     ``agent_test.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Includes all testing agent for the current agent to play against.
 

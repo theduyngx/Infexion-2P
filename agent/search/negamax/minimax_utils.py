@@ -2,6 +2,9 @@
 Module:
     ``minimax_utils.py``
 
+Authors:
+    The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     Utility functions for Minimax-variant algorithms, including Negamax and NegaScout. This includes
     optimization for getting all legal moves for a specific agent and other search optimization

@@ -8,6 +8,7 @@ Purpose:
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
     referee pre-completed package. This includes log coloring on console, log stream, etc.
+    Various modifications were made to produce better logs, visually, by The Duy Nguyen (1100548).
 """
 
 from enum import Enum
@@ -19,7 +20,19 @@ from typing import Any, Callable
 
 class LogColor(Enum):
     """
-    Enumerated class representing the color of log string.
+    Enumerated class representing the color of log string. Log colors are ansi-formatted.
+    The following are the currently available colors.
+    Attributes:
+        RED       :
+        GREEN     :
+        YELLOW    :
+        BLUE      :
+        MAGENTA   :
+        WHITE     :
+        GREY      :
+        CYAN      :
+        BOLD      : bold texts
+        RESET_ALL : ansi-escape sequence
     """
     RED       = "\033[31m"
     GREEN     = "\033[32m"
@@ -30,7 +43,6 @@ class LogColor(Enum):
     GREY      = "\033[90m"
     CYAN      = "\033[96m"
     BOLD      = "\033[1m"
-    ESCAPE    = "\033[0m"
     RESET_ALL = "\033[0m"
 
     def __str__(self):
@@ -132,10 +144,26 @@ class LogStream:
 
     @classmethod
     def set_global_setting(cls, key: str, value: Any):
+        """
+        Setting log's global setting for common use.
+
+        Args:
+            key   : the global setting's key
+            value : its value to be set to
+        """
         cls._global_settings[key] = value
 
     def setting(self, key: str) -> Any:
-        # Return local settings if they exist, otherwise return global settings
+        """
+        Return local settings (or global if local does not exist) by specified key.
+
+        Args:
+            key: the specified key
+
+        Returns:
+            if existed, return the local settings,
+            otherwise return global settings
+        """
         return getattr(self, f"_{key}", LogStream._global_settings[key])
 
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
@@ -170,37 +198,75 @@ class LogStream:
             handler(message)
 
     def debug(self, message=""):
+        """
+        Debug log.
+        Args:
+            message: the debug message
+        """
         if self.setting("level") <= LogLevel.DEBUG:
             self.log(message, LogLevel.DEBUG)
 
     def info(self, message="\n"):
+        """
+        Information log.
+        Args:
+            message: the information message
+        """
         if self.setting("level") <= LogLevel.INFO:
             self.log(message, LogLevel.INFO)
 
     def warning(self, message=""):
+        """
+        Warning log.
+        Args:
+            message: the warning message
+        """
         if self.setting("level") <= LogLevel.WARNING:
             self.log(message, LogLevel.WARNING)
 
     def error(self, message=""):
+        """
+        Error log.
+        Args:
+            message: the error message
+        """
         if self.setting("level") <= LogLevel.ERROR:
             self.log(message, LogLevel.ERROR)
 
     def critical(self, message=""):
-        # Always print critical messages
+        """
+        Critical log. Note that we always print critical messages.
+        Args:
+            message: the critical message
+        """
         self.log(message, LogLevel.CRITICAL)
 
     def _s_time(self) -> str:
+        """
+        Get the current time (wrt starting the game).
+        """
         if not self.setting("output_time"):
             return ""
         update_time = time() - (LogStream._start_time or 0)
         return f"T{update_time:06.2f} "
 
     def _s_namespace(self) -> str:
+        """
+        Get the current namespace.
+        """
         if not self.setting("output_namespace"):
             return ""
         return f"* {self._namespace:<{LogStream._max_namespace_length}} "
 
     def _s_level(self, level=LogLevel.INFO) -> str:
+        """
+        Get the current log level for referee.
+
+        Args:
+            level: the log level
+        Returns:
+            encoded string for corresponding log level
+        """
         if not self.setting("output_level"):
             return ""
         return {
@@ -212,11 +278,18 @@ class LogStream:
         }[level] + " "
 
     def _s_color_start(self) -> str:
+        """
+        Get the color of the start player (maybe I really don't know actually, there
+        were minimal documentations).
+        """
         if not self.setting("ansi"):
             return ""
         return f"{self.setting('color')}"
 
     def _s_color_end(self) -> str:
+        """
+        Get the color of end player (??).
+        """
         if not self.setting("ansi"):
             return ""
         return f"{LogColor.RESET_ALL}"

@@ -2,6 +2,9 @@
 Module:
     ``cluster.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Including the classes representing a single cluster, a collection of clusters, and a function
     to create said collection from a given state of the board.

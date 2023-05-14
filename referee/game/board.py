@@ -8,7 +8,8 @@ Purpose:
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
     referee pre-completed package. The actions include spawn in unoccupied cells and spread from
-    an already occupied by player position. Original documentation:
+    an already occupied by player position. The script is modified by `The Duy Nguyen (1100548)`.
+    Original documentation:
 
     The Board class encapsulates the state of the game board, and provides methods for applying
     actions to the board and querying/inspecting the state of the game (i.e. which player has won,
@@ -170,9 +171,9 @@ class Board:
 
     def render(self, use_color=False, use_unicode=False) -> str:
         """
-        Return a visualisation of the game board via a multiline string. The layout
-        corresponds to the axial coordinate system as described in the game
-        specification document.
+        Return a visualisation of the game board via a multiline string. The layout corresponds
+        to the axial coordinate system as described in the game specification document.
+        The method is modified by The Duy Nguyen (1100548).
 
         Args:
             use_color   : if ansi color is to be applied
@@ -208,12 +209,12 @@ class Board:
                 color_code = LogColor.RED
             if ansi_color == "b":
                 color_code = LogColor.BLUE
-            return f"{bold_code}{color_code}{string}{LogColor.ESCAPE}"
+            return f"{bold_code}{color_code}{string}{LogColor.RESET_ALL}"
 
         def is_mutated(cells_mutated: set[CellMutation], position: HexPos) -> bool:
             """
-            Student-written helper method for checking if cell is just mutated.
-            This helps to mark positions that are just mutated to make it clearer.
+            Helper method (written by The Duy Nguyen - 1100548) for checking if cell is just
+            mutated. This helps to mark positions that are just mutated to make it clearer.
 
             Args:
                 cells_mutated:
@@ -299,54 +300,113 @@ class Board:
         return sum(map(lambda cell: cell.power, self._state.values()))
 
     def _player_cells(self, color: PlayerColor) -> list[CellState]:
+        """
+        Return all the cells that the player currently occupies.
+
+        Args:
+            color: player's color
+        Returns:
+            list of cells where the player occupies
+        """
         return list(filter(
             lambda cell: cell.player == color,
             self._state.values()
         ))
 
     def _color_power(self, color: PlayerColor) -> int:
+        """
+        Get the total power of a specific player.
+
+        Args:
+            color: player's color
+        Returns:
+            their total power
+        """
         return sum(map(lambda cell: cell.power, self._player_cells(color)))
 
-    def _cell_occupied(self, coord: HexPos) -> bool:
-        return self._state[coord].power > 0
+    def _cell_occupied(self, pos: HexPos) -> bool:
+        """
+        Check whether the cell is occupied or not by specified position.
+
+        Args:
+            pos: specified position
+        Returns:
+            `True` if occupied, `False` if not
+        """
+        return self._state[pos].power > 0
 
     def _validate_action_pos_input(self, pos: HexPos):
+        """
+        Validating the position is of correct type.
+        Args:
+            pos: specified position
+        """
         if type(pos) != HexPos or not _within_bounds(pos):
             raise IllegalActionException(
                 f"'{pos}' is not a valid position.", self._turn_color)
 
     def _validate_action_dir_input(self, dir: HexDir):
+        """
+        Validating the direction is of correct type.
+        Args:
+            dir: specified direction
+        """
         if type(dir) != HexDir:
             raise IllegalActionException(
                 f"'{dir}' is not a valid direction.", self._turn_color)
 
     def _validate_spawn_action_input(self, action: SpawnAction):
+        """
+        Validate the spawn action input by checking its type (has to be of correct spawn
+        action type), and all of its information, including the cell has to be of correct
+        type as well.
+
+        Args:
+            action: the spawn action
+        """
         if type(action) != SpawnAction:
             raise IllegalActionException(
                 f"Action '{action}' is not a SPAWN action.", self._turn_color)
         self._validate_action_pos_input(action.cell)
 
     def _validate_spread_action_input(self, action: SpreadAction):
+        """
+        Validate the spread action input by checking its type (has to be of correct spread
+        action type), and all of its information, including cell and direction have to be
+        of correct type as well.
+
+        Args:
+            action: the spread action
+        """
         if type(action) != SpreadAction:
             raise IllegalActionException(
                 f"Action '{action}' is not a SPREAD action.", self._turn_color)
-
         self._validate_action_pos_input(action.cell)
         self._validate_action_dir_input(action.direction)
 
     def _resolve_spawn_action(self, action: SpawnAction) -> BoardMutation:
+        """
+        Method to resolve the spawn action before applying on board. It checks whether the
+        spawn action is valid, and what mutations will be a result of such spawn action.
+
+        Args:
+            action: the spawn action
+        Returns:
+            the board mutation
+        """
         self._validate_spawn_action_input(action)
         cell = action.cell
 
+        # confirm that the spawn action is legal
         if self._total_power >= MAX_TOTAL_POWER:
             raise IllegalActionException(
                 f"Total board power max reached ({MAX_TOTAL_POWER})",
                 self._turn_color)
-
         if self._cell_occupied(cell):
             raise IllegalActionException(
                 f"Cell {cell} is occupied.", self._turn_color)
 
+        # return the board mutation as a result of spawn action
         return BoardMutation(
             action,
             cell_mutations={CellMutation(
@@ -356,11 +416,20 @@ class Board:
         )
 
     def _resolve_spread_action(self, action: SpreadAction) -> BoardMutation:
-        self._validate_spread_action_input(action)
+        """
+        Method to resolve the spread action before applying on board. It checks whether the
+        spread action is valid, and what mutations will be a result of such spread action.
 
+        Args:
+            action: the spread action
+        Returns:
+            the board mutation
+        """
+        self._validate_spread_action_input(action)
         from_cell, dir = action.cell, action.direction
         action_player: PlayerColor = self._turn_color
 
+        # confirm that the spread action is legal
         if self[from_cell].player != action_player:
             raise IllegalActionException(
                 f"SPREAD cell {from_cell} not occupied by {action_player}",
@@ -371,6 +440,7 @@ class Board:
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]
 
+        # return the board mutation as a result of the spread action
         return BoardMutation(
             action,
             cell_mutations={

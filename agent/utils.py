@@ -2,6 +2,9 @@
 Module:
     ``utils.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Utility functions for program.
 

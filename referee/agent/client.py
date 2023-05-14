@@ -157,7 +157,7 @@ class RemoteProcessClassClient:
                 f"on subprocess {self._proc.pid}"
             )
             assert await self._recv_reply() == _ACK
-        except:
+        except Exception:
             # Exception during construction occurred
             self._log.debug(
                 f"exception occurred during construction of class"

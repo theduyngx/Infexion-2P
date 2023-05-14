@@ -2,6 +2,9 @@
 Module:
     ``mc_node.py``
 
+Authors:
+    Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     Monte Carlo Tree's node representation.
 

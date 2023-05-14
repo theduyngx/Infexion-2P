@@ -2,6 +2,9 @@
 Module:
     ``mutable_heapq.py``
 
+Authors:
+    Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     Max heap (priority queue) that can have its node data mutated, used specifically
     for the MCTS nodes.

@@ -2,6 +2,9 @@
 Package:
     ``monte_carlo``
 
+Authors:
+    Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     Provide the Monte Carlo Tree search algorithm function to find the next move for agent.
 

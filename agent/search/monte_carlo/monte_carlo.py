@@ -2,6 +2,9 @@
 Module:
     ``monte_carlo.py``
 
+Authors:
+    Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     The Monte Carlo Tree search algorithm to find the next move for agent.
 

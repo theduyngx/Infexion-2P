@@ -2,6 +2,9 @@
 Package:
     ``agent.game``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Providing objects and functionalities directly related to the game, namely including board
     and clusters.

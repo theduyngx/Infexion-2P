@@ -49,4 +49,5 @@ class SpreadAction:
                f"{self.direction})"
 
 
+# Action can be either spawn or spread
 Action = SpawnAction | SpreadAction

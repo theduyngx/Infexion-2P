@@ -2,6 +2,9 @@
 Package:
     ``agent``
 
+Authors:
+    The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     The Infexion game-playing agent.
 

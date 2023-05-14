@@ -2,6 +2,9 @@
 Module:
     ``negamax.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     The Negamax (and NegaScout) search algorithm to find the best next move for the agent,
     with alpha-beta pruning.

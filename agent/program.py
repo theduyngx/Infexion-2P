@@ -2,6 +2,9 @@
 Module:
     ``program.py``
 
+Authors:
+    The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     The agent program for the game. This will be used by the ``referee`` and will act under
     the rules exacted by referee.

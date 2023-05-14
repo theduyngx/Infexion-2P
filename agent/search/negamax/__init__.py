@@ -2,6 +2,9 @@
 Package:
     ``negamax``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Provide the Negamax (and NegaScout, additionally) search algorithm function to find the next
     move for agent.

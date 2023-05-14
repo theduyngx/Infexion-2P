@@ -2,6 +2,9 @@
 Module:
     ``evaluation.py``
 
+Authors:
+    The Duy Nguyen (1100548) and Ramon Javier L. Felipe VI (1233281)
+
 Purpose:
     Monte Carlo Tree search evaluation function.
 

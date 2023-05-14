@@ -2,6 +2,9 @@
 Module:
     ``search_utils.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Utility functions for search algorithms. For now, it only includes getting all
     legal moves for a given player.
