@@ -2,6 +2,9 @@
 Module:
     ``evaluation.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     NegaScout and Negamax search algorithm evaluation function.
 

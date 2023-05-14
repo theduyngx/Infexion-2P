@@ -2,6 +2,9 @@
 Module:
     ``evaluation_data.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Includes the representation and function to obtain all the information that is required
     to evaluate the state of the board.

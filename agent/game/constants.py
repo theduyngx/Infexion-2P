@@ -2,6 +2,9 @@
 Module:
     ``constants.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Storing global constants.
 

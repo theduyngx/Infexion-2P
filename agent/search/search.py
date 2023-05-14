@@ -2,6 +2,9 @@
 Module:
     ``search.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Search algorithm to find the next best move for agent.
 

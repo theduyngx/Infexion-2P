@@ -94,6 +94,7 @@ class AgentProxyPlayer(Player):
                 self._color
             )
 
+        # wrapped process exception for a specific process
         except WrappedProcessException as e:
             err_lines = str(e.args[1]["stacktrace_str"]).splitlines()
 
@@ -126,33 +127,55 @@ class AgentProxyPlayer(Player):
         self._log.debug(f"agent process terminated")
 
     async def action(self) -> Action:
+        """
+        Called when a player returns their action.
+        Returns:
+            the player's action
+        """
         self._log.debug(f"call 'action()'...")
 
+        # waiting for player's response
         with self._intercept_exc():
             action: Action = await self._agent.action()
 
+        # update per that response, which is the player's action
         self._log.debug(f"{self._ret_symbol} {action!r}")
         self._log.debug(self._summarise_status(self._agent.status))
         return action
 
     async def turn(self, color: PlayerColor, action: Action):
+        """
+        Called for each player when a turn is made.
+
+        Args:
+            color  : player's color
+            action : the action that player just made
+        """
         self._log.debug(f"call 'turn({color!r}, {action!r})'...")
 
         with self._intercept_exc():
             await self._agent.turn(color, action)
-
         self._log.debug(self._summarise_status(self._agent.status))
 
     def _summarise_status(self, status: AsyncProcessStatus | None):
+        """
+        Called when the game has been terminated and requires a status summarization
+        to explain that.
+        """
         assert self
         if status is None:
             return "resources usage status: unknown\n"
 
+        # time resource
         time_str = f"  time:  +{status.time_delta:6.3f}s  (just elapsed)   " \
                    f"  {status.time_used:7.3f}s  (game total)\n"
+
+        # space resource
         if status.space_known:
             space_str = f"  space: {status.space_curr:7.3f}MB (current usage)  " \
                         f"  {status.space_peak:7.3f}MB (peak usage)\n"
         else:
             space_str = "  space: unknown (check platform)\n"
+
+        # status string
         return f"resources usage status:\n{time_str}{space_str}"

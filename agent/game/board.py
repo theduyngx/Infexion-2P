@@ -2,6 +2,9 @@
 Module:
     ``board.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Includes the representation of the board, and deals with anything 'statically' and directly
     related to the board.
@@ -219,9 +222,11 @@ class Board:
         Returns:
             true if game is over
         """
-        return self.turn_count >= MIN_MOVE_WIN and (self.turn_count >= MAX_TURNS or
-                                                    self.color_power(PlayerColor.RED)  == EMPTY_POWER or
-                                                    self.color_power(PlayerColor.BLUE) == EMPTY_POWER)
+        return self.turn_count >= MIN_MOVE_WIN and (
+                   self.turn_count >= MAX_TURNS or
+                   self.color_power(PlayerColor.RED)  == EMPTY_POWER or
+                   self.color_power(PlayerColor.BLUE) == EMPTY_POWER
+               )
 
     def player_wins(self, player: PlayerColor) -> bool:
         """
@@ -232,8 +237,10 @@ class Board:
         Returns:
             `True` if won, `False` if not
         """
-        return self.game_over and (self.color_power(player.opponent) == EMPTY_POWER or
-                                   self.color_power(player) - self.color_power(player.opponent) > WIN_POWER_DIFF)
+        return self.game_over and (
+                   self.color_power(player.opponent) == EMPTY_POWER or
+                   self.color_power(player) - self.color_power(player.opponent) > WIN_POWER_DIFF
+               )
 
     def total_power(self) -> int:
         """
@@ -351,7 +358,7 @@ class Board:
             raise Exception("SPREAD: cell " + str(from_cell) + " has color " + str(self[from_cell].color) +
                             " which differs " + str(player_color))
 
-        # Compute destination cell coords.
+        # Compute destination cell coordinates.
         to_cells = [
             from_cell + dir * (i + 1) for i in range(self[from_cell].power)
         ]

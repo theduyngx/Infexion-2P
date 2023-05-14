@@ -7,7 +7,7 @@ Purpose:
 
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
-    referee pre-completed package.
+    referee pre-completed package. Slight modifications were made by The Duy Nguyen (1100548).
 """
 
 from enum import Enum
@@ -43,7 +43,8 @@ class PlayerColor(Enum):
 
     def log_format(self, ansi=False) -> str:
         """
-        Student written method. Return ansi-formatted string for the player.
+        Return ansi-formatted string for the player. Written to improve visualization,
+        by The Duy Nguyen (1100548).
 
         Args:
             ansi: `True` if ansi-applied, `False` if otherwise
@@ -56,7 +57,7 @@ class PlayerColor(Enum):
         if ansi:
             color = LogColor.RED if self.value == 0 else LogColor.BLUE
             width = LogColor.BOLD
-        return f"{width}{color}{self.__str__()}{LogColor.ESCAPE}"
+        return f"{width}{color}{self.__str__()}{LogColor.RESET_ALL}"
 
     def __index__(self) -> int:
         """
@@ -89,13 +90,14 @@ class Player:
     """
     def __init__(self, color: PlayerColor, ansi):
         """
-        Player constructor.
+        Player constructor. Modified by The Duy Nguyen (1100548) to add the option of
+        displaying the player with ansi format.
         Args:
             color : player's color
             ansi  : optional ansi color to apply
         """
         self._color = color
-        self._ansi = ansi
+        self._ansi  = ansi
 
     @property
     def color(self) -> PlayerColor:

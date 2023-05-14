@@ -81,6 +81,11 @@ def main(options: Namespace | None = None):
                 gl_path.unlink()
 
             def game_log_handler(message: str):
+                """
+                Helper function to handle game logs.
+                Args:
+                    message: the log
+                """
                 if gl_path is not None:
                     with open(gl_path, "a") as f:
                         f.write(message + "\n")
@@ -94,6 +99,7 @@ def main(options: Namespace | None = None):
                 output_level=False,
             )
 
+    # Starting the game - ensuring there are no exceptions
     try:
         agents: dict[Player, dict] = {}
         for p_num, player_color in enumerate(PlayerColor, 1):
@@ -131,21 +137,20 @@ def main(options: Namespace | None = None):
                 event_handlers=event_handlers,
             )
 
-        result = asyncio.get_event_loop().run_until_complete(_run(options))
-
         # Print the final result under all circumstances
-        if result is None:
-            rl.critical("result: draw")
-        else:
-            rl.critical(f"result: {agents[result]['name']}")
+        result = asyncio.get_event_loop().run_until_complete(_run(options))
+        res_str: str = "result: draw" if result is None else f"result: {agents[result]['name']}"
+        rl.critical(res_str)
         exit(0)
 
+    # Keyboard interrupt stops the program abruptly with keyboard
     except KeyboardInterrupt:
         rl.info()  # (end the line)
         rl.info("KeyboardInterrupt: bye!")
         rl.critical("result: <interrupt>")
         os.kill(os.getpid(), 9)
 
+    # Exception handling - where an issue appeared in a specific thread
     except Exception as e:
         rl.critical(f"unhandled exception: {str(e)}")
         rl.critical("stack trace:")

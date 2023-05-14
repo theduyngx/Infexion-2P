@@ -2,6 +2,9 @@
 Module:
     ``game_utils.py``
 
+Authors:
+    The Duy Nguyen (1100548)
+
 Purpose:
     Utility functions for the game, which is directly related to the game's board.
     This includes asserting an action to be applied to board, and getting adjacent

@@ -7,7 +7,7 @@ Purpose:
 
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
-    referee pre-completed package. Title screen is designed by student.
+    referee pre-completed package. Title screen is designed by The Duy Nguyen (1100548).
 """
 
 # Define global game settings/constants

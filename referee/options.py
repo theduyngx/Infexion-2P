@@ -9,7 +9,7 @@ Purpose:
 Notes:
     From COMP30024 Artificial Intelligence, Semester 1 2023, Project Part B: Game Playing Agent
     referee pre-completed package. As expected, if the limit is exceeded, the agent will have
-    lost the game.
+    lost the game. Package parser is heavily modified by The Duy Nguyen (1100548).
 """
 
 import sys
@@ -239,19 +239,19 @@ class PackageSpecAction(argparse.Action):
     """
     def __call__(self, parser, namespace, values, option_string=None):
         """
-        Modified by student to allow higher flexibility in the parsing. Call to class will parse
-        the agent accordingly. Note that the default package that would not require package
+        Modified by The Duy Nguyen to allow higher flexibility in the parsing. Call to class will
+        parse the agent accordingly. Note that the default package that would not require package
         specification is ``agent``. Any other package name must be  specified accordingly.
 
         Another important note is that there are certain conventions to using agent parameters:
-            * If agent is only `specified by package`, then package must be un-capitalized and
-              be called so accordingly; and its agent must be named "Agent" in top __init__.py
-            * If agent is only `specified by its class`, then the package must be named "agent"
-              and the class must be first-character capitalized.
+            * If agent is only `specified by package`, then package must be un-capitalized and be
+              called so accordingly; and its agent must be named "Agent" in top __init__.py
+            * If agent is only `specified by its class`, then the package must be named "agent" and
+              the class must be first-character capitalized.
             * Otherwise, specify the entire directory.
-        In the end, if you choose to abbreviate your call, simply remember to ensure that, if
-        called by agent, at least first-letter capitalize it (as long as the first letter is
-        capitalized). And for package call, do otherwise.
+        In the end, if you choose to abbreviate your call, simply remember to ensure that, if called
+        by agent, at least first-letter capitalize it (as long as the first letter is capitalized).
+        And for package call, do otherwise.
 
         Args:
             parser        : argument parser

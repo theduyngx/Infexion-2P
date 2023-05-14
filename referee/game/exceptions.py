@@ -12,9 +12,13 @@ Notes:
 
 
 class PlayerException(Exception):
-    """Raised when a player does something illegal to result in
-    a premature end to the game."""
+    """
+    Raised when a player does something illegal to result in
+    a premature end to the game.
+    """
 
 
 class IllegalActionException(PlayerException):
-    """Action is illegal based on the current board state."""
+    """
+    Action is illegal based on the current board state.
+    """
