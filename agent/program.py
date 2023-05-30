@@ -86,17 +86,8 @@ class Agent:
 class RandomAgent(Agent):
     """
     The Random agent which does not use the primary search algorithm.
-    It inherits from Agent.
     """
     def action(self, **referee: dict) -> Action:
-        """
-        Overridden action to perform random search instead.
-
-        Args:
-            **referee: the referee
-        Returns:
-            the action taken by agent
-        """
         print_referee(referee)
         return random_move(self._board, self._color)
 
@@ -104,17 +95,8 @@ class RandomAgent(Agent):
 class GreedyAgent(Agent):
     """
     The Greedy agent which does not use the primary search algorithm.
-    It inherits from Agent.
     """
     def action(self, **referee: dict) -> Action:
-        """
-        Overridden action to perform greedy search instead.
-
-        Args:
-            **referee: the referee
-        Returns:
-            the action taken by agent
-        """
         print_referee(referee)
         return greedy_move(self._board, self._color)
 
@@ -122,17 +104,8 @@ class GreedyAgent(Agent):
 class MinimaxShallowAgent(Agent):
     """
     The Shallow Minimax agent which does not use the primary search algorithm.
-    It inherits from Agent.
     """
     def action(self, **referee: dict) -> Action:
-        """
-        Overridden action to perform shallow Minimax search instead.
-
-        Args:
-            **referee: the referee
-        Returns:
-            the action taken by agent
-        """
         print_referee(referee)
         return minimax_shallow(self._board, self._color)
 
@@ -140,17 +113,8 @@ class MinimaxShallowAgent(Agent):
 class MonteCarloAgent(Agent):
     """
     The Monte Carlo agent which does not use the primary search algorithm.
-    It inherits from Agent.
     """
     def action(self, **referee: dict) -> Action:
-        """
-        Overridden action to perform Monte Carlo search instead.
-
-        Args:
-            **referee: the referee
-        Returns:
-            the action taken by agent
-        """
         print_referee(referee)
         return mcts_move(self._board)
 
@@ -158,16 +122,7 @@ class MonteCarloAgent(Agent):
 class NegaScoutAgent(Agent):
     """
     The NegaScout agent which does not use the primary search algorithm.
-    It inherits from Agent.
     """
     def action(self, **referee: dict) -> Action:
-        """
-        Overridden action to perform NegaScout search instead.
-
-        Args:
-            **referee: the referee
-        Returns:
-            the action taken by agent
-        """
         print_referee(referee)
         return negascout_move(self._board, self._color)

@@ -64,8 +64,6 @@ class Cluster:
         Accessing a cell via its position quickly within a cluster.
         Args:
             pos: cell's position
-        Returns:
-            cell's state
         """
         return self.cells[pos.__hash__()]
 
@@ -82,13 +80,6 @@ class Cluster:
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check whether a cluster contains a cell with specified position or not.
-
-        Args:
-            pos: specified position
-
-        Returns:
-            * `True` if cluster contains cell with position,
-            * `False` if otherwise
         """
         return pos.__hash__() in self.cells
 
@@ -198,8 +189,6 @@ class Clusters:
         Args:
             key: - either the cluster (any mutation of itself as long as initial state remains)
                  - or the cluster's hashed value
-        Returns:
-            the cluster from list
         """
         if type(key) == Cluster:
             return self.clusters[key.__hash__()]
@@ -209,10 +198,6 @@ class Clusters:
     def __contains__(self, cluster: Cluster) -> bool:
         """
         Check whether Clusters contain a specified cluster or not.
-        Args:
-            cluster: specified cluster
-        Returns:
-            `True` if contains, `False` if otherwise
         """
         return cluster.__hash__() in self.clusters
 
@@ -246,8 +231,6 @@ class Clusters:
     def copy(self) -> 'Clusters':
         """
         Creating a copy of itself.
-        Returns:
-            copy of itself
         """
         return Clusters(self.clusters.copy())
 
