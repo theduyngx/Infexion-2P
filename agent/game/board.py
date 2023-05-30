@@ -133,11 +133,8 @@ class Board:
     def __getitem__(self, pos: HexPos) -> CellState:
         """
         Return the state of a cell on the board.
-
         Args:
             pos: specified position
-        Returns:
-            cell's state
         """
         return self._state[pos]
 
@@ -154,33 +151,16 @@ class Board:
     def __contains__(self, pos: HexPos) -> bool:
         """
         Check if a position is occupied by a piece within the board or not.
-
         Args:
             pos: specified position
-        Returns:
-            boolean indicating whether the position is occupied or not
         """
         return pos in self._state and self[pos].power > EMPTY_POWER
 
     def __hash__(self) -> int:
         """
-        State hashed value. This is to check if a state has been visited or not in the memory tree.
-        Returns:
-            hashed value of state
+        State hashed value.
         """
         return hash(frozenset(self.get_cells()))
-
-    def __str__(self) -> str:
-        """
-        Represent the current board, used for debugging
-        Returns:
-            string representation of the Board
-        """
-        str_list = []
-        for cell_state in self._state.values():
-            if cell_state.color is not None:
-                str_list.append(cell_state.__str__())
-        return '\n'.join(str_list)
 
     def get_cells(self):
         """
