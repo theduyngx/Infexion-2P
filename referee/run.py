@@ -212,8 +212,8 @@ async def output_board_updates(stream      : LogStream,
                     '\n'.join([
                         f"{'':<7}{line}" for line in
                         board.render(
-                            use_color=use_color,
-                            use_unicode=use_unicode,
+                            use_color   = use_color,
+                            use_unicode = use_unicode,
                         ).splitlines()
                     ])
                 )

@@ -88,6 +88,7 @@ class MemoryWatcher:
         return self._peak_usage
 
     def enabled(self):
+        assert self
         return _SPACE_ENABLED
 
     def __enter__(self):
@@ -144,7 +145,7 @@ def set_space_line():
     try:
         _DEFAULT_MEM_USAGE, _ = _get_space_usage()
         _SPACE_ENABLED = True
-    except:
+    except (Exception,):
         # this also gives us a chance to detect if our space-measuring method
         # will work on this platform, and notify the user if not.
         _SPACE_ENABLED = False

@@ -52,7 +52,7 @@ def main(options: Namespace | None = None):
             LogLevel.DEBUG,
         ][options.verbosity]
     )
-    LogStream.set_global_setting("ansi", options.use_colour)
+    LogStream.set_global_setting("ansi"   , options.use_colour)
     LogStream.set_global_setting("unicode", options.use_unicode)
 
     # Referee log stream
@@ -67,8 +67,8 @@ def main(options: Namespace | None = None):
         if options.logfile == 'stdout':
             # Standard stdout game log stream
             gl = LogStream(
-                namespace="game",
-                color=LogColor.YELLOW,
+                namespace = "game",
+                color     = LogColor.YELLOW,
             )
 
         else:
@@ -92,11 +92,11 @@ def main(options: Namespace | None = None):
 
             # File game log stream
             gl = LogStream(
-                namespace="game",
-                ansi=False,
-                handlers=[game_log_handler],
-                output_namespace=False,
-                output_level=False,
+                namespace        = "game",
+                ansi             = False,
+                handlers         = [game_log_handler],
+                output_namespace = False,
+                output_level     = False,
             )
 
     # Starting the game - ensuring there are no exceptions
@@ -104,22 +104,22 @@ def main(options: Namespace | None = None):
         agents: dict[Player, dict] = {}
         for p_num, player_color in enumerate(PlayerColor, 1):
             # Import player classes
-            player_loc = vars(options)[f"player{p_num}_loc"]
+            player_loc  = vars(options)[f"player{p_num}_loc"]
             player_name = f"player {p_num} [{':'.join(player_loc)}]"
 
             rl.info(f"wrapping {player_name} as {player_color.log_format(options.use_colour)}...")
             p: Player = AgentProxyPlayer(
-                player_name,
+                player_name ,
                 player_color,
-                player_loc,
-                time_limit=options.time,
-                space_limit=options.space,
-                log=LogStream(f"player{p_num}", LogColor[str(player_color)]),
-                ansi=options.use_colour
+                player_loc  ,
+                time_limit  = options.time,
+                space_limit = options.space,
+                log         = LogStream(f"player{p_num}", LogColor[str(player_color)]),
+                ansi        = options.use_colour
             )
             agents[p] = {
                 "name": player_name,
-                "loc": player_loc,
+                "loc" : player_loc,
             }
 
         # Play the game!
@@ -133,8 +133,8 @@ def main(options: Namespace | None = None):
             ]
 
             return await run_game(
-                players=[player for player in agents.keys()],
-                event_handlers=event_handlers,
+                players        = [player for player in agents.keys()],
+                event_handlers = event_handlers,
             )
 
         # Print the final result under all circumstances

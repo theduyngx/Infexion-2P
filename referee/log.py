@@ -22,17 +22,6 @@ class LogColor(Enum):
     """
     Enumerated class representing the color of log string. Log colors are ansi-formatted.
     The following are the currently available colors.
-    Attributes:
-        RED       :
-        GREEN     :
-        YELLOW    :
-        BLUE      :
-        MAGENTA   :
-        WHITE     :
-        GREY      :
-        CYAN      :
-        BOLD      : bold texts
-        RESET_ALL : ansi-escape sequence
     """
     RED       = "\033[31m"
     GREEN     = "\033[32m"

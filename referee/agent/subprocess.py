@@ -128,11 +128,11 @@ def main():
     # Main client subprocess loop
     while True:
         message = _recv()
-        name, args, kwargs = message
+        name, arg, kwarg = message
 
         # Call method
         with _relay_exceptions(), timer, space:
-            result = getattr(instance, name)(*args, **{**kwargs, **_referee()})
+            result = getattr(instance, name)(*arg, **{**kwarg, **_referee()})
 
         if result is None:
             result = _ACK

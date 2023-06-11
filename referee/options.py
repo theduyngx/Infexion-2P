@@ -236,22 +236,21 @@ def get_options():
 class PackageSpecAction(argparse.Action):
     """
     Class to parse the package and module to find the corresponding agent.
+    An important note is that there are certain conventions to using agent parameters:
+        * If agent is only `specified by package`, then package must be un-capitalized and be
+          called so accordingly; and its agent must be named "Agent" in top __init__.py
+        * If agent is only `specified by its class`, then the package must be named "agent" and
+          the class must be first-character capitalized.
+        * Otherwise, specify the entire directory.
+    In the end, if you choose to abbreviate your call, simply remember to ensure that, if called
+    by agent, at least first-letter capitalize it (as long as the first letter is capitalized).
+    And for package call, do otherwise.
     """
     def __call__(self, parser, namespace, values, option_string=None):
         """
         Modified by The Duy Nguyen to allow higher flexibility in the parsing. Call to class will
         parse the agent accordingly. Note that the default package that would not require package
         specification is ``agent``. Any other package name must be  specified accordingly.
-
-        Another important note is that there are certain conventions to using agent parameters:
-            * If agent is only `specified by package`, then package must be un-capitalized and be
-              called so accordingly; and its agent must be named "Agent" in top __init__.py
-            * If agent is only `specified by its class`, then the package must be named "agent" and
-              the class must be first-character capitalized.
-            * Otherwise, specify the entire directory.
-        In the end, if you choose to abbreviate your call, simply remember to ensure that, if called
-        by agent, at least first-letter capitalize it (as long as the first letter is capitalized).
-        And for package call, do otherwise.
 
         Args:
             parser        : argument parser
@@ -263,6 +262,11 @@ class PackageSpecAction(argparse.Action):
             raise argparse.ArgumentError(
                 self, "expected a string, got %r" % (values,)
             )
+
+        # check if it is Human Player
+        if "hu" in values.lower():
+            setattr(namespace, self.dest, ("human", ))
+            return
 
         # clean up the directory
         dirs: list[str]

@@ -79,50 +79,35 @@ class Agent:
             action  : the action taken by agent
             referee : the referee
         """
-        assert(color and referee)
+        assert color and referee
         self._board.apply_action(action)
 
 
 class RandomAgent(Agent):
-    """
-    The Random agent which does not use the primary search algorithm.
-    """
     def action(self, **referee: dict) -> Action:
         print_referee(referee)
         return random_move(self._board, self._color)
 
 
 class GreedyAgent(Agent):
-    """
-    The Greedy agent which does not use the primary search algorithm.
-    """
     def action(self, **referee: dict) -> Action:
         print_referee(referee)
         return greedy_move(self._board, self._color)
 
 
 class MinimaxShallowAgent(Agent):
-    """
-    The Shallow Minimax agent which does not use the primary search algorithm.
-    """
     def action(self, **referee: dict) -> Action:
         print_referee(referee)
         return minimax_shallow(self._board, self._color)
 
 
 class MonteCarloAgent(Agent):
-    """
-    The Monte Carlo agent which does not use the primary search algorithm.
-    """
     def action(self, **referee: dict) -> Action:
         print_referee(referee)
         return mcts_move(self._board)
 
 
 class NegaScoutAgent(Agent):
-    """
-    The NegaScout agent which does not use the primary search algorithm.
-    """
     def action(self, **referee: dict) -> Action:
         print_referee(referee)
         return negascout_move(self._board, self._color)

@@ -247,5 +247,4 @@ def move_ordering(board: Board, color: PlayerColor, actions: list[Action]) -> li
         ),
         reverse=True
     )
-
     return list(map(lambda tup: tup[0], action_values))

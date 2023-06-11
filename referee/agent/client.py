@@ -35,16 +35,17 @@ class RemoteProcessClassClient:
     instantiated in the subprocess, and all calls to methods are forwarded to the subprocess.
     Exceptions are also forwarded back to the parent process.
     """
-    def __init__(self,
-                 pkg          : str,
-                 cls          : str,
-                 time_limit   : float | None,
-                 space_limit  : float | None,
-                 recv_timeout : float,  # Hard timeout (s) for receiving a reply
-                 *cons_args,
-                 log          : LogStream = NullLogger(),
-                 **cons_kwargs
-                 ):
+    def __init__(
+        self         ,
+        pkg          : str,
+        cls          : str,
+        time_limit   : float | None,
+        space_limit  : float | None,
+        recv_timeout : float,  # Hard timeout (s) for receiving a reply
+        *cons_args   ,
+        log          : LogStream = NullLogger(),
+        **cons_kwargs
+    ):
         self._pkg          = pkg
         self._cls          = cls
         self._time_limit   = time_limit
